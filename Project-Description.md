@@ -22,7 +22,7 @@
 ### Josh Lewis
 
 -   **Major:** Computer Science
--   **Email:**
+-   **Email:** lewis4ju@mail.uc.edu
 
 ### Jimmy German
 
