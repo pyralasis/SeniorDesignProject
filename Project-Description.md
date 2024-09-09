@@ -2,6 +2,8 @@
 
 ## Team Name
 
+Velvit
+
 ## Team Members
 
 ### Nate Louder
@@ -17,7 +19,7 @@
 ### Calvin Kinateder
 
 -   **Major:** Computer Science
--   **Email:**
+-   **Email:** kinatecj@mail.uc.edu
 
 ### Josh Lewis
 
