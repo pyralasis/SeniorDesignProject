@@ -17,7 +17,7 @@
 ### Calvin Kinateder
 
 -   **Major:** Computer Science
--   **Email:**
+-   **Email:** kinatecj@mail.uc.edu
 
 ### Josh Lewis
 
@@ -27,7 +27,7 @@
 ### Jimmy German
 
 -   **Major:** Computer Science
--   **Email:**
+-   **Email:** germanjj@mail.uc.edu
 
 ## Project Description
 
