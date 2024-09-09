@@ -29,8 +29,8 @@ Velvit
 ### Jimmy German
 
 -   **Major:** Computer Science
--   **Email:** germanjj@mail.uc.edu
+-   **Email:**
 
 ## Project Description
 
-The goal of our project is to create a graphical user interface for a user to create, build, maintain, and test neural networks to their liking. We intend to make the process of creating a neural network as technically easy as possible to the point that a non tech savy user could spin up one to accomplish their intended task.
+The goal of our project is to create a graphical user interface for a user to create, build, maintain, and test neural networks to their liking. We intend to make the process of creating a nueral network as technically easy as possible to the point that a non tech savy user could spin up one to accomplish their intended task.
