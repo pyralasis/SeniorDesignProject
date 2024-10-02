@@ -4,13 +4,13 @@
 2. Establish a group of testers/users who can give feedback at certain design milestones - Nate
 3. Obtain a user group to establish an understanding of how a user might want to use the application and how they perceive how neural networks can be used - Nate
 4. Perform user testing against software interface as the design evolves -Jimmy
- Determine the necessary data transformation operations necessary for feeding most data into a PyTorch neural network. - Gareth
+5. Determine the necessary data transformation operations necessary for feeding most data into a PyTorch neural network. - Gareth
 ## Front End Tasks
-5. Make sketches to generate ideas for potential layouts - Josh
-6. Develop a color scheme for the front end - Jimmy
-7. Design a Network Architecture Node-Based Editor component - Josh
-8. Design a Data Pipeline Node-Based Editor component - Nate
-9. Design a Model Management Interface component - Josh
+6. Make sketches to generate ideas for potential layouts - Josh
+7. Develop a color scheme for the front end - Jimmy
+8. Design a Network Architecture Node-Based Editor component - Josh
+9. Design a Data Pipeline Node-Based Editor component - Nate
+10. Design a Model Management Interface component - Josh
 11. Add epochs information, task bars, and other information that help users understand their neural network -Jimmy
 12. Make mock components and layout in Figma - Nate
 13. Implement playwright tests- Nate
