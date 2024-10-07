@@ -2,7 +2,7 @@ from dataclasses import KW_ONLY, dataclass
 from enum import Enum
 from typing import Generic, Literal, TypeVar
 
-from server.architecture.layers.constraint import ParameterConstraint
+from server.layer.constraint import ParameterConstraint
 
 
 T = TypeVar("T")
@@ -113,7 +113,7 @@ class Size2DParameter(Parameter[tuple[int, int]]):
 
 
 @dataclass
-class SizeParameterValue(ParameterValue[tuple[int, int]]):
+class Size2DParameterValue(ParameterValue[tuple[int, int]]):
     type: Literal[ParamType.Size2D] = ParamType.Size2D
 
 
@@ -121,4 +121,13 @@ class SizeParameterValue(ParameterValue[tuple[int, int]]):
 # Any Parameter Type
 #
 
-LayerParameter = IntParameter | FloatParameter | BoolParameter
+AnyParameterValue = (
+    IntParameterValue
+    | FloatParameterValue
+    | BoolParameterValue
+    | StringParameterValue
+    | Size2DParameterValue
+)
+LayerParameter = (
+    IntParameter | FloatParameter | BoolParameter | StringParameter | Size2DParameter
+)

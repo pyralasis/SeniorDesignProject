@@ -1,12 +1,12 @@
 from math import ceil, floor
 import torch
-from server.architecture.layers import Layer
-from server.architecture.layers.input import InputDefinition, InputType
-from server.architecture.layers.param import (
+from server.layer import Layer
+from server.layer.input import InputDefinition, InputType
+from server.layer.param import (
     BoolParameter,
     Size2DParameter,
 )
-from server.architecture.layers.size import TensorSize
+from server.layer.size import TensorSize
 
 # found here: https://pytorch.org/docs/stable/nn.html#convolution-layers
 
@@ -19,6 +19,7 @@ def pool_2d_size_transformation(
     padding: tuple[int, int],
     dilation: tuple[int, int],
     ceil_mode: bool,
+    *_
 ) -> TensorSize:
     rounding_func = ceil if ceil_mode else floor
 

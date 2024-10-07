@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import Callable, Generic, TypeAlias, TypeVar
+from typing import Any, Callable, Generic, TypeAlias, TypeVar
 
 import torch
 
-from server.architecture.layers.input import InputDefinition
-from server.architecture.layers.param import Parameter
-from server.architecture.layers.size import TensorSize
+from server.layer.input import InputDefinition
+from server.layer.param import Parameter
+from server.layer.size import TensorSize
 
 
 T0 = TypeVar("T0")
@@ -112,9 +112,19 @@ LayerSizeCalculator: TypeAlias = (
 
 
 @dataclass
+class LayerDescription:
+    id: LayerID
+    input: InputDefinition
+    parameters: tuple[Parameter[Any], ...]
+
+
+@dataclass
 class Layer(Generic[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]):
     id: LayerID
     input: InputDefinition  # We might need to rework this to support fixed size inputs
     parameters: LayerParameter[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
     constructor: LayerConstructor[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
     size: LayerSizeCalculator[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
+
+    def description(self) -> LayerDescription:
+        return LayerDescription(self.id, self.input, self.parameters)

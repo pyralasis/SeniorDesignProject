@@ -1,29 +1,14 @@
 import io
 
-from pydantic import RootModel, TypeAdapter
-from backend.server.architecture.layers import Layer, LayerID
+from pydantic import TypeAdapter
 from server.architecture.desc import ArchitectureDescription
 
 
 class ArchitectureService:
-    _available_layers: dict[LayerID, Layer]
     _architecture_adapter: TypeAdapter[ArchitectureDescription]
 
-    def __init__(self, layers: list[Layer]) -> None:
-        self._available_layers = {}
+    def __init__(self) -> None:
         self._architecture_adapter = TypeAdapter(ArchitectureDescription)
-
-        for layer in layers:
-            self.add_layer(layer)
-
-    def add_layer(self, layer: Layer):
-        self._available_layers[layer.id] = layer
-
-    def available_layers(self) -> list[Layer]:
-        return list(self._available_layers.values())
-
-    def layer(self, id: LayerID) -> Layer:
-        return self._available_layers[id]
 
     def save_architecture(
         self, name: str, architecture: ArchitectureDescription

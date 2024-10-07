@@ -1,7 +1,7 @@
 import torch
-from backend.server.architecture.layers import Layer
-from backend.server.architecture.layers.size import size_identity
-from server.architecture.layers.input import InputDefinition, InputType
+from server.layer import Layer
+from server.layer.size import size_identity
+from server.layer.input import InputDefinition, InputType
 
 # Found here: https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity
 

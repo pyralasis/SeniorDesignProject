@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Any, TypeAlias
 
-from backend.server.architecture.layers.param import ParameterValue
-from server.architecture.layers import LayerID
-from server.architecture.layers.size import TensorSize
+from server.layer.param import ParameterValue
+from server.layer import LayerID
+from server.layer.size import TensorSize
 
 
 LayerInstanceID: TypeAlias = str

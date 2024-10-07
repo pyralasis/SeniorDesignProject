@@ -1,14 +1,16 @@
 import torch
-from backend.server.architecture.layers import Layer
-from backend.server.architecture.layers.constraint import WithRange
-from backend.server.architecture.layers.input import InputDefinition, InputType
-from backend.server.architecture.layers.param import BoolParameter, IntParameter
-from backend.server.architecture.layers.size import TensorSize
+from server.layer import Layer
+from server.layer.constraint import WithRange
+from server.layer.input import InputDefinition, InputType
+from server.layer.param import BoolParameter, IntParameter
+from server.layer.size import TensorSize
 
 # found here: https://pytorch.org/docs/stable/nn.html#linear-layers
 
 
-def linear_size_transformation(in_size: TensorSize, output_features: int) -> TensorSize:
+def linear_size_transformation(
+    in_size: TensorSize, output_features: int, *_
+) -> TensorSize:
     return TensorSize(in_size[:-1] + (output_features,))
 
 
