@@ -2,17 +2,29 @@ from dataclasses import dataclass
 from typing import Any, TypeAlias
 
 from backend.server.architecture.layers.param import ParameterValue
+from server.architecture.layers import LayerID
+from server.architecture.layers.size import TensorSize
 
-LayerID: TypeAlias = str
+
+LayerInstanceID: TypeAlias = str
 
 
 @dataclass
-class LayerDescription:
-    id: LayerID
-    input: LayerID | list[LayerID]
+class InputLayerDescription:
+    id: LayerInstanceID
+    size: TensorSize
+
+
+@dataclass
+class NetworkLayerDescription:
+    id: LayerInstanceID
+    layer_id: LayerID
+    input: LayerInstanceID | list[LayerInstanceID]
+
     param_values: dict[str, ParameterValue]
+
 
 @dataclass
 class ArchitectureDescription:
-    layers: LayerDescription
-
+    inputs: InputLayerDescription
+    layers: NetworkLayerDescription
