@@ -11,7 +11,7 @@ from server.layer.size import TensorSize
 
 
 @dataclass
-class LayerOutputSizeRequest:
+class LayerOutputSizeRequestBody:
     layer_id: LayerID
     input_size: TensorSize
     parameters: dict[str, AnyParameterValue]
@@ -39,7 +39,7 @@ class LayerOutputSizeView(MethodView):
 
     def __init__(self, layer_registry: LayerRegistry):
         self.registry = layer_registry
-        self.adapter = TypeAdapter(LayerOutputSizeRequest)
+        self.adapter = TypeAdapter(LayerOutputSizeRequestBody)
 
     async def post(self) -> ResponseReturnValue:
         req = self.adapter.validate_python(await request.json)

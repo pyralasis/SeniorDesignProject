@@ -1,3 +1,4 @@
+from pathlib import Path
 from quart import Quart
 
 from server.architecture.service import ArchitectureService
@@ -10,9 +11,11 @@ def create_app():
     app = Quart(__name__)
 
     layer_registry = LayerRegistry(default_layers)
-    architecture_service = ArchitectureService()
+    architecture_service = ArchitectureService(Path("./architectures"))
 
-    app.register_blueprint(create_api_blueprint(architecture_service, layer_registry), url_prefix="/api")
+    app.register_blueprint(
+        create_api_blueprint(architecture_service, layer_registry), url_prefix="/api"
+    )
 
     return app
 

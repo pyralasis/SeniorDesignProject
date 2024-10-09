@@ -6,7 +6,7 @@ from server.layer import LayerID
 from server.layer.size import TensorSize
 
 
-LayerInstanceID: TypeAlias = str
+LayerInstanceID: TypeAlias = int
 
 
 @dataclass
@@ -26,5 +26,6 @@ class NetworkLayerDescription:
 
 @dataclass
 class ArchitectureDescription:
-    inputs: InputLayerDescription
-    layers: NetworkLayerDescription
+    name: str
+    inputs: list[InputLayerDescription]
+    layers: list[NetworkLayerDescription]

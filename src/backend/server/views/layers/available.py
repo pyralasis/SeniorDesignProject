@@ -1,8 +1,10 @@
 from quart import ResponseReturnValue
 from quart.views import MethodView
 
+from server.layer import LayerDescription
 from server.layer.registry import LayerRegistry
 
+Response = list[LayerDescription]
 
 class AvailableLayersView(MethodView):
     init_every_request = False
@@ -12,4 +14,5 @@ class AvailableLayersView(MethodView):
 
     async def get(self) -> ResponseReturnValue:
         available_layers = self.registry.available_layers()
-        return list(map(lambda layer: layer.description(), available_layers))
+        descriptions: Response = list(map(lambda layer: layer.description(), available_layers))
+        return descriptions
