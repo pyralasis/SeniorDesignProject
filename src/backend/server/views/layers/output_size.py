@@ -5,7 +5,7 @@ from quart import ResponseReturnValue, request
 from quart.views import MethodView
 
 from server.layer import LayerID
-from server.layer.param import AnyParameterValue
+from server.params import AnyParameterValue
 from server.layer.registry import LayerRegistry
 from server.layer.size import TensorSize
 

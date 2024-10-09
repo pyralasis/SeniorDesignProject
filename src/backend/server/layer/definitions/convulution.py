@@ -1,9 +1,9 @@
 from math import floor
 import torch
 from server.layer import Layer
-from server.layer.constraint import OneOf, WithRange
+from server.params.constraints import OneOf, WithRange
 from server.layer.input import InputDefinition, InputType
-from server.layer.param import (
+from server.params import (
     BoolParameter,
     IntParameter,
     Size2DParameter,
@@ -39,6 +39,7 @@ def conv_2d_size_transformation(
 
 conv2d_layer = Layer(
     "conv2d",
+    "2D Covulution",
     InputDefinition(InputType.Single, 3, 4),
     (
         IntParameter("out_channels", "Output Channels", 1),

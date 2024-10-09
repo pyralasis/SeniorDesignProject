@@ -7,6 +7,7 @@ from server.layer.input import InputDefinition, InputType
 
 relu_layer = Layer(
     "relu",
+    "ReLU",
     InputDefinition(InputType.Single, 1, None),
     (),
     lambda: torch.nn.ReLU(),

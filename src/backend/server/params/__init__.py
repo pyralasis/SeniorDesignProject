@@ -2,7 +2,7 @@ from dataclasses import KW_ONLY, dataclass
 from enum import Enum
 from typing import Generic, Literal, TypeVar
 
-from server.layer.constraint import ParameterConstraint
+from server.params.constraints import ParameterConstraint
 
 
 T = TypeVar("T")

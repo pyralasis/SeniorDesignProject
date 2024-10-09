@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, TypeAlias
 
-from server.layer.param import ParameterValue
+from server.params import ParameterValue
 from server.layer import LayerID
 from server.layer.size import TensorSize
 

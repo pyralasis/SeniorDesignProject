@@ -4,7 +4,7 @@ from typing import Any, Callable, Generic, TypeAlias, TypeVar
 import torch
 
 from server.layer.input import InputDefinition
-from server.layer.param import Parameter
+from server.params import Parameter
 from server.layer.size import TensorSize
 
 
@@ -121,6 +121,7 @@ class LayerDescription:
 @dataclass
 class Layer(Generic[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]):
     id: LayerID
+    name: str
     input: InputDefinition  # We might need to rework this to support fixed size inputs
     parameters: LayerParameter[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]
     constructor: LayerConstructor[T0, T1, T2, T3, T4, T5, T6, T7, T8, T9]

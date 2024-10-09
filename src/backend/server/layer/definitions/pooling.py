@@ -2,7 +2,7 @@ from math import ceil, floor
 import torch
 from server.layer import Layer
 from server.layer.input import InputDefinition, InputType
-from server.layer.param import (
+from server.params import (
     BoolParameter,
     Size2DParameter,
 )
@@ -37,6 +37,7 @@ def pool_2d_size_transformation(
 
 max_pool2d_layer = Layer(
     "max_pool2d",
+    "2D Max Pooling",
     InputDefinition(InputType.Single, 3, 4),
     (
         Size2DParameter("kernel_size", "Kernel", (3, 3)),
