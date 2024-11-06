@@ -15,11 +15,8 @@ This project is an web interface that allows the user to train, test, and use ne
 # Project Description (Assignment #2)
 # User Stories and Design Diagrams (Assignment #4)
 ## User Stories
-1. As a student, I want to easily experiment with neural networks so that I can learn how different layers and activation functions work.
-2. As a professor, I want to demonstrate the concept of a neural networks (creating, training, usage) to my students so that they can learn visually.
-3. As a researcher in industry, I want to easily create neural network models for data analytics without coding so that I can run locally.
-    Design Diagrams: Level 0, Level 1 and Level 2 
-    Description of the Diagrams: including conventions and a brief description of the purpose of each component.
+## Design Diagrams: Level 0, Level 1 and Level 2 
+## Description of the Diagrams: including conventions and a brief description of the purpose of each component.
 # Project Tasks and Timeline (Assignment #5-6)
     Task List
     Timeline
