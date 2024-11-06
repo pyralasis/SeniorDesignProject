@@ -4,6 +4,15 @@ https://github.com/pyralasis/SeniorDesignProject/blob/main/Project-Description.m
 
 
 # Team names (include Advisor) and Project Abstract (limit of 400 ascii chars)
+## Team Members
+- Josh Lewis
+- Gareth Fultz
+- Calvin Kinateder
+- Nate Louder
+- Jimmy German
+- Will Hawkins (Advisor)
+## Project Abstract
+
 # Project Description (Assignment #2)
 # User Stories and Design Diagrams (Assignment #4)
     User Stories
