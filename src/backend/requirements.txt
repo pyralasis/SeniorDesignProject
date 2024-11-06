@@ -1,2 +1,4 @@
 torch
 quart
+torchvision
+quart_cors
