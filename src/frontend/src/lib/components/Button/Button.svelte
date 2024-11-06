@@ -1,174 +1,184 @@
-<script>
-	import { createEventDispatcher } from 'svelte';
-	export let href = '';
-	export let target = '';
-	export let type = 'default';
-	export let size = 'md';
+<script lang="ts">
+    import { createEventDispatcher } from 'svelte';
+    import { ButtonTypeEnum, type ButtonType, ButtonSizeEnum, type ButtonSize } from './types';
 
-	let button;
-	let dispatch = createEventDispatcher();
+    // -----------------------
+    // External Properties
+    // -----------------------
+    export let href: string = '';
+    export let target: string = '';
+    export let type: ButtonType = ButtonTypeEnum.primary;
+    export let size: ButtonSize = ButtonSizeEnum.medium;
 
-	const onClick = (event) => {
-		if (!href) {
-			event.preventDefault();
-		}
-		dispatch('click', event);
-		const ripple = document.createElement('div');
-		ripple.classList.add('ripple');
-		if (type === 'empty-baige') {
-			ripple.style.backgroundColor = 'var(--color-baige)';
-		} else if (type === 'empty-white') {
-			ripple.style.backgroundColor = '#ffffff45';
-		} else {
-			ripple.style.backgroundColor = 'var(--color-green)';
-		}
-		button.appendChild(ripple);
+    // -----------------------
+    // Internal Properties
+    // -----------------------
+    let button: HTMLElement;
+    let dispatch = createEventDispatcher();
 
-		const rect = button.getBoundingClientRect();
+    // -----------------------
+    // Internal Methods
+    // -----------------------
+    const onClick = (event: MouseEvent) => {
+        if (!href) {
+            event.preventDefault();
+        }
+        dispatch('click', event);
+        const ripple: HTMLElement = document.createElement('div');
+        ripple.classList.add('ripple');
+        ripple.style.backgroundColor = 'var(--color-green)';
+        button.appendChild(ripple);
 
-		const x = event.clientX - rect.left;
-		const y = event.clientY - rect.top;
+        const rect = button.getBoundingClientRect();
 
-		// Set the position of the ripple
-		ripple.style.left = `${x}px`;
-		ripple.style.top = `${y}px`;
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
 
-		setTimeout(() => {
-			ripple.remove();
-		}, 1000);
-	};
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+
+        setTimeout(() => {
+            ripple.remove();
+        }, 1000);
+    };
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <a
-	class="button"
-	class:inverse={type === 'inverse'}
-	class:empty={type === 'empty'}
-	class:empty-baige={type === 'empty-baige'}
-	class:empty-white={type === 'empty-white'}
-	class:sm={size === 'sm'}
-	{href}
-	{target}
-	on:click={onClick}
-	bind:this={button}
+    class="button"
+    class:button--primary={type === ButtonTypeEnum.primary}
+    class:button--secondary={type === ButtonTypeEnum.secondary}
+    class:button--tertiary={type === ButtonTypeEnum.tertiary}
+    class:button--small={size === ButtonSizeEnum.small}
+    class:button--medium={size === ButtonSizeEnum.medium}
+    class:button--large={size === ButtonSizeEnum.large}
+    {href}
+    {target}
+    on:click={onClick}
+    bind:this={button}
 >
-	<span class="label">
-		<slot />
-	</span>
+    <span
+        class="button__label"
+        class:button__label--primary={type === ButtonTypeEnum.primary}
+        class:button__label--secondary={type === ButtonTypeEnum.secondary}
+        class:button__label--tertiary={type === ButtonTypeEnum.tertiary}
+        class:button__label--small={size === ButtonSizeEnum.small}
+        class:button__label--medium={size === ButtonSizeEnum.medium}
+        class:button__label--large={size === ButtonSizeEnum.large}
+    >
+        <slot />
+    </span>
 </a>
 
-<style>
-	@import '../../../variables.css';
-	.button {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		position: relative;
-		overflow: hidden;
-		padding: var(--size-xs) var(--size-sm);
-		border-radius: var(--border-radius-sm);
-		background-color: var(--color-green);
-		cursor: pointer;
-		width: fit-content;
-		user-select: none;
-		transition: all 0.3s ease;
-		text-decoration: none;
-		border: 2px solid transparent;
-	}
+<style lang="scss">
+    @import '../../../variables.css';
+    .button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        padding: var(--size-xs) var(--size-sm);
+        border-radius: var(--border-radius-sm);
+        background-color: var(--color-green);
+        cursor: pointer;
+        width: fit-content;
+        user-select: none;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: 2px solid transparent;
 
-	.button:hover {
-		background-color: var(--color-green-darker);
-	}
+        &:hover {
+            background-color: var(--color-green-darker);
+        }
 
-	.inverse {
-		background-color: transparent;
-		border: 2px solid var(--color-green);
-	}
+        &--primary {
+            background-color: var(--color-green);
+        }
 
-	.inverse:hover {
-		background-color: var(--color-green-transparent);
-	}
+        &--secondary {
+            background-color: transparent;
 
-	.empty {
-		background-color: transparent;
-		border: 2px solid transparent;
-	}
+            &:hover {
+                background-color: var(--color-green-transparent);
+            }
+        }
 
-	.empty:hover {
-		background-color: var(--color-green-transparent);
-	}
+        &--tertiary {
+            background-color: transparent;
+            border: 2px solid var(--color-green);
 
-	.label {
-		color: white;
-		font-size: 16px;
-		font-weight: 500;
-		z-index: 2;
-		height: 24px;
-		display: flex;
-		align-items: center;
-	}
+            &:hover {
+                background-color: var(--color-green-transparent);
+            }
+        }
 
-	.sm .label {
-		height: 18px;
-	}
+        &--small {
+            padding: var(--size-xs) var(--size-xs);
+        }
 
-	.sm {
-		padding: var(--size-xs) var(--size-xs);
-	}
+        &--medium {
+            padding: var(--size-xs) var(--size-sm);
+        }
 
-	.inverse .label {
-		color: var(--color-green);
-	}
+        &--large {
+            padding: var(--size-sm) var(--size-md);
+        }
 
-	.empty .label {
-		color: var(--color-green);
-	}
+        &__label {
+            z-index: 2;
+            display: flex;
+            align-items: center;
 
-	.empty-baige {
-		background-color: transparent;
-		border-color: var(--color-baige);
-	}
+            &--primary {
+                color: white;
+            }
 
-	.empty-baige:hover {
-		background-color: var(--color-baige-transparent);
-	}
+            &--secondary {
+                color: var(--color-green);
+            }
 
-	.empty-baige .label {
-		color: var(--color-baige);
-	}
+            &--tertiary {
+                color: var(--color-green);
+            }
 
-	.empty-white {
-		background-color: transparent;
-	}
+            &--small {
+                height: 18px;
+                font-size: 14px;
+            }
 
-	.empty-white:hover {
-		background-color: #ffffff25;
-	}
+            &--medium {
+                height: 24px;
+                font-size: 16px;
+            }
 
-	.empty-white .label {
-		color: white;
-	}
+            &--large {
+                height: 32px;
+                font-size: 18px;
+            }
+        }
+    }
 
-	:global(.ripple) {
-		position: absolute;
-		border-radius: 50%;
-		width: 100px;
-		height: 100px;
-		transform: translate(-50%, -50%) scale(0);
-		animation: ripple 1s forwards;
-		pointer-events: none;
-		z-index: 1;
-	}
+    :global(.ripple) {
+        position: absolute;
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        transform: translate(-50%, -50%) scale(0);
+        animation: ripple 1s forwards;
+        pointer-events: none;
+        z-index: 1;
+    }
 
-	@keyframes ripple {
-		from {
-			opacity: 1;
-			transform: translate(-50%, -50%) scale(0);
-		}
-		to {
-			opacity: 0;
-			transform: translate(-50%, -50%) scale(4);
-		}
-	}
+    @keyframes ripple {
+        from {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(0);
+        }
+        to {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(4);
+        }
+    }
 </style>
