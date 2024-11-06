@@ -1,6 +1,27 @@
+__all__ = [
+    "ParamType",
+    "Parameter",
+    "ParameterValue",
+    "IntParameter",
+    "IntParameterValue",
+    "FloatParameter",
+    "FloatParameterValue",
+    "BoolParameter",
+    "BoolParameterValue",
+    "StringParameter",
+    "StringParameterValue",
+    "Size2D",
+    "Size2DParameter",
+    "Size2DParameterValue",
+    "AnyParameter",
+    "AnyParameterValue",
+    "ParameterTuple",
+    "ParameterValueTuple",
+]
+
 from dataclasses import KW_ONLY, dataclass
 from enum import Enum
-from typing import Generic, Literal, TypeVar
+from typing import Generic, Literal, TypeAlias, TypeVar
 
 from server.params.constraints import ParameterConstraint
 
@@ -106,14 +127,16 @@ class StringParameterValue(ParameterValue[str]):
 # Size
 #
 
+Size2D: TypeAlias = tuple[int, int]
+
 
 @dataclass
-class Size2DParameter(Parameter[tuple[int, int]]):
+class Size2DParameter(Parameter[Size2D]):
     type: Literal[ParamType.Size2D] = ParamType.Size2D
 
 
 @dataclass
-class Size2DParameterValue(ParameterValue[tuple[int, int]]):
+class Size2DParameterValue(ParameterValue[Size2D]):
     type: Literal[ParamType.Size2D] = ParamType.Size2D
 
 
@@ -121,6 +144,9 @@ class Size2DParameterValue(ParameterValue[tuple[int, int]]):
 # Any Parameter Type
 #
 
+AnyParameter = (
+    IntParameter | FloatParameter | BoolParameter | StringParameter | Size2DParameter
+)
 AnyParameterValue = (
     IntParameterValue
     | FloatParameterValue
@@ -128,6 +154,132 @@ AnyParameterValue = (
     | StringParameterValue
     | Size2DParameterValue
 )
-LayerParameter = (
-    IntParameter | FloatParameter | BoolParameter | StringParameter | Size2DParameter
+
+T0 = TypeVar("T0")
+T1 = TypeVar("T1")
+T2 = TypeVar("T2")
+T3 = TypeVar("T3")
+T4 = TypeVar("T4")
+T5 = TypeVar("T5")
+T6 = TypeVar("T6")
+T7 = TypeVar("T7")
+T8 = TypeVar("T8")
+T9 = TypeVar("T9")
+
+ParameterTuple: TypeAlias = (
+    tuple[
+        Parameter[T0],
+        Parameter[T1],
+        Parameter[T2],
+        Parameter[T3],
+        Parameter[T4],
+        Parameter[T5],
+        Parameter[T6],
+        Parameter[T7],
+        Parameter[T8],
+        Parameter[T9],
+    ]
+    | tuple[
+        Parameter[T0],
+        Parameter[T1],
+        Parameter[T2],
+        Parameter[T3],
+        Parameter[T4],
+        Parameter[T5],
+        Parameter[T6],
+        Parameter[T7],
+        Parameter[T8],
+    ]
+    | tuple[
+        Parameter[T0],
+        Parameter[T1],
+        Parameter[T2],
+        Parameter[T3],
+        Parameter[T4],
+        Parameter[T5],
+        Parameter[T6],
+        Parameter[T7],
+    ]
+    | tuple[
+        Parameter[T0],
+        Parameter[T1],
+        Parameter[T2],
+        Parameter[T3],
+        Parameter[T4],
+        Parameter[T5],
+        Parameter[T6],
+    ]
+    | tuple[
+        Parameter[T0],
+        Parameter[T1],
+        Parameter[T2],
+        Parameter[T3],
+        Parameter[T4],
+        Parameter[T5],
+    ]
+    | tuple[Parameter[T0], Parameter[T1], Parameter[T2], Parameter[T3], Parameter[T4]]
+    | tuple[Parameter[T0], Parameter[T1], Parameter[T2], Parameter[T3]]
+    | tuple[Parameter[T0], Parameter[T1], Parameter[T2]]
+    | tuple[Parameter[T0], Parameter[T1]]
+    | tuple[Parameter[T0]]
+    | tuple[()]
+)
+
+ParameterValueTuple: TypeAlias = (
+    tuple[
+        T0,
+        T1,
+        T2,
+        T3,
+        T4,
+        T5,
+        T6,
+        T7,
+        T8,
+        T9,
+    ]
+    | tuple[
+        T0,
+        T1,
+        T2,
+        T3,
+        T4,
+        T5,
+        T6,
+        T7,
+        T8,
+    ]
+    | tuple[
+        T0,
+        T1,
+        T2,
+        T3,
+        T4,
+        T5,
+        T6,
+        T7,
+    ]
+    | tuple[
+        T0,
+        T1,
+        T2,
+        T3,
+        T4,
+        T5,
+        T6,
+    ]
+    | tuple[
+        T0,
+        T1,
+        T2,
+        T3,
+        T4,
+        T5,
+    ]
+    | tuple[T0, T1, T2, T3, T4]
+    | tuple[T0, T1, T2, T3]
+    | tuple[T0, T1, T2]
+    | tuple[T0, T1]
+    | tuple[T0]
+    | tuple[()]
 )

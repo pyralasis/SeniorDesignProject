@@ -29,6 +29,10 @@
         {
             "name": "quart",
             "depth": 3
+        },
+        {
+            "name": "torch",
+            "depth": 4
         }
     ]
 }

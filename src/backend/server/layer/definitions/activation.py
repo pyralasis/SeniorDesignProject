@@ -1,15 +1,15 @@
 import torch
-from server.layer import Layer
+from server.layer import LayerDefinition
 from server.layer.size import size_identity
-from server.layer.input import InputDefinition, InputType
+from server.layer.input import InputDefinition
 
 # Found here: https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity
 
-relu_layer = Layer(
+relu_layer = LayerDefinition(
     "relu",
     "ReLU",
-    InputDefinition(InputType.Single, 1, None),
+    (InputDefinition(None, 1, None),),
     (),
-    lambda: torch.nn.ReLU(),
-    size_identity,
+    lambda in_sizes, **_: torch.nn.ReLU(),
+    lambda in_sizes, **_: in_sizes[0],
 )
