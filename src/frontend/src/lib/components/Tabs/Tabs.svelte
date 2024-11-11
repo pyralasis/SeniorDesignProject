@@ -29,8 +29,6 @@
     .tabs {
         display: flex;
         flex-direction: column;
-        border-radius: var(--size-sm);
-        overflow: hidden;
 
         &__labels {
             display: flex;

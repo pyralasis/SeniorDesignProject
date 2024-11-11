@@ -107,7 +107,7 @@
 
         &--tertiary {
             background-color: transparent;
-            outline: 2px solid var(--color-priamry);
+            border: 2px solid var(--color-primary);
 
             &:hover {
                 background-color: var(--color-interactable-secondary-hover);

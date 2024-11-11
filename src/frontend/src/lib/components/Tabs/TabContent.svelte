@@ -17,15 +17,18 @@
     });
 </script>
 
-{#if active}
-    <div class="tab-content">
-        <slot></slot>
-    </div>
-{/if}
+<div class="tab-content" class:tab-content--active={active}>
+    <slot></slot>
+</div>
 
 <style lang="scss">
     .tab-content {
         width: auto;
         height: auto;
+        display: none;
+
+        &--active {
+            display: block;
+        }
     }
 </style>

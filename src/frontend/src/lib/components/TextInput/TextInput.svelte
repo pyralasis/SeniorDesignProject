@@ -55,23 +55,23 @@
             padding: 0 30px;
             height: 35px;
             border-radius: var(--size-xs);
-            border: 1px solid var(--color-edge-dark);
+            outline: 1px solid var(--color-edge-dark);
             background: transparent;
             transition: 0.1s ease-in-out;
-            z-index: 1111;
-            outline: none;
+            z-index: 500;
+            border: none;
 
             &:hover {
-                border: 2px solid var(--color-edge-dark);
+                outline: 2px solid var(--color-edge-dark);
             }
 
             &:focus + .text-input__labelline,
             &:valid + .text-input__labelline {
                 height: 25px;
                 line-height: 25px;
-                transform: translate(0, -15px) scale(0.8);
+                transform: translate(0, -14px) scale(0.9);
                 padding: 0 8px;
-                z-index: 1111;
+                z-index: 500;
             }
 
             &:focus + .text-input__labelline {
@@ -79,7 +79,7 @@
             }
 
             &:focus {
-                border: 2px solid var(--color-primary);
+                outline: 2px solid var(--color-primary);
             }
         }
 

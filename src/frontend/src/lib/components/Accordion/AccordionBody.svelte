@@ -42,7 +42,6 @@
             padding 0.3s ease-in-out;
         padding: 0 var(--size-sm);
         width: auto;
-        box-sizing: border-box;
 
         &--open {
             max-height: var(--max-height);

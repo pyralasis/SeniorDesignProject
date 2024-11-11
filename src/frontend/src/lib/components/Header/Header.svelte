@@ -44,11 +44,11 @@
 
         &--subheader {
             font-size: 100%;
-            color: var(--color-text-lighter);
+            color: var(--color-text-secondary);
         }
 
         &--secondary {
-            color: var(--color-secondary);
+            color: var(--color-text-secondary);
         }
     }
 </style>

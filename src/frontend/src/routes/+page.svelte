@@ -21,6 +21,7 @@
         Tag,
         TagColorEnum,
         PopoverSingleSelectContent,
+        InputSeries,
     } from '$lib/components';
     import TextInput from '$lib/components/TextInput/TextInput.svelte';
 
@@ -62,23 +63,42 @@
 <div class="components">
     <div class="accordion">
         <Accordion>
-            <AccordionHeader slot="header"><span>This is an Accordion</span></AccordionHeader>
-            <AccordionBody slot="body"
-                ><span>This is the body of the Accordion</span>
-                <div class="accordion-img">
-                    <img class="shrek" src="https://i.pinimg.com/736x/a9/ef/a9/a9efa9e0d9a868bf182a920938c0c094.jpg" alt="shrek" />
-                </div>
-            </AccordionBody>
+            <AccordionHeader slot="header"><Text>This is an Accordion</Text></AccordionHeader>
+            <AccordionBody slot="body"><Text>This is the body of the Accordion</Text></AccordionBody>
         </Accordion>
     </div>
     <div class="buttons">
         <Button type={ButtonTypeEnum.secondary} size={ButtonSizeEnum.medium} on:click={() => flyoutElement.toggle()}>I'm a Button</Button>
-        <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.medium} on:click={() => flyoutElement.toggle()}>I'm a Button</Button>
+        <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.medium}>I'm a Button</Button>
+        <Button type={ButtonTypeEnum.tertiary} size={ButtonSizeEnum.medium}>I'm a Button</Button>
     </div>
     <Checkbox label="Checkbox" on:change={handleChange} />
     <Flyout bind:this={flyoutElement}>
-        <div slot="flyout-body">
-            <img class="shrek" src="https://i.pinimg.com/736x/82/f2/e5/82f2e56c0bb7958a3806cb134f999bde.jpg" alt="shrek" />Shrek says hi
+        <div slot="flyout-body" class="flyout-body">
+            <Tabs activeTab={1}>
+                <svelte:fragment slot="labels">
+                    <TabLabel tabnum={1}>Tab 1</TabLabel>
+                    <TabLabel tabnum={2}>Tab 2</TabLabel>
+                </svelte:fragment>
+                <svelte:fragment slot="contents">
+                    <TabContent tabnum={1}>
+                        <img
+                            class="orange"
+                            src="https://plus.unsplash.com/premium_photo-1675237625695-710b9a6c3f2e?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8b3JhbmdlfGVufDB8fDB8fHww"
+                            alt="orange"
+                        />
+                    </TabContent>
+                    <TabContent tabnum={2}>
+                        <div class="flyout-body">
+                            <TextInput label="Input In Flyout" />
+                            <Popover on:popoverItemsChanged={handlePopoverItemsChanged} items={exampleItems}>
+                                <PopoverChipTrigger slot="trigger" label="Multi" />
+                                <PopoverMultiSelectContent slot="content" />
+                            </Popover>
+                        </div>
+                    </TabContent>
+                </svelte:fragment>
+            </Tabs>
         </div>
         <div slot="flyout-footer" class="flyout-actions">
             <Button type={ButtonTypeEnum.secondary}>Cancel</Button><Button>Save</Button>
@@ -121,109 +141,7 @@
     </div>
     <Text>This is the text component</Text>
     <TextInput label="This is an Input" on:change={handleChange} />
-    <!-- <Tabs activeTab="1">
-        <svelte:fragment slot="labels">
-            <TabLabel tabnum="1">Display Elements</TabLabel>
-            <TabLabel tabnum="2">Interactable Elements</TabLabel>
-            <TabLabel tabnum="3">Store Example</TabLabel>
-        </svelte:fragment>
-        <svelte:fragment slot="contents">
-            <TabContent tabnum="1">
-                <StandardContentLayout>
-                    <Header>This is an H1 Header</Header>
-                    <Header type="h2">This is an H2 Header</Header>
-                    <Header type="subheader">This is a Subheader</Header>
-                    <Text
-                        >This is a text element. There isnt much to it yet, but this applies default color, font weight, and font styles.
-                    </Text>
-                    <div class="tags">
-                        <Tag color="green">Green Tag</Tag>
-                        <Tag color="red">Red Tag</Tag>
-                        <Tag color="navy">Navy Tag</Tag>
-                        <Tag color="gray">Gray Tag</Tag>
-                        <Tag color="orange">Orange Tag</Tag>
-                        <Tag size="sm">Small Tag</Tag>
-                        <Tag size="lg">Large Tag</Tag>
-                    </div>
-                </StandardContentLayout>
-            </TabContent>
-            <TabContent tabnum="2">
-                <StandardContentLayout>
-                    <TextInput label="This is an Input" required on:change={handleChange} />
-                    <div class="buttons">
-                        <Button on:click={handleClick}>This is a Default Button</Button>
-                        <Button type="inverse" on:click={toast?.addToast()}>This is an Inverse Button</Button>
-                        <Button type="empty">This is an Empty Button</Button>
-                    </div>
-                    <Text>Click the Default Button to see a flyout</Text>
-                    <Text>Click the Inverse Button to see a Toast</Text>
-                    <div class="checkboxes">
-                        <Checkbox label="Checkbox" required on:change={handleChange} />
-                    </div>
-                    <div class="accordion">
-                        <Accordion>
-                            <AccordionHeader slot="header"><Text type="light">This is an Accordion</Text></AccordionHeader>
-                            <AccordionBody slot="body"
-                                ><Text>This is the body of the Accordion</Text>
-                                <div class="accordion-img">
-                                    <img
-                                        class="shrek"
-                                        src="https://i.pinimg.com/736x/a9/ef/a9/a9efa9e0d9a868bf182a920938c0c094.jpg"
-                                        alt="shrek"
-                                    />
-                                </div></AccordionBody
-                            >
-                        </Accordion>
-                    </div>
-                    <Popover on:popoverItemsChanged={handlePopoverItemsChanged}>
-                        <PopoverChipTrigger slot="trigger" />
-                        <PopoverMultiSelectContent slot="content" items={exampleItems} />
-                    </Popover>
-                    <div>
-                        <Text>Selected Items:</Text>
-                        {#each popoverItems as item}
-                            <Tag>{item.label}</Tag>
-                        {/each}
-                    </div>
-                    <Toast
-                        title="This is a toast"
-                        message="Use this to show temporary info, like a task was completed, or failed."
-                        bind:this={toast}
-                    />
-                </StandardContentLayout>
-            </TabContent>
-            <TabContent tabnum="3">
-                <div class="outfit-example">
-                    {#each $outfitStore as outfit}
-                        <Header type="h2">{outfit.name}</Header>
-
-                        <div class="img-wrapper">
-                            <img class="outfit-top" src={clothesStore.getClothingItemById(outfit.topid).img} alt="top" />
-                            <img class="outfit-bottom" src={clothesStore.getClothingItemById(outfit.bottomid).img} alt="bottom" />
-                        </div>
-                        <div class="outfit-footer">
-                            <Button on:click={makeOutfitClean(outfit.id)}>Make Outfit Clean</Button>
-                            {#if clothesStore.isClothingItemClean(outfit.topid) || clothesStore.isClothingItemClean(outfit.bottomid)}
-                                <Tag color="green">Clean</Tag>
-                            {:else}
-                                <Tag color="red">Dirty</Tag>
-                            {/if}
-                            <Button on:click={makeOutfitDirty(outfit.id)}>Make Outfit Dirty</Button>
-                        </div>
-                    {/each}
-                </div>
-            </TabContent>
-        </svelte:fragment>
-    </Tabs>
-
-    <Flyout id="flyout1" header="This is a Flyout">
-        <div slot="flyout-body">
-            <img class="shrek" src="https://i.pinimg.com/736x/82/f2/e5/82f2e56c0bb7958a3806cb134f999bde.jpg" alt="shrek" />Shrek says hi
-        </div>
-        <div slot="flyout-footer" class="flyout-actions">
-            <Button type="inverse">Cancel</Button><Button>Save</Button>
-        </div>
-    </Flyout> -->
+    <InputSeries label="This is an Input Series" on:change={handleChange} />
 </div>
 
 <style>
@@ -251,10 +169,6 @@
         width: 50%;
     }
 
-    .accordion-img {
-        width: 80%;
-    }
-
     .tags {
         display: flex;
         gap: 8px;
@@ -270,5 +184,11 @@
     .buttons {
         display: flex;
         gap: 8px;
+    }
+
+    .flyout-body {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
 </style>

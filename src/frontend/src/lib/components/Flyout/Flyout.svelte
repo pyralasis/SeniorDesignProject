@@ -3,6 +3,7 @@
     import Button from '../Button/Button.svelte';
     import { ButtonTypeEnum } from '../Button/types';
     import { type CustomFlyoutStore, type FlyoutSide, FlyoutSideEnum } from './types';
+    import { Header, HeaderTypeEnum } from '../Header';
 
     // -----------------------
     // External Properties
@@ -47,8 +48,8 @@
                         ></Button
                     >
                 </div>
-                <h2 class="flyout__main-header">{header}</h2>
-                <h3 class="flyout__sub-header">{subheader}</h3>
+                <Header type={HeaderTypeEnum.h1}>{header}</Header>
+                <Header type={HeaderTypeEnum.subheader}>{subheader}</Header>
             </div>
             <div class="flyout__body">
                 <slot name="flyout-body" />
@@ -134,19 +135,11 @@
             gap: var(--size-xs);
         }
 
-        &__main-header {
-            margin: 0;
-            color: var(--color-text);
-            font-size: 240%;
-        }
-
-        &__sub-header {
-            margin: 0;
-            color: var(--color-text-lighter);
-        }
-
         &__body {
             height: 100%;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            padding: var(--size-xs) var(--size-xs);
         }
 
         &__footer {

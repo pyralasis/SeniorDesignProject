@@ -3,6 +3,7 @@ export * from './Button';
 export * from './Checkbox';
 export * from './Flyout';
 export * from './Header';
+export * from './InputSeries';
 export * from './Popover';
 export * from './Tabs';
 export * from './Tag';
