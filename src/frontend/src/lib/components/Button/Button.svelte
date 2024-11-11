@@ -26,7 +26,7 @@
         dispatch('click', event);
         const ripple: HTMLElement = document.createElement('div');
         ripple.classList.add('ripple');
-        ripple.style.backgroundColor = 'var(--color-green)';
+        ripple.style.backgroundColor = 'var(--color-interactable-primary)';
         button.appendChild(ripple);
 
         const rect = button.getBoundingClientRect();
@@ -81,36 +81,36 @@
         overflow: hidden;
         padding: var(--size-xs) var(--size-sm);
         border-radius: var(--border-radius-sm);
-        background-color: var(--color-green);
+        background-color: var(--color-interactable-priamry);
         cursor: pointer;
         width: fit-content;
         user-select: none;
         transition: all 0.3s ease;
         text-decoration: none;
-        border: 2px solid transparent;
+        outline: 2px solid transparent;
 
         &:hover {
-            background-color: var(--color-green-darker);
+            background-color: var(--color-interactable-primary-hover);
         }
 
         &--primary {
-            background-color: var(--color-green);
+            background-color: var(--color-interactable-primary);
         }
 
         &--secondary {
             background-color: transparent;
 
             &:hover {
-                background-color: var(--color-green-transparent);
+                background-color: var(--color-interactable-secondary-hover);
             }
         }
 
         &--tertiary {
             background-color: transparent;
-            border: 2px solid var(--color-green);
+            outline: 2px solid var(--color-priamry);
 
             &:hover {
-                background-color: var(--color-green-transparent);
+                background-color: var(--color-interactable-secondary-hover);
             }
         }
 
@@ -132,15 +132,15 @@
             align-items: center;
 
             &--primary {
-                color: white;
+                color: var(--color-interactable-primary-text);
             }
 
             &--secondary {
-                color: var(--color-green);
+                color: var(--color-interactable-secondary-text);
             }
 
             &--tertiary {
-                color: var(--color-green);
+                color: var(--color-interactable-secondary-text);
             }
 
             &--small {

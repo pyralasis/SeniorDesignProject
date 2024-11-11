@@ -1,54 +1,58 @@
-<script>
-	import { createEventDispatcher, setContext } from 'svelte';
-	import { createTabsStore } from './tabsStore.js';
+<script lang="ts">
+    import { createTabsStore } from './TabsStore.js';
+    import { setParentStoreContext } from '$lib/utilities/store-utilities.js';
 
-	export let activeTab;
+    // -----------------------
+    // External Properties
+    // -----------------------
+    export let activeTab: number;
 
-	let dispatch = createEventDispatcher();
-	const tabsStore = createTabsStore(activeTab);
-
-	setContext('tabsStore', tabsStore);
+    // -----------------------
+    // Internal Properties
+    // -----------------------
+    const private_store = createTabsStore(activeTab);
+    setParentStoreContext(private_store);
 </script>
 
 <div class="tabs">
-	<div class="tab-labels">
-		<slot name="labels"></slot>
-	</div>
-	<div class="tab-content">
-		<slot name="contents"></slot>
-	</div>
+    <div class="tabs__labels">
+        <slot name="labels"></slot>
+    </div>
+    <div class="tabs__content">
+        <slot name="contents"></slot>
+    </div>
 </div>
 
-<style>
-	@import '../../../variables.css';
+<style lang="scss">
+    @import '../../../variables.css';
 
-	.tabs {
-		display: flex;
-		flex-direction: column;
-	}
+    .tabs {
+        display: flex;
+        flex-direction: column;
+        border-radius: var(--size-sm);
+        overflow: hidden;
 
-	.tab-labels {
-		display: flex;
-		gap: 4px;
-		border-bottom: 2px solid var(--color-edge-dark);
-	}
+        &__labels {
+            display: flex;
 
-	.tab-labels > * {
-		flex: 1;
-		text-align: center;
-		padding: 8px 16px;
-		cursor: pointer;
-	}
+            & > * {
+                flex: 1;
+                text-align: center;
+                padding: 8px 16px;
+                cursor: pointer;
+            }
 
-	.tab-labels > *:hover {
-		background-color: var(--color-surface);
-	}
+            & > *:hover {
+                background-color: var(--color-surface);
+            }
 
-	.tab-labels > *:not(:last-child) {
-		border-right: 1px solid var(--color-surface);
-	}
+            & > *:not(:last-child) {
+                border-right: 1px solid var(--color-surface);
+            }
+        }
 
-	.tab-content {
-		padding: 16px;
-	}
+        &__content {
+            padding: 16px;
+        }
+    }
 </style>

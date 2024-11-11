@@ -1,22 +1,31 @@
-<script>
-	import { createEventDispatcher, getContext } from 'svelte';
+<script lang="ts">
+    import { getParentStore } from '$lib/utilities';
+    import type { CustomTabsStore } from './types';
 
-	export let tabnum;
-	const tabsStore = getContext('tabsStore');
-	let active;
+    // -----------------------
+    // External Properties
+    // -----------------------
+    export let tabnum: number;
 
-	$: active = $tabsStore.activeTab === tabnum;
+    // -----------------------
+    // Internal Properties
+    // -----------------------
+    const tabsStore: CustomTabsStore = getParentStore() as CustomTabsStore;
+    let active: boolean;
+    tabsStore.subscribe((value) => {
+        active = value.activeTabIndex === tabnum;
+    });
 </script>
 
 {#if active}
-	<div class="tab-content active">
-		<slot></slot>
-	</div>
+    <div class="tab-content">
+        <slot></slot>
+    </div>
 {/if}
 
-<style>
-	.tab-content {
-		width: auto;
-		height: auto;
-	}
+<style lang="scss">
+    .tab-content {
+        width: auto;
+        height: auto;
+    }
 </style>

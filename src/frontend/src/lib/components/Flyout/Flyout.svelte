@@ -30,7 +30,7 @@
     // -----------------------
     // Internal Properties
     // -----------------------
-    let private_store: CustomFlyoutStore = createFlyoutStore(true, hidebackground);
+    let private_store: CustomFlyoutStore = createFlyoutStore(false, hidebackground);
 </script>
 
 <div class="flyout">

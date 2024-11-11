@@ -1,18 +1,24 @@
 <script lang="ts">
     import { getContext } from 'svelte';
-    import type { AccordionStore } from './types';
+    import type { CustomAccordionStore } from './types';
+    import { getParentStore } from '$lib/utilities';
 
     // -----------------------
     // Internal Properties
     // -----------------------
-    const accordionStore: AccordionStore = getContext('accordionStore');
+    const accordionStore: CustomAccordionStore = getParentStore() as CustomAccordionStore;
     let body: HTMLElement;
     let bodyHeight: number;
+    let open: boolean;
+
+    accordionStore.subscribe((value) => {
+        open = value.open ?? false;
+    });
 
     // -----------------------
     // Lifecycle Hooks
     // -----------------------
-    $: if ($accordionStore?.isOpen && body) {
+    $: if ($accordionStore?.open && body) {
         bodyHeight = body.scrollHeight;
     } else {
         bodyHeight = 0;
@@ -23,7 +29,7 @@
     }
 </script>
 
-<div class="accordion-body" class:accordion-body--open={$accordionStore?.isOpen} bind:this={body}>
+<div class="accordion-body" class:accordion-body--open={open} bind:this={body}>
     <slot></slot>
 </div>
 
@@ -35,6 +41,8 @@
             max-height 0.3s ease-in-out,
             padding 0.3s ease-in-out;
         padding: 0 var(--size-sm);
+        width: auto;
+        box-sizing: border-box;
 
         &--open {
             max-height: var(--max-height);

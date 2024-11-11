@@ -1,22 +1,24 @@
-<script>
-	import { getContext } from 'svelte';
+<script lang="ts">
+    import { getContext } from 'svelte';
+    import type { CustomPopoverStore } from './types';
+    import { getParentStore } from '$lib/utilities';
 
-	const popoverStore = getContext('popoverStore');
+    const popoverStore: CustomPopoverStore = getParentStore() as CustomPopoverStore;
 
-	function handleClick() {
-		popoverStore.toggle();
-	}
+    function handleClick(): void {
+        popoverStore.toggle();
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div id="trigger" class="popover-trigger" on:click={handleClick}>
-	<slot name="custom-trigger"></slot>
+<div id="trigger" class="popover__trigger" on:click={handleClick}>
+    <slot name="custom-trigger"></slot>
 </div>
 
-<style>
-	.popover-trigger {
-		cursor: pointer;
-		width: fit-content;
-	}
+<style lang="scss">
+    .popover__trigger {
+        cursor: pointer;
+        width: fit-content;
+    }
 </style>

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
+    import { TextColorEnum, Text, TextSizeEnum } from '$lib/components';
     export let label;
     export let checked = false;
 
@@ -7,21 +8,10 @@
 
     const dispatch = createEventDispatcher();
     function handleClick(event: MouseEvent) {
+        event.stopPropagation();
         checked = !checked;
         dispatch('change', { value: checked });
-
-        const ripple = document.createElement('div');
-        ripple.classList.add('checkbox-ripple');
-        if (checked) {
-            ripple.style.backgroundColor = 'var(--color-green)';
-        } else {
-            ripple.style.backgroundColor = 'var(--color-edge-darker)';
-        }
-        checkbox.appendChild(ripple);
-
-        setTimeout(() => {
-            ripple.remove();
-        }, 1000);
+        checkbox.focus();
     }
 
     $: checked;
@@ -41,18 +31,20 @@
         {/if}
     </div>
     {#if label}
-        <div class="checkbox__label">
+        <Text color={TextColorEnum.primary} size={TextSizeEnum.medium}>
             {label}
-        </div>
+        </Text>
     {/if}
 </div>
 
 <style lang="scss">
+    @import '../../../variables.css';
     .checkbox {
         display: flex;
         align-items: center;
         gap: 8px;
         width: fit-content;
+        z-index: 2;
 
         &__inner {
             width: 13px;
@@ -64,15 +56,35 @@
             border: 2px solid var(--color-edge);
             border-radius: 4px;
             cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
+                border: 2px solid var(--color-interactable-outline-hover);
+            }
 
             &--checked {
-                background-color: var(--color-green);
+                background-color: var(--color-interactable-primary);
+                border: 2px solid var(--color-interactable-outline-hover);
+
+                &:hover {
+                    background-color: var(--color-interactable-primary-hover);
+                    border: 2px solid var(--color-interactable-primary-hover);
+                }
+            }
+
+            &:focus {
+                border: solid 2px var(--color-priamry);
+            }
+
+            &:focus-visible {
+                border: solid 2px var(--color-priamry);
             }
         }
 
         &__label {
             font-weight: 500;
             color: var(--color-text);
+            user-select: none;
         }
 
         &__check-mark {
@@ -80,29 +92,6 @@
             height: 5px;
             background-color: white;
             border-radius: 50%;
-        }
-    }
-
-    :global(.checkbox-ripple) {
-        position: absolute;
-        border-radius: 50%;
-        width: 60%;
-        height: 60%;
-        animation: ripple 0.5s forwards;
-        pointer-events: none;
-        z-index: 1;
-        top: 50%;
-        left: 50%;
-    }
-
-    @keyframes ripple {
-        from {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(0);
-        }
-        to {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(4);
         }
     }
 </style>

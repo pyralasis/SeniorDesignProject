@@ -1,42 +1,78 @@
-<script>
-	import { createEventDispatcher, getContext } from 'svelte';
-	import Text from '$lib/components/Text/Text.svelte';
+<script lang="ts">
+    import Text from '$lib/components/Text/Text.svelte';
+    import type { CustomTabsStore } from './types';
+    import { getParentStore } from '$lib/utilities/store-utilities';
+    import { TextColorEnum } from '../Text';
 
-	export let tabnum;
+    // -----------------------
+    // External Properties
+    // -----------------------
+    export let tabnum: number;
 
-	let dispatch = createEventDispatcher();
-	const tabsStore = getContext('tabsStore');
-	let active;
+    // -----------------------
+    // Internal Properties
+    // -----------------------
+    const tabsStore: CustomTabsStore = getParentStore() as CustomTabsStore;
+    let active: boolean;
+    let activeTabIndex: number;
 
-	$: $tabsStore.activeTab, (active = $tabsStore.activeTab === tabnum);
+    tabsStore.subscribe((value) => {
+        active = value.activeTabIndex === tabnum;
+        activeTabIndex = value.activeTabIndex ?? -1;
+    });
+
+    // -----------------------
+    // Internal Methods
+    // -----------------------
+    function handleTabClick(tabnum: number): void {
+        tabsStore.updateActiveTabIndex(tabnum);
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="tab-label" class:active on:click={tabsStore.setActiveTab(tabnum)}>
-	<Text>
-		<slot></slot>
-	</Text>
+<div class="tab-label" class:tab-label--active={active} on:click={() => handleTabClick(tabnum)}>
+    <Text color={TextColorEnum.primary}>
+        <slot></slot>
+    </Text>
+    <div class="tab-label__indicator" class:tab-label__indicator--active={active}></div>
 </div>
 
-<style>
-	.tab-label {
-		padding: 8px 16px;
-		cursor: pointer;
-		border-bottom: 2px solid transparent;
-	}
+<style lang="scss">
+    .tab-label {
+        padding: 12px 16px;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
 
-	.tab-label:hover {
-		background-color: var(--color-surface-dark);
-		border-bottom: 2px solid var(--color-edge-dark);
-	}
+        .tab-label__indicator {
+            height: 4px;
+            width: 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: absolute;
+            bottom: 2px;
+            &--active {
+                background-color: var(--color-primary);
+            }
+        }
 
-	.active {
-		border-bottom: 2px solid var(--color-green);
-		font-weight: 600;
-	}
+        &:hover {
+            background-color: var(--color-interactable-secondary-hover);
+        }
 
-	.active:hover {
-		border-bottom: 2px solid var(--color-green);
-	}
+        &--active {
+            background-color: var(--color-surface);
+            font-weight: 600;
+
+            &:hover {
+                background-color: var(--color-surface);
+            }
+        }
+    }
 </style>

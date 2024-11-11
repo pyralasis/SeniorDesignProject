@@ -1,12 +1,19 @@
 <script lang="ts">
     import { getContext } from 'svelte';
-    import type { AccordionStore } from './types';
+    import type { CustomAccordionStore } from './types';
+    import { getParentStore } from '$lib/utilities';
+    import { Text } from '$lib/components';
 
     // -----------------------
     // Internal Properties
     // -----------------------
-    const accordionStore: AccordionStore = getContext('accordionStore');
+    const accordionStore: CustomAccordionStore = getParentStore() as CustomAccordionStore;
     let rotateDegrees: number = 0;
+    let open: boolean;
+    accordionStore.subscribe((value) => {
+        open = value.open ?? false;
+        rotateDegrees = open ? 180 : 0;
+    });
 
     // -----------------------
     // Internal Methods
@@ -14,18 +21,14 @@
     function handleClick(): void {
         accordionStore.toggle();
     }
-    // -----------------------
-    // Lifecycle Hooks
-    // -----------------------
-    $: rotateDegrees = $accordionStore?.isOpen ? 180 : 0;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="accordion-header" class:accordion-header--open={$accordionStore?.isOpen} on:click={handleClick}>
-    <div class="accordion-header__title">
+<div class="accordion-header" class:accordion-header--open={open} on:click={handleClick}>
+    <Text>
         <slot></slot>
-    </div>
+    </Text>
     <div class="accordion-header__chevron">
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -50,9 +53,12 @@
         align-items: center;
         padding: var(--size-sm);
         cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: auto;
+        box-sizing: border-box;
 
         &:hover {
-            background-color: var(--color-surface-dark);
+            background-color: var(--color-interactable-secondary-hover);
         }
 
         &__title {
@@ -65,10 +71,6 @@
             width: 24px;
             transition: transform 0.3s ease;
             color: #787878;
-        }
-
-        &--open {
-            box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.1);
         }
     }
 </style>

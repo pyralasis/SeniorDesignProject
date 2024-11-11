@@ -1,88 +1,89 @@
-<script>
-	import { createPopper } from '@popperjs/core';
-	import { createEventDispatcher, onMount, setContext } from 'svelte';
-	import { createPopoverStore } from './PopoverStore.js';
+<script lang="ts">
+    import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+    import { type Instance } from '@popperjs/core';
+    import { createPopoverStore } from './PopoverStore.js';
+    import { PopoverPositionEnum, type PopoverItem, type PopoverPosition } from './types';
+    import { PopoverUtilities } from './utils';
+    import { setParentStoreContext } from '$lib/utilities/store-utilities.js';
 
-	export let id = '';
-	export let selectedItems = [];
-	export let position = 'bottom';
+    // -----------------------
+    // External Properties
+    // -----------------------
+    export let id: string = '';
+    export let items: PopoverItem[] = [];
+    export let selectedItems: PopoverItem[] = [];
+    export let position: PopoverPosition = PopoverPositionEnum.bottom;
 
-	let popoverElement;
-	let popperInstance;
+    // -----------------------
+    // Internal Properties
+    // -----------------------
+    let popoverElement: HTMLElement;
+    let private_store = createPopoverStore(items, selectedItems);
+    let popperInstance: Instance;
 
-	let popoverStore = createPopoverStore(id, selectedItems);
-	setContext('popoverStore', popoverStore);
+    // -----------------------
+    // External Events
+    // -----------------------
+    setParentStoreContext(private_store);
 
-	const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher();
 
-	const popoverOverOpenedDispatch = () => {
-		dispatch('popoverOverOpened', id);
-	};
+    const popoverOverOpenedDispatch = () => {
+        dispatch('popoverOverOpened', id);
+    };
 
-	const popoverOverClosedDispatch = () => {
-		dispatch('popoverOverClosed', id);
-	};
+    const popoverOverClosedDispatch = () => {
+        dispatch('popoverOverClosed', id);
+    };
 
-	const popoverItemsChangedDispatch = () => {
-		dispatch('popoverItemsChanged', { id: id, selectedItems: $popoverStore.selectedItems });
-	};
+    const popoverItemsChangedDispatch = () => {
+        dispatch('popoverItemsChanged', { id: id, selectedItems: $private_store.selectedItems });
+    };
 
-	function getTriggerElement() {
-		return popoverElement.querySelector('#trigger');
-	}
+    // -----------------------
+    // Internal Methods
+    // -----------------------
+    function handleClickOutside(event: MouseEvent) {
+        if ($private_store.open && popoverElement && !popoverElement.contains(event.target as Node)) {
+            private_store.close();
+        }
+    }
 
-	function getContentElement() {
-		return popoverElement.querySelector('#content');
-	}
+    // -----------------------
+    // Reactive Lifecycle
+    // -----------------------
+    $: $private_store.selectedItems, popoverItemsChangedDispatch();
+    $: {
+        if ($private_store.open) {
+            popoverOverOpenedDispatch();
+            popperInstance?.update();
+        } else {
+            popoverOverClosedDispatch();
+        }
+    }
 
-	function createPopperInstance() {
-		const triggerElement = getTriggerElement();
-		const contentElement = getContentElement();
+    // -----------------------
+    // Lifecycle Hooks
+    // -----------------------
+    onMount(async () => {
+        private_store.updatePopoverElement(popoverElement);
+        if ($private_store?.popoverElement) {
+            popperInstance = PopoverUtilities.createPopperInstance($private_store?.popoverElement, position);
+        }
+        popperInstance.update();
 
-		if (triggerElement && contentElement) {
-			popperInstance = createPopper(triggerElement, contentElement, {
-				placement: position,
-				modifiers: [
-					{
-						name: 'offset',
-						options: {
-							offset: [0, 4] // Adjust this value to bring the popover closer to the trigger
-						}
-					},
-					{
-						name: 'preventOverflow',
-						options: {
-							padding: 8
-						}
-					}
-				]
-			});
-		}
-	}
-
-	$: $popoverStore.selectedItems, popoverItemsChangedDispatch();
-	$: {
-		if ($popoverStore.isOpen) {
-			popoverOverOpenedDispatch();
-			popperInstance?.update();
-		} else {
-			popoverOverClosedDispatch();
-		}
-	}
-
-	onMount(async () => {
-		createPopperInstance();
-		popperInstance.update();
-	});
+        window.addEventListener('click', handleClickOutside);
+    });
 </script>
 
 <div class="popover" aria-haspopup="true" aria-expanded="true" bind:this={popoverElement}>
-	<slot name="trigger" />
-	<slot name="content" />
+    <slot name="trigger" />
+    <slot name="content" />
 </div>
 
-<style>
-	.popover {
-		width: fit-content;
-	}
+<style lang="scss">
+    .popover {
+        width: fit-content;
+        position: relative;
+    }
 </style>

@@ -1,21 +1,31 @@
 <script lang="ts">
     import { setContext } from 'svelte';
     import { createAccordionStore } from './accordionStore';
-    import type { AccordionStore } from './types';
+    import { setParentStoreContext } from '$lib/utilities';
+    import type { CustomAccordionStore } from './types';
 
     // -----------------------
     // Internal Properties
     // -----------------------
-    const accordionStore: AccordionStore = createAccordionStore();
+    const private_store: CustomAccordionStore = createAccordionStore() as CustomAccordionStore;
+    setParentStoreContext(private_store);
+    let hovered: boolean = false;
 
     // -----------------------
-    // Lifecycle Hooks
+    // Internal Methods
     // -----------------------
-    setContext('accordionStore', accordionStore);
+    function handleMouseEnter(): void {
+        hovered = true;
+    }
+
+    function handleMouseLeave(): void {
+        hovered = false;
+    }
 </script>
 
-<div class="accordion">
-    <div class="accordion__header">
+<div class="accordion" class:accordion--hovered={hovered}>
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div class="accordion__header" on:mouseenter={handleMouseEnter} on:mouseleave={handleMouseLeave}>
         <slot name="header"></slot>
     </div>
     <div class="accordion__body">
@@ -24,9 +34,17 @@
 </div>
 
 <style lang="scss">
+    @import '../../../variables.css';
     .accordion {
         overflow: hidden;
         border-radius: var(--size-sm);
-        border: 1px solid var(--color-edge);
+        outline: 1px solid var(--color-edge);
+        transition: outline 0.2s ease;
+        width: auto;
+        box-sizing: border-box;
+
+        &--hovered {
+            outline: 1px solid var(--color-interactable-outline-hover);
+        }
     }
 </style>

@@ -1,26 +1,28 @@
 <script lang="ts">
-    import { ButtonSizeEnum, ButtonTypeEnum, Flyout } from '$lib/components';
-    import Button from '$lib/components/Button/Button.svelte';
-    import Accordion from '$lib/components/Accordion/Accordion.svelte';
-    import AccordionHeader from '$lib/components/Accordion/AccordionHeader.svelte';
-    import AccordionBody from '$lib/components/Accordion/AccordionBody.svelte';
-    import Checkbox from '$lib/components/Checkbox/Checkbox.svelte';
-    // import Button from '$lib/components/Button/Button.svelte';
-    // import Checkbox from '$lib/components/Checkbox/Checkbox.svelte';
-    // import Flyout from '$lib/components/Flyout/Flyout.svelte';
-    // import Header from '$lib/components/Header/Header.svelte';
-    // import Popover from '$lib/components/Popover/Popover.svelte';
-    // import Tag from '$lib/components/Tag/Tag.svelte';
-    // import Text from '$lib/components/Text/Text.svelte';
-    // import TextInput from '$lib/components/TextInput/TextInput.svelte';
-    // import PopoverMultiSelectContent from '$lib/components/Popover/CustomPopoverTrigger/PopoverMultiSelectContent.svelte';
-    // import { clothesStore, outfitStore, toggle } from '$lib/utilities/stores.js';
-    // import PopoverChipTrigger from '../../lib/components/Popover/CustomPopoverContent/PopoverChipTrigger.svelte';
-    // import Tabs from '$lib/components/Tabs/Tabs.svelte';
-    // import TabContent from '$lib/components/Tabs/TabContent.svelte';
-    // import TabLabel from '$lib/components/Tabs/TabLabel.svelte';
-    // import StandardContentLayout from '$lib/components/StandardContentLayout/StandardContentLayout.svelte';
-    // import Toast from '$lib/components/Toast/Toast.svelte';
+    import {
+        ButtonSizeEnum,
+        ButtonTypeEnum,
+        Flyout,
+        Header,
+        HeaderTypeEnum,
+        Popover,
+        PopoverChipTrigger,
+        PopoverMultiSelectContent,
+        TabContent,
+        TabLabel,
+        Tabs,
+        Button,
+        Accordion,
+        AccordionHeader,
+        AccordionBody,
+        Checkbox,
+        Text,
+        type PopoverItem,
+        Tag,
+        TagColorEnum,
+        PopoverSingleSelectContent,
+    } from '$lib/components';
+    import TextInput from '$lib/components/TextInput/TextInput.svelte';
 
     // function handleChange(event) {
     // 	console.log(event.detail.value);
@@ -30,19 +32,19 @@
     // 	toggle('flyout1');
     // }
 
-    // let exampleItems = [
-    // 	{ label: 'Item 1', value: 'item1' },
-    // 	{ label: 'Item 2', value: 'item2' },
-    // 	{ label: 'Item 3', value: 'item3' },
-    // 	{ label: 'Item 4', value: 'item4' }
-    // ];
+    let exampleItems: PopoverItem[] = [
+        { label: 'Item 1', value: 'item1' },
+        { label: 'Item 2', value: 'item2' },
+        { label: 'Item 3', value: 'item3' },
+        { label: 'Item 4', value: 'item4' },
+    ];
 
-    // let popoverItems = [];
+    let popoverItems: PopoverItem[] = [];
     // let toast;
 
-    // function handlePopoverItemsChanged(event) {
-    // 	popoverItems = event.detail.selectedItems;
-    // }
+    function handlePopoverItemsChanged(event: CustomEvent): void {
+        popoverItems = event.detail.selectedItems;
+    }
 
     // function makeOutfitDirty(outfitid) {
     // 	outfitStore.makeOutfitDirty(outfitid);
@@ -58,16 +60,21 @@
 </script>
 
 <div class="components">
-    <Accordion>
-        <AccordionHeader slot="header"><span>This is an Accordion</span></AccordionHeader>
-        <AccordionBody slot="body"
-            ><span>This is the body of the Accordion</span>
-            <div class="accordion-img">
-                <img class="shrek" src="https://i.pinimg.com/736x/a9/ef/a9/a9efa9e0d9a868bf182a920938c0c094.jpg" alt="shrek" />
-            </div></AccordionBody
-        >
-    </Accordion>
-    <Button type={ButtonTypeEnum.secondary} size={ButtonSizeEnum.small} on:click={() => flyoutElement.toggle()}>I'm a Button</Button>
+    <div class="accordion">
+        <Accordion>
+            <AccordionHeader slot="header"><span>This is an Accordion</span></AccordionHeader>
+            <AccordionBody slot="body"
+                ><span>This is the body of the Accordion</span>
+                <div class="accordion-img">
+                    <img class="shrek" src="https://i.pinimg.com/736x/a9/ef/a9/a9efa9e0d9a868bf182a920938c0c094.jpg" alt="shrek" />
+                </div>
+            </AccordionBody>
+        </Accordion>
+    </div>
+    <div class="buttons">
+        <Button type={ButtonTypeEnum.secondary} size={ButtonSizeEnum.medium} on:click={() => flyoutElement.toggle()}>I'm a Button</Button>
+        <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.medium} on:click={() => flyoutElement.toggle()}>I'm a Button</Button>
+    </div>
     <Checkbox label="Checkbox" on:change={handleChange} />
     <Flyout bind:this={flyoutElement}>
         <div slot="flyout-body">
@@ -77,7 +84,43 @@
             <Button type={ButtonTypeEnum.secondary}>Cancel</Button><Button>Save</Button>
         </div>
     </Flyout>
+    <Header type={HeaderTypeEnum.h1}>This is an h1 Header</Header>
+    <Header type={HeaderTypeEnum.h2}>This is an h2 Header</Header>
+    <Header type={HeaderTypeEnum.h3}>This is an h3 Header</Header>
+    <Header type={HeaderTypeEnum.h4}>This is an h4 Header</Header>
+    <Header type={HeaderTypeEnum.subheader}>This is a Subheader</Header>
 
+    <div class="popovers">
+        <Popover on:popoverItemsChanged={handlePopoverItemsChanged} items={exampleItems}>
+            <PopoverChipTrigger slot="trigger" label="Multi" />
+            <PopoverMultiSelectContent slot="content" />
+        </Popover>
+        <Popover on:popoverItemsChanged={handlePopoverItemsChanged} items={exampleItems}>
+            <PopoverChipTrigger slot="trigger" label="Single" />
+            <PopoverSingleSelectContent slot="content" />
+        </Popover>
+    </div>
+    <Tabs activeTab={1}>
+        <svelte:fragment slot="labels">
+            <TabLabel tabnum={1}>Tab 1</TabLabel>
+            <TabLabel tabnum={2}>Tab 2</TabLabel>
+        </svelte:fragment>
+        <svelte:fragment slot="contents">
+            <TabContent tabnum={1}><Text>Tab Content 1</Text></TabContent>
+            <TabContent tabnum={2}><Text>Tab Content 2</Text></TabContent>
+        </svelte:fragment>
+    </Tabs>
+    <div class="tags">
+        <Tag color={TagColorEnum.green}>Tag</Tag>
+        <Tag color={TagColorEnum.red}>Tag</Tag>
+        <Tag color={TagColorEnum.blue}>Tag</Tag>
+        <Tag color={TagColorEnum.gray}>Tag</Tag>
+        <Tag color={TagColorEnum.orange}>Tag</Tag>
+        <Tag color={TagColorEnum.purple}>Tag</Tag>
+        <Tag color={TagColorEnum.yellow}>Tag</Tag>
+    </div>
+    <Text>This is the text component</Text>
+    <TextInput label="This is an Input" on:change={handleChange} />
     <!-- <Tabs activeTab="1">
         <svelte:fragment slot="labels">
             <TabLabel tabnum="1">Display Elements</TabLabel>
@@ -187,9 +230,10 @@
     .components {
         display: flex;
         flex-direction: column;
-        width: 100%;
+        width: auto;
         gap: 16px;
         padding: 30px;
+        box-sizing: border-box;
     }
 
     .shrek {
@@ -211,44 +255,20 @@
         width: 80%;
     }
 
-    /* 
-
-    .buttons,
     .tags {
         display: flex;
         gap: 8px;
-        align-items: center;
     }
 
-    
-
-    .outfit-example {
+    .popovers {
         display: flex;
-        flex-direction: column;
         gap: 16px;
-        align-items: center;
+        width: 100%;
         justify-content: center;
-        width: fit-content;
-        border-radius: 8px;
-        box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
-        padding: 16px;
     }
 
-    .outfit-footer {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
-
-    .img-wrapper {
+    .buttons {
         display: flex;
         gap: 8px;
     }
-
-    .img-wrapper img {
-        width: 100px;
-        border-radius: 8px;
-        border: 3px solid var(--color-edge);
-        padding: 16px;
-    } */
 </style>
