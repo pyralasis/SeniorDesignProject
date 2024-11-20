@@ -34,10 +34,14 @@ Our project has not had any costs so far.
 
 ## Appendix
 - We met for 2-2.5 hours a week to work on weekly assignments and plan/distribute weekly tasks.
+- Each team member was responsible for 1.5-2.5 hours of work on their assigned tasks each week.
 - We developed a Svelte component package for easy and customizable front end creation going into the second half of the project. [kiwi-nl](https://www.npmjs.com/package/kiwi-nl)
 - We created Figma mockups for several of our front-end layouts and performed user research on how intuitive and useful these interfaces would be.
 - We began work on the front end skeleton project, setting up a solid foundation for us to build upon in the second half of the project.
-- GARETH PUT STUFF HERE
+- We setup the overall backend architecture.
+- We added suppport to the backend for creating neural network architectures.
+- We have mostly finished adding support to the backend for creating data sources (for training neural networks).
+- We implemented a few basic layers to test the existing functionality.
 
 **References**
 [PyTorch](https://pytorch.org/)
