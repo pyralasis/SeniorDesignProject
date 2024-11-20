@@ -8,8 +8,8 @@ This project is a web interface that allows the user to train, test, and use neu
 - Jimmy German 
 - Calvin Kinateder
 
-### [Project Description] (https://github.com/pyralasis/SeniorDesignProject/blob/main/Project-Description.md) Make this better)
-### User Stories and Design Diagrams (https://github.com/pyralasis/SeniorDesignProject/blob/main/User_Stories.md)
+### [Project Description](https://github.com/pyralasis/SeniorDesignProject/blob/main/Project-Description.md)
+### [User Stories and Design Diagrams](https://github.com/pyralasis/SeniorDesignProject/blob/main/User_Stories.md)
 ## Project Tasks and Timeline
 ### [Task List](https://github.com/pyralasis/SeniorDesignProject/blob/main/TaskList.md)
 ### [Milestones, Timeline, and Effort Matrix](https://github.com/pyralasis/SeniorDesignProject/blob/main/Milestones.md)
