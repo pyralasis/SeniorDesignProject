@@ -12,7 +12,7 @@ The goal of our project is to create a graphical user interface for a user to cr
 
 ## Problem Statement
 
-Building, training, and maintaining neural networks typically require advanced technical expertise in programming, data science, and machine learning frameworks. Non-technical users often overwhelmed by these technical skills needed to create neural networks. This creates a significant barrier to entry, which discourages individuals from experimenting and learning more about the field. A user-firendly interface for the libraries could improve accessibility, allow for quick experiementation, and serve as a teaching tool.
+Building, training, and maintaining neural networks typically require advanced technical expertise in programming, data science, and machine learning frameworks. Non-technical users often overwhelmed by these technical skills needed to create neural networks. This creates a significant barrier to entry, which discourages individuals from experimenting and learning more about the field. A user-friendly interface for the libraries could improve accessibility, allow for quick experiementation, and serve as a teaching tool.
 
 ## Background Skills/Interests Related to the Project
 
