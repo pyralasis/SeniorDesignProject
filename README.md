@@ -33,11 +33,11 @@ This project is a web interface that allows the user to train, test, and use neu
 Our project has not had any costs so far.
 
 ## Appendix
-We met for 2-2.5 hours a week to work on weekly assignments and plan/distribute weekly tasks.
-We developed a Svelte component package for easy and customizable front end creation going into the second half of the project. [kiwi-nl](https://www.npmjs.com/package/kiwi-nl)
-We created Figma mockups for several of our front-end layouts and performed user research on how intuitive and useful these interfaces would be.
-We began work on the front end skeleton project, setting up a solid foundation for us to build upon in the second half of the project.
-GARETH PUT STUFF HERE
+- We met for 2-2.5 hours a week to work on weekly assignments and plan/distribute weekly tasks.
+- We developed a Svelte component package for easy and customizable front end creation going into the second half of the project. [kiwi-nl](https://www.npmjs.com/package/kiwi-nl)
+- We created Figma mockups for several of our front-end layouts and performed user research on how intuitive and useful these interfaces would be.
+- We began work on the front end skeleton project, setting up a solid foundation for us to build upon in the second half of the project.
+- GARETH PUT STUFF HERE
 
 **References**
 [PyTorch](https://pytorch.org/)
