@@ -45,7 +45,7 @@ Our project has not had any costs so far.
 - We have mostly finished adding support to the backend for creating data sources (for training neural networks).
 - We implemented a few basic layers to test the existing functionality.
 
-**References**
+**References**: 
 [PyTorch](https://pytorch.org/)
 [SvelteKit](https://svelte.dev/docs/kit)
 [SvelteFlow](https://svelteflow.dev/)
@@ -53,6 +53,6 @@ Our project has not had any costs so far.
 [Flask/Quart](https://flask.palletsprojects.com/en/stable/)
 [Pydantic](https://docs.pydantic.dev/latest/)
 
-Project Repos
+**Project Repos**: 
 [Main Project Repo](https://github.com/pyralasis/SeniorDesignProject/tree/main)
 [kiwi component library](https://github.com/Nate-Louder/kiwi)
