@@ -1,7 +1,9 @@
 # Project Description
 
 **Team Name**: Velvit
+
 **Team Members**: Nate Louder (Computer Science, loudernm@mail.uc.edu), Gareth Fultz (Computer Science, fultzgc@mail.uc.edu), Calvin Kinateder (Computer Science, kinatecj@mail.uc.edu), Josh Lewis (Computer Science, lewis4ju@mail.uc.edu),  Jimmy German (Computer Science, germanjj@mail.uc.edu)
+
 **Faculty Advisor**: Dr. William Hawkins (hawkinwh@ucmail.uc.edu)
 
 ## Project Description
