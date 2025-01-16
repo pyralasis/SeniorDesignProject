@@ -16,6 +16,7 @@ LayerID: TypeAlias = str
 @dataclass
 class LayerDescription:
     id: LayerID
+    name: str
     inputs: tuple[InputDefinition, ...]
     parameters: tuple[Parameter[Any], ...]
 
@@ -38,4 +39,4 @@ class LayerDefinition:
     size: LayerSizeCallable
 
     def description(self) -> LayerDescription:
-        return LayerDescription(self.id, self.inputs, self.parameters)
+        return LayerDescription(self.id, self.name, self.inputs, self.parameters)

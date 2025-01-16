@@ -1,15 +1,14 @@
-import os
 from pathlib import Path
-from typing import Any, Self, final, override
+from typing import final
 from torchvision.datasets import FashionMNIST
 
-from server.data.sources.pytorch_base import DatasetSource
+from server.data.sources.pytorch_base import TorchDatasetSource
 from server.data.sources.base import DS_ROOT, DataSourceDefinition
 from server.params import BoolParameter
 
 
 @final
-class FashionMNISTSource(DatasetSource[FashionMNIST]):
+class FashionMNISTSource(TorchDatasetSource[FashionMNIST]):
     def setup(self) -> None:
         self.dataset.download()
 

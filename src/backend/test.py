@@ -1,8 +1,8 @@
 from pathlib import Path
-from server.architecture.desc import (
-    ArchitectureDescription,
-    InputLayerDescription,
-    NetworkLayerDescription,
+from server.architecture.config import (
+    ArchitectureConfig,
+    InputLayerConfig,
+    NetworkLayerConfig,
 )
 from server.architecture.service import ArchitectureService
 from server.params import (

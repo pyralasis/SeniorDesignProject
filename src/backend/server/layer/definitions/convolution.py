@@ -36,7 +36,7 @@ def conv_2d_size_transformation(
 
 conv2d_layer = LayerDefinition(
     "conv2d",
-    "2D Covulution",
+    "2D Convolution",
     (InputDefinition(None, 3, 4),),
     (
         IntParameter("out_channels", "Output Channels", 1),
