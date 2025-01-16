@@ -20,10 +20,10 @@
         type PopoverItem,
         Tag,
         TagColorEnum,
+        TextInput,
         PopoverSingleSelectContent,
         InputSeries,
-    } from '$lib/components';
-    import TextInput from '$lib/components/TextInput/TextInput.svelte';
+    } from 'kiwi-nl';
 
     // function handleChange(event) {
     // 	console.log(event.detail.value);
