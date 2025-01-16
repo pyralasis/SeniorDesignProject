@@ -1,0 +1,64 @@
+:root {
+    /* Colors */
+    --color-primary: #f7b155;
+    --color-primary-dark: #c66824;
+    --color-primary-light: #fef7ee;
+
+
+    --color-surface: #ffffff;
+    --color-surface-dark: #f2f2f2;
+    --color-surface-darker: #e6e6e6;
+
+    --color-surface-dark-mode: #171717;
+
+    --color-edge: #f1f1f1;
+    --color-edge-dark: #e5e5e5;
+    --color-edge-darker: #929292;
+
+
+
+
+    --color-hover-gray: #f2f2f2;
+
+    /* Text Colors */
+    --color-text-primary: #595959;
+    --color-text-light: #8c8c8c;
+    --color-text-secondary: var(--color-primary-dark);
+
+    --color-text-primary-dark-mode: #ffffff;
+
+    /* Interactable Colors */
+    --color-interactable-primary: var(--color-primary);
+    --color-interactable-primary-hover: var(--color-primary-dark);
+    --color-interactable-secondary-hover: var(--color-primary-light);
+
+    --color-interactable-primary-text: #ffffff;
+    --color-interactable-secondary-text: var(--color-primary);
+
+    --color-interactable-outline-hover: var(--color-primary);
+
+    /* Tag colors */
+    --color-tag-green: #00bc61;
+    --color-tag-red: #ff3b30;
+    --color-tag-blue: #007aff;
+    --color-tag-yellow: #ffcc00;
+    --color-tag-purple: #5856d6;
+    --color-tag-orange: #ff9500;
+    --color-tag-gray: #8e8e93;
+
+    /* Sizes */
+    --size-xxs: 0.125rem;
+    --size-xs: 0.25rem;
+    --size-sm: 0.5rem;
+    --size-md: 1rem;
+    --size-lg: 2rem;
+    --size-xl: 4rem;
+
+    --border-radius-sm: 0.5rem;
+    --border-radius-md: 1rem;
+    --border-radius-lg: 2rem;
+
+    /* Fonts */
+    --font-family: 'inter', sans-serif;
+
+}
