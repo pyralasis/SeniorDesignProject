@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, TypeAlias
+from typing import TypeAlias
 
 from server.params import ParameterValue
 from server.layer import LayerID
@@ -10,13 +10,13 @@ LayerInstanceID: TypeAlias = int
 
 
 @dataclass
-class InputLayerDescription:
+class InputLayerConfig:
     id: LayerInstanceID
     size: TensorSize
 
 
 @dataclass
-class NetworkLayerDescription:
+class NetworkLayerConfig:
     id: LayerInstanceID
     layer_id: LayerID
     input: LayerInstanceID | list[LayerInstanceID]
@@ -25,7 +25,7 @@ class NetworkLayerDescription:
 
 
 @dataclass
-class ArchitectureDescription:
+class ArchitectureConfig:
     name: str
-    inputs: list[InputLayerDescription]
-    layers: list[NetworkLayerDescription]
+    inputs: list[InputLayerConfig]
+    layers: list[NetworkLayerConfig]

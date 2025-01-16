@@ -1,17 +1,21 @@
 from dataclasses import asdict, dataclass
-from typing import Literal
+from typing import Generic, Literal, TypeVar
 from pydantic import TypeAdapter
 from quart import request, ResponseReturnValue
 from quart.views import MethodView
 
-from server.architecture.desc import ArchitectureDescription
+from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
+from server.util.file.manager import FileManager
+
+
+T = TypeVar("T")
 
 
 @dataclass
-class SaveRequestBody:
+class SaveRequestBody(Generic[T]):
     file_name: str
-    architecture: ArchitectureDescription
+    data: T
 
 
 @dataclass
@@ -25,17 +29,17 @@ class FailedResponse:
     success: Literal[False] = False
 
 
-class SaveArchitectureView(MethodView):
+class SaveFileView(MethodView, Generic[T]):
     init_every_request = False
 
-    def __init__(self, arch_service: ArchitectureService):
-        self.arch_service = arch_service
-        self.adapter = TypeAdapter(SaveRequestBody)
+    def __init__(self, file_mngr: FileManager[T]):
+        self.file_mngr = file_mngr
+        self.adapter = TypeAdapter(SaveRequestBody[file_mngr.file_type])
 
     async def post(self) -> ResponseReturnValue:
         body = self.adapter.validate_python(request.json)
         try:
-            self.arch_service.save_architecture(body.file_name, body.architecture)
+            self.file_mngr.save(body.file_name, body.data)
             return asdict(SuccessfulResponse())
         except Exception as error:
             return asdict(FailedResponse(str(error))), 400

@@ -1,12 +1,14 @@
 from dataclasses import asdict, dataclass
-from typing import Literal
+from typing import Generic, Literal, TypeVar
 from pydantic import TypeAdapter
 from quart import request, ResponseReturnValue
 from quart.views import MethodView
 
-from server import architecture
-from server.architecture.loaded import LoadedArchitecture
-from server.architecture.service import ArchitectureService
+from server.util.file.loaded import Loaded
+from server.util.file.manager import FileManager
+
+
+T = TypeVar("T")
 
 
 @dataclass
@@ -15,8 +17,8 @@ class LoadRequestArgs:
 
 
 @dataclass
-class SuccessfulResponse:
-    architecture: LoadedArchitecture
+class SuccessfulResponse(Generic[T]):
+    data: Loaded[T]
     success: Literal[True] = True
 
 
@@ -26,18 +28,16 @@ class FailedResponse:
     success: Literal[False] = False
 
 
-class LoadArchitectureView(MethodView):
+class LoadFileView(MethodView, Generic[T]):
     init_every_request = False
 
-    def __init__(self, arch_service: ArchitectureService):
-        self.arch_service = arch_service
+    def __init__(self, file_mngr: FileManager[T]):
+        self.file_mngr = file_mngr
         self.adapter = TypeAdapter(LoadRequestArgs)
 
     async def get(self) -> ResponseReturnValue:
         args = self.adapter.validate_python(request.args)
         try:
-            return asdict(
-                SuccessfulResponse(self.arch_service.load_architecture(args.file_name))
-            )
+            return asdict(SuccessfulResponse(self.file_mngr.load(args.file_name)))
         except Exception as error:
             return asdict(FailedResponse(str(error))), 400

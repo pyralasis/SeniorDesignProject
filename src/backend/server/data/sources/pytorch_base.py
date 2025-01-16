@@ -2,15 +2,14 @@ from torch.utils.data import Dataset
 from server.data.sources.base import DataSource
 from server.util.override_decorator import override
 
-
 from abc import ABC
-from typing import Any, Callable, Generic, Optional, TypeVar
+from typing import Any, Generic, TypeVar
 
 
 TDs = TypeVar("TDs", bound=Dataset)
 
 
-class DatasetSource(DataSource, Generic[TDs], ABC):
+class TorchDatasetSource(DataSource, Generic[TDs], ABC):
     dataset: TDs
     use_labels: bool
 

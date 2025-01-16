@@ -9,18 +9,23 @@ from typing import (
     TypeAlias,
 )
 
-from click import Option
-
 
 from server.params import (
     Parameter,
 )
 
 
-DatasetID: TypeAlias = str
+DataSourceId: TypeAlias = str
 
 
 DS_ROOT = "./datasets/"
+
+
+@dataclass
+class DataSourceDescription:
+    id: DataSourceId
+    name: str
+    parameters: tuple[Parameter[Any], ...]
 
 
 class DataSourceConstructor(Protocol):
@@ -29,10 +34,13 @@ class DataSourceConstructor(Protocol):
 
 @dataclass
 class DataSourceDefinition:
-    id: DatasetID
+    id: DataSourceId
     name: str
     parameters: tuple[Parameter[Any], ...]
     constructor: DataSourceConstructor
+
+    def description(self) -> DataSourceDescription:
+        return DataSourceDescription(self.id, self.name, self.parameters)
 
 
 class DataSource(ABC):

@@ -1,11 +1,14 @@
 from dataclasses import asdict, dataclass
-from typing import Literal
+from typing import Generic, Literal, TypeVar
 from pydantic import TypeAdapter
 from quart import ResponseReturnValue, request
 from quart.views import MethodView
 
-from server.architecture.desc import ArchitectureDescription
+from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
+from server.util.file.manager import FileManager
+
+T = TypeVar("T")
 
 
 @dataclass
@@ -24,17 +27,17 @@ class FailedResponse:
     success: Literal[False] = False
 
 
-class DeleteArchitectureView(MethodView):
+class DeleteFileView(MethodView, Generic[T]):
     init_every_request = False
 
-    def __init__(self, arch_service: ArchitectureService):
-        self.arch_service = arch_service
+    def __init__(self, file_mngr: FileManager[T]):
+        self.file_mngr = file_mngr
         self.adapter = TypeAdapter(DeleteRequestBody)
 
     async def post(self) -> ResponseReturnValue:
         body = self.adapter.validate_python(request.json)
         try:
-            self.arch_service.delete_architecture(body.file_name)
+            self.file_mngr.delete(body.file_name)
             return asdict(SuccessfulResponse())
         except Exception as error:
             return asdict(FailedResponse(str(error))), 400

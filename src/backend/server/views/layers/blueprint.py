@@ -1,11 +1,12 @@
 from quart import Blueprint
 
-from server.layer.registry import LayerRegistry
+from server.layer import LayerDefinition
+from server.util.registry import Registry
 from server.views.layers.available import AvailableLayersView
 from server.views.layers.output_size import LayerOutputSizeView
 
 
-def create_layer_blueprint(layer_registry: LayerRegistry) -> Blueprint:
+def create_layer_blueprint(layer_registry: Registry[LayerDefinition]) -> Blueprint:
     bp = Blueprint("layer", __name__)
 
     bp.add_url_rule(
