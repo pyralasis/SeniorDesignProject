@@ -1,35 +1,35 @@
+from abc import ABC, abstractmethod
 import io
 import os
 from pathlib import Path
-from typing import Generic, TypeVar
+from re import A
+from typing import Any, Callable, Generic, TypeVar
 
 from pydantic import TypeAdapter
+import torch
 
 from server.util.file.loaded import Loaded
+from server.util.override_decorator import override
 
 
 T = TypeVar("T")
 
 
-class FileManager(Generic[T]):
+class BaseFileManager(ABC, Generic[T]):
     _save_path: Path
-    _adapter: TypeAdapter[T]
 
-    file_type: type[T]
-
-    def __init__(self, save_path: Path, file_type: type[T]) -> None:
+    def __init__(self, save_path: Path, extension: str) -> None:
+        self._suffixes = ["." + ext for ext in extension.split(".")]
         self._save_path = save_path
-        self._adapter = TypeAdapter(file_type)
-        self.file_type = file_type
-
         self._save_path.mkdir(parents=True, exist_ok=True)
 
     def save(self, file_name: str, data: T) -> Path:
         path = self._save_path.joinpath(file_name)
+        self._save_to_path(path, data)
+        return path
 
-        with io.open(path, "wb") as f:
-            f.write(self._adapter.dump_json(data))
-            return path
+    @abstractmethod
+    def _save_to_path(self, path: Path, data: T): ...
 
     def delete(self, file_name: str) -> bool:
         """
@@ -54,17 +54,50 @@ class FileManager(Generic[T]):
         architectures = []
         for path in os.listdir(self._save_path):
             path = self._save_path.joinpath(path)
-            if path.is_file() and path.suffixes == [".arch", ".json"]:
+            if path.is_file() and path.suffixes == self._suffixes:
                 try:
-                    architectures.append(self.load_from_path(path))
+                    architectures.append(Loaded[T](path.name, self._load_from_path(path)))
                 except:
                     continue
         return architectures
 
     def load(self, file_name: str) -> Loaded[T]:
         path = self._save_path.joinpath(file_name)
-        return self.load_from_path(path)
+        return Loaded[T](path.name, self._load_from_path(path))
 
-    def load_from_path(self, path: Path) -> Loaded[T]:
+    @abstractmethod
+    def _load_from_path(self, path: Path) -> T: ...
+
+
+class JsonFileManager(BaseFileManager[T], Generic[T]):
+    _adapter: TypeAdapter[T]
+    file_type: type[T]
+
+    def __init__(self, save_path: Path, file_type: type[T], extension: str) -> None:
+        self._adapter = TypeAdapter(file_type)
+        self.file_type = file_type
+        super().__init__(save_path, extension)
+
+    @override
+    def _save_to_path(self, path: Path, data: T):
+        with io.open(path, "wb") as f:
+            f.write(self._adapter.dump_json(data))
+
+    @override
+    def _load_from_path(self, path: Path) -> T:
         with io.open(path, "r") as f:
-            return Loaded[T](path.name, self._adapter.validate_json(f.read()))
+            return self._adapter.validate_json(f.read())
+
+
+class TorchWeightsFileManager(BaseFileManager[dict[str, Any]]):
+
+    def __init__(self, save_path: Path, extension: str) -> None:
+        super().__init__(save_path, extension)
+
+    @override
+    def _save_to_path(self, path: Path, data: dict[str, Any]):
+        torch.save(data, path)
+
+    @override
+    def _load_from_path(self, path: Path) -> dict[str, Any]:
+        return torch.load(path)

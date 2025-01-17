@@ -1,13 +1,13 @@
 from quart import Blueprint
 
-from server.util.file.manager import FileManager
+from server.util.file.manager import BaseFileManager
 from server.util.file.views.available import AvailableFilesView
 from server.util.file.views.delete import DeleteFileView
 from server.util.file.views.load import LoadFileView
 from server.util.file.views.save import SaveFileView
 
 
-def create_file_blueprint(file_manager: FileManager, file_type_name: str) -> Blueprint:
+def create_file_blueprint(file_manager: BaseFileManager, file_type_name: str) -> Blueprint:
     bp = Blueprint(f"{file_type_name}_files", __name__)
 
     bp.add_url_rule(

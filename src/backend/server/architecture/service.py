@@ -1,11 +1,11 @@
 from pathlib import Path
 
 from server.architecture.config import ArchitectureConfig
-from server.util.file.manager import FileManager
+from server.util.file.manager import BaseFileManager, JsonFileManager
 
 
 class ArchitectureService:
-    files: FileManager
+    files: BaseFileManager
 
     def __init__(self, save_path: Path) -> None:
-        self.files = FileManager(save_path, ArchitectureConfig)
+        self.files = JsonFileManager(save_path, ArchitectureConfig, ".arch.json")

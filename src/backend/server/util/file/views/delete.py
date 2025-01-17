@@ -6,7 +6,7 @@ from quart.views import MethodView
 
 from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
-from server.util.file.manager import FileManager
+from server.util.file.manager import BaseFileManager
 
 T = TypeVar("T")
 
@@ -30,7 +30,7 @@ class FailedResponse:
 class DeleteFileView(MethodView, Generic[T]):
     init_every_request = False
 
-    def __init__(self, file_mngr: FileManager[T]):
+    def __init__(self, file_mngr: BaseFileManager[T]):
         self.file_mngr = file_mngr
         self.adapter = TypeAdapter(DeleteRequestBody)
 

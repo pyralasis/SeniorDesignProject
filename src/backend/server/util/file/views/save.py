@@ -6,7 +6,7 @@ from quart.views import MethodView
 
 from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
-from server.util.file.manager import FileManager
+from server.util.file.manager import BaseFileManager, JsonFileManager
 
 
 T = TypeVar("T")
@@ -32,7 +32,7 @@ class FailedResponse:
 class SaveFileView(MethodView, Generic[T]):
     init_every_request = False
 
-    def __init__(self, file_mngr: FileManager[T]):
+    def __init__(self, file_mngr: JsonFileManager[T]):
         self.file_mngr = file_mngr
         self.adapter = TypeAdapter(SaveRequestBody[file_mngr.file_type])
 
