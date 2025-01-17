@@ -29,15 +29,13 @@
     import DnDProvider from "$lib/components/DnDProvider.svelte";
 
     import Flow from "$lib/components/Flow/Flow.svelte";
+    import ArchitectureMenuItem from "$lib/components/General/ArchitectureMenuItem.svelte";
     let editArchitectureFlyout: any;
     let editPipelineFlyout: any;
     let editModelFlyout: any;
 </script>
 
 <div class="wrapper">
-    <!-- <header>
-            <Header type={HeaderTypeEnum.h1}>Velvit</Header>
-    </header> -->
     <nav>
         <Button
             type={ButtonTypeEnum.secondary}
@@ -67,13 +65,21 @@
         >
     </nav>
     <main>
-        <SvelteFlowProvider>
-            <DnDProvider>
-                <Flow />
-            </DnDProvider>
-        </SvelteFlowProvider>
+        <div class="info-bar">
+            <Header type={HeaderTypeEnum.h1}>Architecture Title</Header>
+            <br />
+            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.medium}
+                >Save</Button
+            >
+        </div>
+        <div class="DnD">
+            <SvelteFlowProvider>
+                <DnDProvider>
+                    <Flow />
+                </DnDProvider>
+            </SvelteFlowProvider>
+        </div>
     </main>
-    <!-- <footer></footer> -->
 
     <Flyout
         bind:this={editArchitectureFlyout}
@@ -81,37 +87,28 @@
         subheader="Select the Architecture You Wish to Edit"
     >
         <div slot="flyout-body" class="flyout-body">
+            <ArchitectureMenuItem
+                title="Architecture 1"
+                description="Architecture Description"
+            ></ArchitectureMenuItem>
+            <ArchitectureMenuItem
+                title="Architecture 2"
+                description="Architecture Description"
+            ></ArchitectureMenuItem>
             <Accordion>
                 <AccordionHeader slot="header"
-                    ><Text>Architecture 1</Text>
-                </AccordionHeader>
-                <AccordionBody slot="body">
-                    <Text>Description of Architecture 1</Text>
-                    <br />
-                    <Text>
-                        Maybe a thumbnail of the architecture? Or a custom
-                        image?
-                    </Text>
-                    <Button
-                        type={ButtonTypeEnum.secondary}
-                        size={ButtonSizeEnum.small}>Edit</Button
+                    ><Header type={HeaderTypeEnum.h4}
+                        >Create New Architecture</Header
                     >
-                </AccordionBody>
-            </Accordion>
-            <Accordion>
-                <AccordionHeader slot="header"
-                    ><Text>Architecture 2</Text>
                 </AccordionHeader>
                 <AccordionBody slot="body">
-                    <Text>Description of Architecture 2</Text>
-                    <br />
-                    <Text>
-                        Maybe a thumbnail of the architecture? Or a custom
-                        image?
-                    </Text>
+                    <Text>Title</Text>
+                    <TextInput></TextInput>
+                    <Text>Description</Text>
+                    <TextInput></TextInput>
                     <Button
                         type={ButtonTypeEnum.secondary}
-                        size={ButtonSizeEnum.small}>Edit</Button
+                        size={ButtonSizeEnum.small}>Create</Button
                     >
                 </AccordionBody>
             </Accordion>
@@ -166,30 +163,23 @@
         width: 100%;
         height: 100%;
         display: grid;
-        grid-template-columns: 10% 90%;
+        grid-template-columns: 12% 88%;
         /* grid-gap: 10px; */
         grid-template-rows: 100%;
-    }
-    header {
-        grid-column: span 2;
-        text-align: center;
-        background-color: orange;
     }
     main {
         background-color: white;
         padding: 1em 2em;
     }
     nav {
-        background-color: rgb(253, 217, 152);
+        /* background-color: rgb(253, 217, 152); */
+        background-color: white;
+        border-right: solid black 1px;
         display: flex;
         flex-direction: column;
         align-items: center;
-    }
-    footer {
-        clear: both;
-        text-align: center;
-        grid-column: span 2;
-        background-color: orange;
+        padding-top: 0.5em;
+        /* grid-row: span 2; */
     }
 
     hr {
