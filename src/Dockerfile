@@ -12,4 +12,5 @@ RUN cd backend && pip install -r requirements.txt
 RUN apt update -qq
 RUN apt install -y nodejs npm 
 RUN cd frontend && npm install
+
 ENTRYPOINT [ "/bin/bash" ]
