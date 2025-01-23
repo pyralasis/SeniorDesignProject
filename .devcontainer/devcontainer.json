@@ -1,0 +1,13 @@
+{
+    "build": { "dockerfile": "../src/Dockerfile" },
+    "customizations": {
+      "vscode": {
+        "extensions": [ "ms-python.python",
+                        "github.copilot",
+                        "ms-python.vscode-pylance",
+                        "ms-python.black-formatter",
+                      ]
+      }
+    }  
+}
+  
