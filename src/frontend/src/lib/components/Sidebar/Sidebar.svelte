@@ -1,26 +1,44 @@
 <script lang="ts">
-    import { useDnD } from '../../utilities/DnDUtils';
+    import type { Layer } from '$lib/types/layer';
+    import { useDnD, type DnDContext } from '../../utilities/DnDUtils';
+    import SidebarLayer from './SidebarNode.svelte';
+    import { onMount } from 'svelte';
+    import { BackendApi } from '$lib/utilities/api.utilities';
+    import { NodeTypeEnum, type NodeType } from '$lib/types/node-type.enum';
+    import TestNode from '../nodes/TestNode.svelte';
 
-    const type = useDnD();
+    const dndContext = useDnD();
+    let layers: Layer<any>[] = [];
 
-    const onDragStart = (event: DragEvent, nodeType: string) => {
+    const onDragStart = (event: DragEvent, nodeType: NodeType, layerBlueprint: Layer<any>) => {
         if (!event.dataTransfer) {
             return null;
         }
 
-        type.set(nodeType);
+        if (dndContext) {
+            dndContext.set({ type: nodeType, layerBlueprint: layerBlueprint });
+        }
 
         event.dataTransfer.effectAllowed = 'move';
     };
+
+    // -------------------------------
+    // Lifecycle Hooks
+    // -------------------------------
+    onMount(() => {
+        BackendApi.getAvailableLayers().then((response) => {
+            layers = response;
+        });
+    });
 </script>
 
-<aside>
-    <div class="label">You can drag these nodes to the pane below.</div>
+<div>
     <div class="nodes-container">
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div class="input-node node" on:dragstart={(event) => onDragStart(event, 'testNode')} draggable={true}>New Node</div>
+        {#each layers as layer}
+            <SidebarLayer {layer} {onDragStart} />
+        {/each}
     </div>
-</aside>
+</div>
 
 <style lang="scss">
     aside {
@@ -42,15 +60,5 @@
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    .node {
-        margin: 0.5rem;
-        border: 1px solid #111;
-        padding: 0.5rem 1rem;
-        font-weight: 700;
-        border-radius: 3px;
-        cursor: grab;
-        width: 50px;
     }
 </style>

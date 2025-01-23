@@ -1,10 +1,9 @@
 <script lang="ts">
     import { type Writable, writable } from 'svelte/store';
     import { Handle, Position, type NodeProps } from '@xyflow/svelte';
-    import { Accordion, AccordionBody, AccordionHeader, Text, TextInput } from 'kiwi-nl';
-    import NodeField from './NodeField.svelte';
-    import { type NodeField as FieldDefinition } from './types/node-field.interface';
+    import NodeField from './NodeParameter.svelte';
     import { getContext } from 'svelte';
+    import type { Parameter, ParameterValue } from '$lib/types/layer';
 
     type $$Props = NodeProps;
 
@@ -13,7 +12,9 @@
 
     const color: Writable<string> = data?.color as Writable<string>;
     const title: Writable<string> = data?.title as Writable<string>;
-    const fields: Writable<FieldDefinition[]> = data?.fields as Writable<FieldDefinition[]>;
+    const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
+        { parameter: Parameter<any>; value: ParameterValue<any> }[]
+    >;
     const selectedNodeId: Writable<string> = getContext('selectedNodeId');
 
     let selected = false;
@@ -29,7 +30,7 @@
         selectedNodeId.set(id);
     }
 
-    function updateValue(value: string) {
+    function updateValue(value: ParameterValue<any>) {
         console.log(value);
     }
 
@@ -48,8 +49,8 @@
     </div>
     {#if $expanded}
         <div class="node__content">
-            {#each $fields as field, index}
-                <NodeField type={field.type} label={field.label} required={field.required} onChange={updateValue} />
+            {#each $parameters as parameter, index}
+                <NodeField parameter={parameter.parameter} value={parameter.value} onChange={updateValue} />
             {/each}
         </div>
     {/if}

@@ -1,22 +1,32 @@
 <script lang="ts">
     import { writable, type Writable } from 'svelte/store';
-    import { type Node, SvelteFlow, Controls, Background, MiniMap, useSvelteFlow, type NodeTypes } from '@xyflow/svelte';
-    import { useDnD } from '$lib/utilities/DnDUtils';
+    import { type Node, SvelteFlow, Controls, Background, MiniMap, useSvelteFlow, type NodeTypes, type Edge } from '@xyflow/svelte';
+    import { useDnD, type DnDContext } from '$lib/utilities/DnDUtils';
 
-    import BNode from '../nodes/BNode.svelte';
+    import LayerNode from '../nodes/LayerNode.svelte';
     import Sidebar from '$lib/components/Sidebar/Sidebar.svelte';
     import '@xyflow/svelte/dist/style.css';
     import { setContext } from 'svelte';
-    import { NodeFieldTypeEnum, type NodeField } from '../nodes/types/node-field.interface';
+    import { type Parameter, type ParameterValue } from '$lib/types/layer';
 
     const nodes: Writable<Node[]> = writable([]);
-
-    const edges = writable([]);
+    const edges: Writable<Edge[]> = writable([]);
     const selectedNodeId: Writable<string> = writable('');
+
     setContext('selectedNodeId', selectedNodeId);
 
     const { screenToFlowPosition } = useSvelteFlow();
-    const type = useDnD();
+    const dndContext = useDnD();
+
+    function getParameterDefaultValue(parameter: Parameter<any>): { parameter: Parameter<any>; value: ParameterValue<any> } {
+        return {
+            parameter,
+            value: {
+                type: parameter.type,
+                value: parameter.default,
+            },
+        };
+    }
 
     const onDragOver = (event: DragEvent) => {
         event.preventDefault();
@@ -29,7 +39,7 @@
     const onDrop = (event: DragEvent) => {
         event.preventDefault();
 
-        if (!$type) {
+        if (!$dndContext?.type) {
             return;
         }
 
@@ -40,15 +50,13 @@
 
         const newNode = {
             id: `${Math.floor(Math.random() * 1000000)}`,
-            type: 'testNode',
+            type: $dndContext?.type,
             data: {
                 color: writable('#ff4000'),
                 title: writable('Node'),
-                fields: writable<NodeField[]>([
-                    { label: 'Boolean', value: 'Value 1', type: NodeFieldTypeEnum.boolean, required: false },
-                    { label: 'Serires', value: 'Value 2', type: NodeFieldTypeEnum.series, required: false },
-                    { label: 'Input', value: 'Value 3', type: NodeFieldTypeEnum.input, required: false },
-                ]),
+                parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
+                    $dndContext.layerBlueprint.parameters.map(getParameterDefaultValue),
+                ),
             },
             position: { x: position.x, y: position.y },
         } satisfies Node;
@@ -58,12 +66,12 @@
     };
 
     const nodeTypes: NodeTypes = {
-        testNode: BNode,
+        layer: LayerNode,
     };
 </script>
 
 <main>
-    <SvelteFlow {nodes} {edges} {nodeTypes} fitView on:dragover={onDragOver} on:drop={onDrop} on:click={() => selectedNodeId.set('')}>
+    <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
         <Controls />
         <Background />
         <MiniMap />
@@ -73,7 +81,7 @@
 
 <style>
     main {
-        height: 50vh;
+        height: 75vh;
         display: flex;
         flex-direction: column-reverse;
     }
