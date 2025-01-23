@@ -3,6 +3,7 @@ from quart import Blueprint
 from server.architecture.service import ArchitectureService
 from server.data.service import DataService
 from server.layer import LayerDefinition
+from server.layer.service import LayerService
 from server.layout.service import LayoutService
 from server.util.registry import Registry
 from server.views.architecture.blueprint import create_architecture_blueprint
@@ -16,7 +17,7 @@ from server.views.test_ws import TestWebsocketView
 
 def create_api_blueprint(
     architecture_service: ArchitectureService,
-    layer_registry: Registry[LayerDefinition],
+    layer_registry: LayerService,
     data_service: DataService,
     layout_service: LayoutService,
 ) -> Blueprint:

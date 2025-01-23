@@ -4,10 +4,10 @@ from pydantic import TypeAdapter
 from quart import ResponseReturnValue, request
 from quart.views import MethodView
 
-from server.layer import LayerDefinition, LayerID
+from server.layer import LayerID
+from server.layer.service import LayerService
 from server.params import AnyParameterValue
 from server.layer.size import TensorSize
-from server.util.registry import Registry
 
 
 @dataclass
@@ -37,17 +37,17 @@ class InvalidLayerResponse:
 class LayerOutputSizeView(MethodView):
     init_every_request = False
 
-    def __init__(self, layer_registry: Registry[LayerDefinition]):
-        self.registry = layer_registry
+    def __init__(self, layer_service: LayerService):
+        self.service = layer_service
         self.adapter = TypeAdapter(LayerOutputSizeRequestBody)
 
     async def post(self) -> ResponseReturnValue:
         req = self.adapter.validate_python(await request.json)
 
-        if not self.registry.contains(req.layer_id):
+        if not self.service.layers.contains(req.layer_id):
             return asdict(InvalidLayerResponse())
 
-        layer = self.registry.get(req.layer_id)
+        layer = self.service.layers.get(req.layer_id)
         size_arguments: list[Any] = [req.input_size]
 
         for param in layer.parameters:
