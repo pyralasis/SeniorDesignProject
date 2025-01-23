@@ -7,6 +7,7 @@ from server.data.sources import default_sources
 from server.data.transforms import default_transforms
 from server.layer import LayerDefinition
 from server.layer.definitions import default_layers
+from server.layout.service import LayoutService
 from server.util.registry import Registry
 from server.views.blueprint import create_api_blueprint
 
@@ -17,8 +18,11 @@ def create_app():
     layer_registry = Registry[LayerDefinition](default_layers)
     architecture_service = ArchitectureService(Path("./architectures"))
     data_service = DataService(Path("./pipelines"), default_sources, default_transforms)
+    layout_service = LayoutService(Path("./layouts"))
 
-    app.register_blueprint(create_api_blueprint(architecture_service, layer_registry, data_service), url_prefix="/api")
+    app.register_blueprint(
+        create_api_blueprint(architecture_service, layer_registry, data_service, layout_service), url_prefix="/api"
+    )
 
     return app
 
