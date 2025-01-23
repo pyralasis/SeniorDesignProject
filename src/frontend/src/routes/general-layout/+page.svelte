@@ -30,9 +30,35 @@
 
     import Flow from "$lib/components/Flow/Flow.svelte";
     import ArchitectureMenuItem from "$lib/components/General/ArchitectureMenuItem.svelte";
+    import { writable } from "svelte/store";
     let editArchitectureFlyout: any;
     let editPipelineFlyout: any;
     let editModelFlyout: any;
+
+    type dummyData = { tabID: number; tabTitle: string };
+    let test: dummyData[] = [
+        { tabID: 1, tabTitle: "A" },
+        { tabID: 2, tabTitle: "B" },
+    ];
+    let dummyTabs = writable<dummyData[]>(test);
+
+    let closeTab = (tabID: number) => {
+        let mytabs = $dummyTabs;
+        let findTabByID = (element: dummyData, id: number) => {
+            return element.tabID == id;
+        };
+        mytabs.splice(
+            mytabs.findIndex((element) => findTabByID(element, tabID)),
+            1,
+        );
+        $dummyTabs = mytabs;
+    };
+    function openTab(newTab: dummyData) {
+        let mytabs = $dummyTabs;
+        mytabs.push(newTab);
+        $dummyTabs = mytabs;
+    }
+    console.log($dummyTabs);
 </script>
 
 <div class="wrapper">
@@ -65,20 +91,43 @@
         >
     </nav>
     <main>
-        <div class="info-bar">
-            <Header type={HeaderTypeEnum.h1}>Architecture Title</Header>
-            <br />
-            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.medium}
-                >Save</Button
-            >
-        </div>
-        <div class="DnD">
-            <SvelteFlowProvider>
-                <DnDProvider>
-                    <Flow />
-                </DnDProvider>
-            </SvelteFlowProvider>
-        </div>
+        <Tabs activeTab={1}>
+            <svelte:fragment slot="labels">
+                {#each $dummyTabs as tab, i}
+                    <TabLabel tabnum={i + 1}>{tab.tabTitle}</TabLabel>
+                {/each}
+            </svelte:fragment>
+            <svelte:fragment slot="contents">
+                {#each $dummyTabs as tab, i}
+                    <TabContent tabnum={i + 1}>
+                        <div class="info-bar">
+                            <Header type={HeaderTypeEnum.h1}
+                                >Architecture Title</Header
+                            >
+                            <br />
+                            <Button
+                                type={ButtonTypeEnum.primary}
+                                size={ButtonSizeEnum.medium}>Save</Button
+                            >
+                            <Button
+                                type={ButtonTypeEnum.primary}
+                                size={ButtonSizeEnum.medium}
+                                on:click={() => closeTab(tab.tabID)}
+                                >Close</Button
+                            >
+                        </div>
+
+                        <div class="DnD">
+                            <SvelteFlowProvider>
+                                <DnDProvider>
+                                    <Flow />
+                                </DnDProvider>
+                            </SvelteFlowProvider>
+                        </div>
+                    </TabContent>
+                {/each}
+            </svelte:fragment>
+        </Tabs>
     </main>
 
     <Flyout
@@ -90,10 +139,18 @@
             <ArchitectureMenuItem
                 title="Architecture 1"
                 description="Architecture Description"
+                openTabCallback={() => {
+                    let testTab: dummyData = { tabID: 3, tabTitle: "C" };
+                    openTab(testTab);
+                }}
             ></ArchitectureMenuItem>
             <ArchitectureMenuItem
                 title="Architecture 2"
                 description="Architecture Description"
+                openTabCallback={() => {
+                    let testTab: dummyData = { tabID: 4, tabTitle: "D" };
+                    openTab(testTab);
+                }}
             ></ArchitectureMenuItem>
             <Accordion>
                 <AccordionHeader slot="header"

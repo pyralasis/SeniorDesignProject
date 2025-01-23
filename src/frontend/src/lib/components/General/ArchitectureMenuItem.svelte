@@ -28,6 +28,7 @@
 
     export let title;
     export let description;
+    export let openTabCallback;
 </script>
 
 <Accordion>
@@ -37,8 +38,10 @@
     <AccordionBody slot="body">
         <Text>{description}</Text>
         <div class="button-container">
-            <Button type={ButtonTypeEnum.secondary} size={ButtonSizeEnum.small}
-                >Edit</Button
+            <Button
+                type={ButtonTypeEnum.secondary}
+                size={ButtonSizeEnum.small}
+                on:click={openTabCallback}>Edit</Button
             >
             <Button type={ButtonTypeEnum.secondary} size={ButtonSizeEnum.small}
                 >Delete</Button
