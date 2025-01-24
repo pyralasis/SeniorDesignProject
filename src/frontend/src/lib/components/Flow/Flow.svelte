@@ -1,3 +1,7 @@
+<script module>
+    export const nodes: Writable<Node[]> = writable([]);
+</script>
+
 <script lang="ts">
     import { writable, type Writable } from 'svelte/store';
     import { type Node, SvelteFlow, Controls, Background, MiniMap, useSvelteFlow, type NodeTypes, type Edge } from '@xyflow/svelte';
@@ -9,7 +13,6 @@
     import { setContext } from 'svelte';
     import { type Parameter, type ParameterValue } from '$lib/types/layer';
 
-    const nodes: Writable<Node[]> = writable([]);
     const edges: Writable<Edge[]> = writable([]);
     const selectedNodeId: Writable<string> = writable('');
 

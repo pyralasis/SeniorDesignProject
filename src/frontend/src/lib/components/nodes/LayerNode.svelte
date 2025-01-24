@@ -4,6 +4,8 @@
     import NodeField from './NodeParameter.svelte';
     import { getContext } from 'svelte';
     import type { Parameter, ParameterValue } from '$lib/types/layer';
+    import { Button, ButtonSizeEnum, ButtonTypeEnum, Flyout, Text, TextInput } from 'kiwi-nl';
+    import { nodes } from '../Flow/Flow.svelte';
 
     type $$Props = NodeProps;
 
@@ -35,6 +37,16 @@
     }
 
     $: selected = $selectedNodeId === id;
+
+    let isEditMode = false;
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+    }
+
+    function deleteNode(){
+        $nodes = $nodes.filter(node => node.id !== id);
+    }
+    console.log(data)
 </script>
 
 <Handle type="target" position={Position.Left} />
@@ -44,8 +56,28 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="node__header" style="background-color: {$color};" on:click={handleToggleExpanded}>
-        <div class="node__title">{$title} {id}</div>
         <div style="transform: rotate({$rotationDegrees}deg); transition: transform 0.3s;">&#9660;</div>
+        {#if !isEditMode}
+            <div class="node__title">{$title} {id}</div>
+        {:else}
+        <div style="display: grid; grid-template-columns: 80% 20%; grid-gap: 10px;">
+            <TextInput label="" bind:value={$title}></TextInput>
+            <input type="color" bind:value={$color}>
+        </div>
+        {/if}
+
+        <div on:click|stopPropagation>
+            <Button 
+            type={ButtonTypeEnum.primary}
+            size={ButtonSizeEnum.small} 
+            on:click={toggleEditMode}>&#9998;</Button>
+        </div>
+        <div on:click|stopPropagation>
+            <Button 
+            type={ButtonTypeEnum.primary}
+            size={ButtonSizeEnum.small} 
+            on:click={deleteNode}>&#128465;</Button>
+        </div>
     </div>
     {#if $expanded}
         <div class="node__content">
@@ -56,6 +88,7 @@
     {/if}
 </div>
 <Handle type="source" position={Position.Right} />
+
 
 <style lang="scss">
     .node {
@@ -72,8 +105,9 @@
 
         &__header {
             padding: 8px;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 5% 85% 5% 5%;
+            grid-template-rows: 100%;
             align-items: center;
             cursor: pointer;
             font-weight: bold;
@@ -85,5 +119,7 @@
             flex-direction: column;
             gap: 16px;
         }
+
+        
     }
 </style>
