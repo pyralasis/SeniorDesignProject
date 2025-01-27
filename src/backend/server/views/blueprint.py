@@ -13,13 +13,14 @@ from server.views.layout.blueprint import create_layout_blueprint
 from server.views.model.blueprint import create_model_blueprint
 from server.views.test import TestView
 from server.views.test_ws import TestWebsocketView
-
+from server.model.service import ModelService
 
 def create_api_blueprint(
     architecture_service: ArchitectureService,
     layer_registry: LayerService,
     data_service: DataService,
     layout_service: LayoutService,
+    model_service: ModelService,
 ) -> Blueprint:
     bp = Blueprint("api", __name__)
 
@@ -29,7 +30,7 @@ def create_api_blueprint(
     bp.register_blueprint(create_architecture_blueprint(architecture_service), url_prefix="/architecture")
     bp.register_blueprint(create_layout_blueprint(layout_service), url_prefix="/layout")
     bp.register_blueprint(create_data_blueprint(data_service), url_prefix="/data")
-    bp.register_blueprint(create_model_blueprint(), url_prefix="/model")
+    bp.register_blueprint(create_model_blueprint(model_service), url_prefix="/model")
     bp.register_blueprint(create_layer_blueprint(layer_registry), url_prefix="/layer")
 
     return bp
