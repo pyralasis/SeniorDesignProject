@@ -19,6 +19,7 @@ def create_app():
     data_service = DataService(Path("./pipelines"), default_sources, default_transforms)
     layout_service = LayoutService(Path("./layouts"))
 
+    # These are where the API endpoints are registered
     app.register_blueprint(
         create_api_blueprint(architecture_service, layer_service, data_service, layout_service), url_prefix="/api"
     )
