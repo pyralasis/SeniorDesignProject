@@ -13,3 +13,6 @@ class ArchitectureService:
 
     def __init__(self, save_path: Path) -> None:
         self.files = JsonFileManager(save_path, ArchitectureConfig, ".arch.json")
+
+    def get(self, architecture_path: str) -> ArchitectureConfig:
+        return self.files.load(architecture_path)

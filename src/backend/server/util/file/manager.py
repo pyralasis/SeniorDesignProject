@@ -68,6 +68,9 @@ class BaseFileManager(ABC, Generic[T]):
     @abstractmethod
     def _load_from_path(self, path: Path) -> T: ...
 
+    @abstractmethod
+    def exists(self, file_name: str) -> bool: ...
+
 
 class JsonFileManager(BaseFileManager[T], Generic[T]):
     _adapter: TypeAdapter[T]
@@ -88,6 +91,10 @@ class JsonFileManager(BaseFileManager[T], Generic[T]):
         with io.open(path, "r") as f:
             return self._adapter.validate_json(f.read())
 
+    @override
+    def exists(self, file_name: str) -> bool:
+        return self._save_path.joinpath(file_name).exists()
+
 
 class TorchWeightsFileManager(BaseFileManager[dict[str, Any]]):
 
@@ -101,3 +108,7 @@ class TorchWeightsFileManager(BaseFileManager[dict[str, Any]]):
     @override
     def _load_from_path(self, path: Path) -> dict[str, Any]:
         return torch.load(path)
+
+    @override
+    def exists(self, file_name: str) -> bool:
+        return self._save_path.joinpath(file_name).exists()

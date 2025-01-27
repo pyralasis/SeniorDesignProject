@@ -30,7 +30,7 @@ def create_api_blueprint(
     bp.register_blueprint(create_architecture_blueprint(architecture_service), url_prefix="/architecture")
     bp.register_blueprint(create_layout_blueprint(layout_service), url_prefix="/layout")
     bp.register_blueprint(create_data_blueprint(data_service), url_prefix="/data")
-    bp.register_blueprint(create_model_blueprint(model_service), url_prefix="/model")
+    bp.register_blueprint(create_model_blueprint(model_service, architecture_service), url_prefix="/model")
     bp.register_blueprint(create_layer_blueprint(layer_registry), url_prefix="/layer")
 
     return bp
