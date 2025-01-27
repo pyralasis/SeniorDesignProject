@@ -15,4 +15,4 @@ class ModelService:
 
     def create_model(self) -> None:
         # Stub
-        ...
+        return "Model Hello World!"

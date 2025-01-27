@@ -13,14 +13,14 @@ class FashionMNISTSource(TorchDatasetSource[FashionMNIST]):
         self.dataset.download()
 
 
-mnist_labels = DataSourceDefinition(
+fashion_mnist_labels = DataSourceDefinition(
     "fashion_mnist_labels",
     "Fashion MNIST Labels",
     (BoolParameter("train", "Use Training Data", True),),
     lambda train, **_: FashionMNISTSource(FashionMNIST(Path(DS_ROOT, "fashion_mnist"), train), True),
 )
 
-mnist_values = DataSourceDefinition(
+fashion_mnist_values = DataSourceDefinition(
     "fashion_mnist_values",
     "Fashion MNIST Values",
     (BoolParameter("train", "Use Training Data", True),),
