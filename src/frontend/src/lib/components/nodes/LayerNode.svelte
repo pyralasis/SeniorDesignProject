@@ -4,7 +4,7 @@
     import NodeField from './NodeParameter.svelte';
     import { getContext } from 'svelte';
     import type { Parameter, ParameterValue } from '$lib/types/layer';
-    import { Button, ButtonSizeEnum, ButtonTypeEnum, Flyout, Text, TextInput } from 'kiwi-nl';
+    import { Button, ButtonSizeEnum, ButtonTypeEnum, Flyout, Tag, TagColorEnum, Text, TextInput } from 'kiwi-nl';
     import { nodes } from '../Flow/Flow.svelte';
 
     type $$Props = NodeProps;
@@ -14,6 +14,7 @@
 
     const color: Writable<string> = data?.color as Writable<string>;
     const title: Writable<string> = data?.title as Writable<string>;
+    const layerType: Writable<string> = data?.layerType as Writable<string>;
     const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
         { parameter: Parameter<any>; value: ParameterValue<any> }[]
     >;
@@ -58,7 +59,10 @@
     <div class="node__header" style="background-color: {$color};" on:click={handleToggleExpanded}>
         <div style="transform: rotate({$rotationDegrees}deg); transition: transform 0.3s;">&#9660;</div>
         {#if !isEditMode}
-            <div class="node__title">{$title} {id}</div>
+            <div style="display: flex; flex-direction: row; gap: 10px;">
+                <div class="node__title">{$title} {id}</div>
+                <Tag color={TagColorEnum.white}>{$layerType}</Tag>
+            </div>
         {:else}
         <div style="display: grid; grid-template-columns: 80% 20%; grid-gap: 10px;">
             <TextInput label="" bind:value={$title}></TextInput>

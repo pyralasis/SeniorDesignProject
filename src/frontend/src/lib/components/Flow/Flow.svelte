@@ -57,6 +57,7 @@
             data: {
                 color: writable('#ff4000'),
                 title: writable('Node'),
+                layerType: writable($dndContext.layerBlueprint.name),
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
                     $dndContext.layerBlueprint.parameters.map(getParameterDefaultValue),
                 ),
