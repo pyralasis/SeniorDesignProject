@@ -142,7 +142,7 @@ class GetLayerView(MethodView):
 
     async def get(self) -> ResponseReturnValue:
         try:
-            args = self.adapter.validate_python(request.args)
+            args = self.adapter.validate_python(request.args.to_dict())
             if self.service.layers.contains(args.id):
                 return asdict(GetLayerOkResponse(self.service.layers.get(args.id).description()))
             else:

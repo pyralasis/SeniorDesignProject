@@ -193,7 +193,7 @@ class LoadFileView(MethodView, Generic[T]):
 
     async def get(self) -> ResponseReturnValue:
         try:
-            args = self.adapter.validate_python(request.args)
+            args = self.adapter.validate_python(request.args.to_dict())
             return asdict(LoadOkResponse(self.file_mngr.load(args.id)))
 
         except ValidationError as err:
