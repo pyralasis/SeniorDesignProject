@@ -23,11 +23,15 @@
         },
         {
             "name": "flask",
-            "depth": 2
+            "depth": 0
         },
         {
             "name": "fastapi",
             "depth": 2
+        },
+        {
+            "name": "quart",
+            "depth": 3
         },
         {
             "name": "torch",

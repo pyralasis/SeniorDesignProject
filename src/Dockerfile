@@ -13,4 +13,6 @@ RUN apt update -qq
 RUN apt install -y nodejs npm 
 RUN cd frontend && npm install
 
+ENV QUART_DEBUG=1
+
 ENTRYPOINT [ "/bin/bash" ]

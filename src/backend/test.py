@@ -1,42 +1,46 @@
-from pathlib import Path
-from server.architecture.config import (
-    ArchitectureConfig,
-    InputLayerConfig,
-    NetworkLayerConfig,
+from dataclasses import dataclass
+
+import pydantic
+from quart import Quart, jsonify, request
+
+
+@dataclass
+class NodeConfig:
+    x: float
+    y: float
+    metadata: dict
+
+
+adapter = pydantic.TypeAdapter(NodeConfig)
+
+print(
+    adapter.validate_json(
+        """{
+    "x": 1,
+    "y": 1,
+    "metadata": {
+        "color": "#ffffff",
+        "num": {
+            "r": 1.0
+        }
+    }
+}"""
+    )
 )
-from server.architecture.service import ArchitectureService
-from server.params import (
-    BoolParameter,
-    BoolParameterValue,
-    IntParameterValue,
-    ParameterValue,
-)
-from server.layer.size import TensorSize
+
+app = Quart(__name__)
 
 
-# arch = ArchitectureService(Path("./architectures"))
-# arch.load_all_architectures()
+@app.route("/validate", methods=["POST"])
+async def validate():
+    data = await request.get_data()
+    print(type(data), data)
+    try:
+        validated_data = adapter.validate_json(data)
+        return jsonify(validated_data), 200
+    except pydantic.ValidationError as e:
+        return {"msg": "invalid"}, 400
 
 
-# a = ArchitectureDescription(
-#     "Test",
-#     [InputLayerDescription(0, TensorSize((5, 32, 32)))],
-#     [
-#         NetworkLayerDescription(
-#             1,
-#             "linear",
-#             0,
-#             {"out_features": IntParameterValue(1), "bias": BoolParameterValue(True)},
-#         )
-#     ],
-# )
-
-# arch.save_architecture("test", a)
-
-
-def test(a, b, c, **_):
-    print(a, b, c)
-
-
-my_dict = {"a": 1, "b": 2, "c": 3, "d": 4}
-test(**my_dict)
+if __name__ == "__main__":
+    app.run()
