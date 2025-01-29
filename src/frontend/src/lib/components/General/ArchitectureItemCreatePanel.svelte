@@ -4,6 +4,8 @@
     let createFlyout: any;
 </script>
 
+
+
 <div class="panel">
     <div class="panel__header">
         <Header type={HeaderTypeEnum.h4}>Create New Architecture</Header>
@@ -14,15 +16,17 @@
             Create
         </Button>
     </div>
+    
+    <Flyout bind:this={createFlyout}>
+        <div slot="flyout-body" class="flyout-body">
+        </div>
+        <div slot="flyout-footer" class="flyout-actions">
+            <Button type={ButtonTypeEnum.secondary}>Cancel</Button><Button>Save</Button>
+        </div>
+    </Flyout>
 </div>
 
-<Flyout bind:this={createFlyout}>
-    <div slot="flyout-body" class="flyout-body">
-    </div>
-    <div slot="flyout-footer" class="flyout-actions">
-        <Button type={ButtonTypeEnum.secondary}>Cancel</Button><Button>Save</Button>
-    </div>
-</Flyout>
+
 
 <style lang="scss">
     .panel{
@@ -42,6 +46,7 @@
         &__header{
             display: flex;
             justify-content: center;
+            max-width: 100%;
         }
         &__buttons{
             display: flex;
