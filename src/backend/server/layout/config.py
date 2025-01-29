@@ -17,3 +17,4 @@ class LayoutConfig:
     """
 
     nodes: dict[LayerInstanceID, NodeConfig]
+    edges: list[dict]
