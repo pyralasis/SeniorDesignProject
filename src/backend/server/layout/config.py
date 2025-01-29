@@ -16,4 +16,4 @@ class LayoutConfig:
     Configuration class for defining the layout of a node.
     """
 
-    inputs: dict[LayerInstanceID, NodeConfig]
+    nodes: dict[LayerInstanceID, NodeConfig]

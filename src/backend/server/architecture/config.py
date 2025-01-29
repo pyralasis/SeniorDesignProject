@@ -22,7 +22,7 @@ class InputLayerConfig:
 class NetworkLayerConfig:
     """A layer within an architecture."""
 
-    id: LayerInstanceID
+    id: LayerInstanceID  # a unique identifier for this layer instance
     layer_id: LayerID  # The ID of the layer type
     input: LayerInstanceID | list[LayerInstanceID]  # The layer or input that feeds into this network.
 
