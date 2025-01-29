@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 from quart.views import MethodView
 from server.layer import LayerDescription, LayerID
 from dataclasses import asdict, dataclass
@@ -23,6 +23,10 @@ def create_layer_blueprint(layer_service: LayerService) -> Blueprint:
         "/output_size",
         view_func=LayerOutputSizeView.as_view("output_size", layer_service),
     )
+    bp.add_url_rule(
+        "/get",
+        view_func=GetLayerView.as_view("get", layer_service),
+    )
 
     return bp
 
@@ -33,9 +37,15 @@ def create_layer_blueprint(layer_service: LayerService) -> Blueprint:
 
 
 @dataclass
-class InvalidLayerResponse:
+class InvalidLayerErrResponse:
     success: Literal[False] = False
-    error: Literal["invalid_layer"] = "invalid_layer"
+    error_type: Literal["invalid_layer"] = "invalid_layer"
+
+
+@dataclass
+class InvalidRequestErrResponse:
+    success: Literal[False] = False
+    error_type: Literal["invalid_request"] = "invalid_request"
 
 
 ###
@@ -72,7 +82,7 @@ class LayerOutputSizeView(MethodView):
         req = self.adapter.validate_python(await request.json)
 
         if not self.service.layers.contains(req.layer_id):
-            return asdict(InvalidLayerResponse())
+            return asdict(InvalidLayerErrResponse())
 
         layer = self.service.layers.get(req.layer_id)
         size_arguments: list[Any] = [req.input_size]
@@ -103,3 +113,38 @@ class AvailableLayersView(MethodView):
         available_layers = self.service.layers.available()
         descriptions: AvailableLayersResponse = list(map(lambda layer: layer.description(), available_layers))
         return descriptions
+
+
+###
+### Get Layer View
+###
+
+
+@dataclass
+class GetLayerArgs:
+    id: LayerID
+
+
+@dataclass
+class GetLayerOkResponse:
+    layer: LayerDescription
+    success: Literal[True] = True
+
+
+class GetLayerView(MethodView):
+    init_every_request = False
+
+    def __init__(self, layer_service: LayerService):
+        self.service = layer_service
+        self.adapter = TypeAdapter(GetLayerArgs)
+
+    async def get(self) -> ResponseReturnValue:
+        try:
+            args = self.adapter.validate_python(request.args)
+            if self.service.layers.contains(args.id):
+                return asdict(GetLayerOkResponse(self.service.layers.get(args.id).description()))
+            else:
+                return asdict(InvalidLayerErrResponse()), 400
+
+        except ValidationError as err:
+            return asdict(InvalidRequestErrResponse()), 400
