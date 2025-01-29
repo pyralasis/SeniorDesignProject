@@ -88,7 +88,7 @@ class CreateFileView(MethodView, Generic[T]):
 
     async def post(self) -> ResponseReturnValue:
         try:
-            body = self.adapter.validate_python(await request.get_data())
+            body = self.adapter.validate_json(await request.get_data())
             self.file_mngr.create(body.data)
             return asdict(CreateOkResponse())
 
@@ -127,7 +127,7 @@ class UpdateFileView(MethodView, Generic[T]):
 
     async def post(self) -> ResponseReturnValue:
         try:
-            body = self.adapter.validate_python(await request.get_data())
+            body = self.adapter.validate_json(await request.get_data())
             self.file_mngr.update(body.id, body.data)
             return asdict(UpdateOkResponse())
 
@@ -228,7 +228,7 @@ class DeleteFileView(MethodView, Generic[T]):
 
     async def post(self) -> ResponseReturnValue:
         try:
-            body = self.adapter.validate_python(await request.get_data())
+            body = self.adapter.validate_json(await request.get_data())
             self.file_mngr.delete(body.id)
             return asdict(DeleteOkResponse())
 
