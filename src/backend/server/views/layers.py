@@ -38,12 +38,14 @@ def create_layer_blueprint(layer_service: LayerService) -> Blueprint:
 
 @dataclass
 class InvalidLayerErrResponse:
+    msg: str
     success: Literal[False] = False
     error_type: Literal["invalid_layer"] = "invalid_layer"
 
 
 @dataclass
 class InvalidRequestErrResponse:
+    msg: str
     success: Literal[False] = False
     error_type: Literal["invalid_request"] = "invalid_request"
 
@@ -82,7 +84,7 @@ class LayerOutputSizeView(MethodView):
         req = self.adapter.validate_python(await request.json)
 
         if not self.service.layers.contains(req.layer_id):
-            return asdict(InvalidLayerErrResponse())
+            return asdict(InvalidLayerErrResponse(f"No layer found with id '{req.layer_id}'"))
 
         layer = self.service.layers.get(req.layer_id)
         size_arguments: list[Any] = [req.input_size]
@@ -144,7 +146,7 @@ class GetLayerView(MethodView):
             if self.service.layers.contains(args.id):
                 return asdict(GetLayerOkResponse(self.service.layers.get(args.id).description()))
             else:
-                return asdict(InvalidLayerErrResponse()), 400
+                return asdict(InvalidLayerErrResponse(f"No layer found with id '{args.id}'")), 400
 
         except ValidationError as err:
-            return asdict(InvalidRequestErrResponse()), 400
+            return asdict(InvalidRequestErrResponse(str(err))), 400
