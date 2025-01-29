@@ -2,18 +2,17 @@ from quart import Blueprint
 
 from server.architecture.service import ArchitectureService
 from server.data.service import DataService
-from server.layer import LayerDefinition
 from server.layer.service import LayerService
 from server.layout.service import LayoutService
-from server.util.registry import Registry
-from server.views.architecture.blueprint import create_architecture_blueprint
-from server.views.data.blueprint import create_data_blueprint
-from server.views.layers.blueprint import create_layer_blueprint
-from server.views.layout.blueprint import create_layout_blueprint
-from server.views.model.blueprint import create_model_blueprint
+from server.views.architecture import create_architecture_blueprint
+from server.views.data import create_data_blueprint
+from server.views.layers import create_layer_blueprint
+from server.views.layout import create_layout_blueprint
+from server.views.model import create_model_blueprint
 from server.views.test import TestView
 from server.views.test_ws import TestWebsocketView
 from server.model.service import ModelService
+
 
 def create_api_blueprint(
     architecture_service: ArchitectureService,

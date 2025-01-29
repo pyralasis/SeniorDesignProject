@@ -1,20 +1,7 @@
 from dataclasses import dataclass
-from pathlib import Path
 
 import pydantic
-from server.architecture.config import (
-    ArchitectureConfig,
-    InputLayerConfig,
-    NetworkLayerConfig,
-)
-from server.architecture.service import ArchitectureService
-from server.params import (
-    BoolParameter,
-    BoolParameterValue,
-    IntParameterValue,
-    ParameterValue,
-)
-from server.layer.size import TensorSize
+from quart import Quart, jsonify, request
 
 
 @dataclass
@@ -40,3 +27,20 @@ print(
 }"""
     )
 )
+
+app = Quart(__name__)
+
+
+@app.route("/validate", methods=["POST"])
+async def validate():
+    data = await request.get_data()
+    print(type(data), data)
+    try:
+        validated_data = adapter.validate_json(data)
+        return jsonify(validated_data), 200
+    except pydantic.ValidationError as e:
+        return {"msg": "invalid"}, 400
+
+
+if __name__ == "__main__":
+    app.run()

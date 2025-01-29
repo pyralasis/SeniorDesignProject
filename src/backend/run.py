@@ -5,7 +5,7 @@ import os
 
 if __name__ == "__main__":
     app = cors(create_app())
-    
+
     if os.environ.get("QUART_DEBUG") == "1":
         print(f"All routes:")
         for route in get_routes(app):

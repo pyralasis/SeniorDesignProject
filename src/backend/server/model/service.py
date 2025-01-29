@@ -1,8 +1,5 @@
-from server.architecture.service import ArchitectureService
-from server.layer import LayerDefinition
+from server.architecture.config import ArchitectureConfig
 from server.layer.service import LayerService
-from server.util.registry import Registry
-from server.architecture import ArchitectureConfig
 
 
 class ModelService:
@@ -17,7 +14,6 @@ class ModelService:
     # - create the model from the architecture
     # - save the model to the file system
     # - return the model_id
-    def create_model(self, architecture: ArchitectureConfig, name: str) -> None:
+    def create_model(self, architecture: ArchitectureConfig, name: str) -> str:
         # Stub
         return "model_id"
-

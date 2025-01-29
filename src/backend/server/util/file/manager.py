@@ -2,74 +2,119 @@ from abc import ABC, abstractmethod
 import io
 import os
 from pathlib import Path
-from re import A
-from typing import Any, Callable, Generic, TypeVar
-
-from pydantic import TypeAdapter
+import pickle
+import random
+from typing import Any, Generic, TypeVar
+from pydantic import TypeAdapter, ValidationError
 import torch
 
 from server.util.file.loaded import Loaded
 from server.util.override_decorator import override
-
+from .id import FileId, is_file_id
 
 T = TypeVar("T")
+
+
+class FileIdNotFoundError(Exception):
+    def __init__(self, file_id: int):
+        super().__init__(f"File with id {file_id} not found.")
+        self.file_id = file_id
+
+
+class InvalidFileFormatError(Exception):
+    def __init__(self, path: Path):
+        super().__init__(f"Invalid file format for file at {path}.")
+        self.path = path
 
 
 class BaseFileManager(ABC, Generic[T]):
     _save_path: Path
 
     def __init__(self, save_path: Path, extension: str) -> None:
+        self._extension = extension
         self._suffixes = ["." + ext for ext in extension.split(".")]
         self._save_path = save_path
         self._save_path.mkdir(parents=True, exist_ok=True)
 
-    def save(self, file_name: str, data: T) -> Path:
-        path = self._save_path.joinpath(file_name)
+    def create(self, data: T) -> FileId:
+        """
+        Creates a new file with the given data. Returns the id of the file.
+        """
+
+        id = self._generate_id()
+        path = self._to_path(id)
         self._save_to_path(path, data)
-        return path
+
+        return id
+
+    def update(self, id: int, data: T):
+        """
+        Updates the file with the given id to the new data.
+        """
+
+        if not self.exists(id):
+            raise FileIdNotFoundError(id)
+
+        path = self._to_path(id)
+        self._save_to_path(path, data)
 
     @abstractmethod
     def _save_to_path(self, path: Path, data: T): ...
 
-    def delete(self, file_name: str) -> bool:
+    def delete(self, id: int):
         """
-        Returns whether it could be deleted.
-
-        Note: Not really secure, pretty sure file name could be a relative path.
+        Deletes the file with the given id.
         """
-        path = self._save_path.joinpath(file_name)
-        if os.path.exists(path):
-            try:
-                os.remove(path)
-                return True
-            except:
-                return False
+        if not self.exists(id):
+            raise FileIdNotFoundError(id)
 
-        return False
+        path = self._to_path(id)
+        os.remove(path)
+
+    def available(self) -> list[FileId]:
+        """
+        Returns a list of all available file id's.
+        """
+        ids = []
+        for path in os.listdir(self._save_path):
+            path = self._save_path.joinpath(path)
+            id_str = path.name.split(".")[0]
+            if path.is_file() and path.suffixes == self._suffixes and is_file_id(id_str):
+                ids.append(int(id_str))
+        return ids
 
     def load_all(self) -> list[Loaded[T]]:
         """
-        Tries to load all files in the save folder with the suffix '.arch.json' as an architecture.
+        Tries to load all available files in the save folder.
         """
-        architectures = []
-        for path in os.listdir(self._save_path):
-            path = self._save_path.joinpath(path)
-            if path.is_file() and path.suffixes == self._suffixes:
-                try:
-                    architectures.append(Loaded[T](path.name, self._load_from_path(path)))
-                except:
-                    continue
-        return architectures
+        values = []
+        for id in self.available():
+            try:
+                values.append(self.load(id))
+            except:
+                continue
+        return values
 
-    def load(self, file_name: str) -> Loaded[T]:
-        path = self._save_path.joinpath(file_name)
-        return Loaded[T](path.name, self._load_from_path(path))
+    def load(self, id: FileId) -> Loaded[T]:
+        path = self._to_path(id)
+        return Loaded[T](id, self._load_from_path(path))
 
     @abstractmethod
     def _load_from_path(self, path: Path) -> T: ...
 
-    @abstractmethod
-    def exists(self, file_name: str) -> bool: ...
+    def exists(self, id: FileId) -> bool:
+        return os.path.exists(self._to_path(id))
+
+    def _to_path(self, id: FileId) -> Path:
+        return self._save_path.joinpath(f"{id}" + self._extension)
+
+    def _generate_id(self) -> FileId:
+        id = random.randint(1, 1000000000)
+
+        while self.exists(id):
+            id = random.randint(1, 1000000000)
+
+        return id
 
 
 class JsonFileManager(BaseFileManager[T], Generic[T]):
@@ -88,16 +133,14 @@ class JsonFileManager(BaseFileManager[T], Generic[T]):
 
     @override
     def _load_from_path(self, path: Path) -> T:
-        with io.open(path, "r") as f:
-            return self._adapter.validate_json(f.read())
-
-    @override
-    def exists(self, file_name: str) -> bool:
-        return self._save_path.joinpath(file_name).exists()
+        try:
+            with io.open(path, "r") as f:
+                return self._adapter.validate_json(f.read())
+        except ValidationError:
+            raise InvalidFileFormatError(path)
 
 
 class TorchWeightsFileManager(BaseFileManager[dict[str, Any]]):
-
     def __init__(self, save_path: Path, extension: str) -> None:
         super().__init__(save_path, extension)
 
@@ -107,8 +150,7 @@ class TorchWeightsFileManager(BaseFileManager[dict[str, Any]]):
 
     @override
     def _load_from_path(self, path: Path) -> dict[str, Any]:
-        return torch.load(path)
-
-    @override
-    def exists(self, file_name: str) -> bool:
-        return self._save_path.joinpath(file_name).exists()
+        try:
+            return torch.load(path)
+        except (ValueError, RuntimeError, pickle.UnpicklingError):
+            raise InvalidFileFormatError(path)

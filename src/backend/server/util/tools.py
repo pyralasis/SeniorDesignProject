@@ -1,6 +1,10 @@
 # Random tools
 
-def get_routes(app):
+
+from quart import Quart
+
+
+def get_routes(app: Quart):
     """
     Get all the routes from the app
     """

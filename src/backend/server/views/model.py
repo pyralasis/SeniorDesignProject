@@ -1,33 +1,44 @@
-from quart import ResponseReturnValue
-from quart.views import MethodView
 from dataclasses import asdict, dataclass
-from typing import Any, Literal
+from typing import Literal
+from quart.views import MethodView
 from pydantic import TypeAdapter
-from server.model.service import ModelService
-from server.layer import LayerID
-from server.layer.size import TensorSize
-from server.params import AnyParameterValue
-from server.views.model import ArchitecturePath
-from quart import request
+from quart import Blueprint, ResponseReturnValue, request
+from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
+from server.model.service import ModelService
+from server.util.file import Loaded, FileId
 
-# compare to server/views/layers/output_size.py
+
+def create_model_blueprint(model_service: ModelService, architecture_service: ArchitectureService) -> Blueprint:
+    bp = Blueprint("model", __name__)
+
+    bp.add_url_rule("/create", view_func=CreateModelView.as_view("create_model", model_service, architecture_service))
+
+    return bp
+
+
+###
+### Create Model View
+###
 
 
 @dataclass
 class CreateModelRequestBody:
-    architecture_path: ArchitecturePath
+    architecture_id: FileId
     name: str
+
 
 @dataclass
 class SuccessfulResponse:
     model_id: str
     success: Literal[True] = True
 
+
 @dataclass
 class ErrorResponse:
     success: Literal[False] = False
     error: Literal["invalid_architecture_path"] = "invalid_architecture_path"
+
 
 # TODO
 # - create a successful response
@@ -38,7 +49,9 @@ class ErrorResponse:
 #   - make the create model function in the model service
 
 
+# compare to server/util/file/blueprint.py or server/views/layers.py (OutputSizeView)
 class CreateModelView(MethodView):
+
     init_every_request = False
 
     def __init__(self, model_service: ModelService, architecture_service: ArchitectureService):
@@ -52,10 +65,12 @@ class CreateModelView(MethodView):
         # use the architecture service to get the architecture
         # pass the architecture and the name to the model service and store the model_id
         # return the model_id
-        if not self.architecture_service.files.exists(req.architecture_path):
+        if not self.architecture_service.files.exists(req.architecture_id):
             return asdict(ErrorResponse())
 
-        architecture = self.architecture_service.get(req.architecture_path)
-        model_id = self.service.create_model(architecture, req.name)
+        # feel free to create a wrapper function on the architecture service for this
+        loaded_architecture: Loaded[ArchitectureConfig] = self.architecture_service.files.load(req.architecture_id)
+
+        model_id = self.service.create_model(loaded_architecture.data, req.name)
 
         return asdict(SuccessfulResponse(model_id=model_id))

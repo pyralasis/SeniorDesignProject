@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from quart import Blueprint
 
 from server.layout.service import LayoutService

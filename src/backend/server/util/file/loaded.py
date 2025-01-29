@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
+from .id import FileId
 
 T = TypeVar("T")
 
 
 @dataclass
 class Loaded(Generic[T]):
-    file_name: str
+    id: FileId
     data: T

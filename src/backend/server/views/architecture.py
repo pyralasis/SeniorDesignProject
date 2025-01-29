@@ -1,7 +1,8 @@
-from quart import Blueprint
-
 from server.architecture.service import ArchitectureService
 from server.util.file.blueprint import create_file_blueprint
+
+
+from quart import Blueprint
 
 
 def create_architecture_blueprint(

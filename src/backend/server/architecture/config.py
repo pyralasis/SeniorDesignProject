@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from typing import TypeAlias
 
 from server.params import ParameterValue
-from server.layer import LayerDefinition, LayerID
+from server.layer import LayerID
 from server.layer.size import TensorSize
-from server.util.registry import Registry
 
 
 # This can be any number as long as all layer instance ids within an architecture are unique.
