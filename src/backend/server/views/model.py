@@ -37,7 +37,7 @@ class SuccessfulResponse:
 @dataclass
 class ErrorResponse:
     success: Literal[False] = False
-    error: Literal["invalid_architecture_path"] = "invalid_architecture_path"
+    error: Literal["invalid_architecture_id"] = "invalid_architecture_id"
 
 
 # TODO
