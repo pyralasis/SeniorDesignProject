@@ -88,6 +88,8 @@ class CreateFileView(MethodView, Generic[T]):
 
     async def post(self) -> ResponseReturnValue:
         try:
+            # Uses validate_json and request.get_data() instead of validate_python and request.json
+            # for better/easier validation
             body = self.adapter.validate_json(await request.get_data())
             self.file_mngr.create(body.data)
             return asdict(CreateOkResponse())
