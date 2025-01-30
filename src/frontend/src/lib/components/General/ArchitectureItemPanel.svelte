@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import { Button, ButtonSizeEnum, ButtonTypeEnum, Header, HeaderTypeEnum } from "kiwi-nl";
     
     export let title: string;
@@ -10,7 +11,7 @@
     </div>
 
     <div class="panel__buttons">
-        <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.large}>
+        <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.large} on:click={() => {goto('/edit-architecture')}}>
             Edit
         </Button>
         <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.large}>
