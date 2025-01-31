@@ -53,3 +53,6 @@ export type Layer<T> = {
     inputs: InputDefinition[],
     parameters: Parameter<T>[],
 }
+
+export type LayerInstanceId = number;
+export type TensorSize = number[];

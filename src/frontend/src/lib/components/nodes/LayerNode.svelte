@@ -4,8 +4,7 @@
     import NodeField from './NodeParameter.svelte';
     import { getContext } from 'svelte';
     import type { Parameter, ParameterValue } from '$lib/types/layer';
-    import { Button, ButtonSizeEnum, ButtonTypeEnum, Flyout, Tag, TagColorEnum, Text, TextInput } from 'kiwi-nl';
-    import { nodes } from '../Flow/Flow.svelte';
+    import { Button, ButtonSizeEnum, ButtonTypeEnum, Tag, TagColorEnum, TextInput } from 'kiwi-nl';
 
     type $$Props = NodeProps;
 
@@ -44,10 +43,9 @@
         isEditMode = !isEditMode;
     }
 
-    function deleteNode(){
-        $nodes = $nodes.filter(node => node.id !== id);
-    }
-    console.log(data)
+    // function deleteNode() {
+    //     $nodes = $nodes.filter((node) => node.id !== id);
+    // }
 </script>
 
 <Handle type="target" position={Position.Left} />
@@ -64,24 +62,18 @@
                 <Tag color={TagColorEnum.white}>{$layerType}</Tag>
             </div>
         {:else}
-        <div style="display: grid; grid-template-columns: 80% 20%; grid-gap: 10px;">
-            <TextInput label="" bind:value={$title}></TextInput>
-            <input type="color" bind:value={$color}>
-        </div>
+            <div style="display: grid; grid-template-columns: 80% 20%; grid-gap: 10px;">
+                <TextInput label="" bind:value={$title}></TextInput>
+                <input type="color" bind:value={$color} />
+            </div>
         {/if}
 
         <div on:click|stopPropagation>
-            <Button 
-            type={ButtonTypeEnum.primary}
-            size={ButtonSizeEnum.small} 
-            on:click={toggleEditMode}>&#9998;</Button>
+            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.small} on:click={toggleEditMode}>&#9998;</Button>
         </div>
-        <div on:click|stopPropagation>
-            <Button 
-            type={ButtonTypeEnum.primary}
-            size={ButtonSizeEnum.small} 
-            on:click={deleteNode}>&#128465;</Button>
-        </div>
+        <!-- <div on:click|stopPropagation>
+            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.small} on:click={deleteNode}>&#128465;</Button>
+        </div> -->
     </div>
     {#if $expanded}
         <div class="node__content">
@@ -92,7 +84,6 @@
     {/if}
 </div>
 <Handle type="source" position={Position.Right} />
-
 
 <style lang="scss">
     .node {
@@ -123,7 +114,5 @@
             flex-direction: column;
             gap: 16px;
         }
-
-        
     }
 </style>

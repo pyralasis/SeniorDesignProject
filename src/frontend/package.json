@@ -14,6 +14,7 @@
 		"@sveltejs/adapter-static": "^3.0.5",
 		"@sveltejs/kit": "^2.15.1",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@types/node": "^22.12.0",
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
 		"sass-embedded": "^1.80.0",
@@ -25,7 +26,10 @@
 		"@popperjs/core": "^2.11.8",
 		"@xyflow/svelte": "^0.1.25",
 		"dotenv": "^16.4.5",
+		"file-saver": "^2.0.5",
+		"fs": "^0.0.1-security",
 		"gh-pages": "^6.1.1",
-		"kiwi-nl": "^0.0.5"
+		"kiwi-nl": "^0.0.5",
+		"save-as": "^0.1.8"
 	}
 }

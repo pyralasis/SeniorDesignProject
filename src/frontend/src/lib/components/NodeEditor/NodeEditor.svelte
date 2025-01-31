@@ -1,19 +1,22 @@
 <script module>
-    export const nodes: Writable<Node[]> = writable([]);
 </script>
 
 <script lang="ts">
     import { writable, type Writable } from 'svelte/store';
     import { type Node, SvelteFlow, Controls, Background, MiniMap, useSvelteFlow, type NodeTypes, type Edge } from '@xyflow/svelte';
-    import { useDnD, type DnDContext } from '$lib/utilities/DnDUtils';
+    import { useDnD } from '$lib/utilities/DnDUtils';
 
     import LayerNode from '../nodes/LayerNode.svelte';
     import Sidebar from '$lib/components/Sidebar/Sidebar.svelte';
     import '@xyflow/svelte/dist/style.css';
     import { setContext } from 'svelte';
     import { type Parameter, type ParameterValue } from '$lib/types/layer';
+    import { Button } from 'kiwi-nl';
 
-    const edges: Writable<Edge[]> = writable([]);
+    export let nodes: Writable<Node[]> = writable([]);
+    export let edges: Writable<Edge[]> = writable([]);
+    export let onSave: () => void;
+
     const selectedNodeId: Writable<string> = writable('');
 
     setContext('selectedNodeId', selectedNodeId);
@@ -55,9 +58,9 @@
             id: `${Math.floor(Math.random() * 1000000)}`,
             type: $dndContext?.type,
             data: {
-                color: writable('#ff4000'),
-                title: writable('Node'),
-                layerType: writable($dndContext.layerBlueprint.name),
+                color: writable<string>('#ff4000'),
+                title: writable<string>('Node'),
+                layer_id: writable<string>($dndContext.layerBlueprint.name),
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
                     $dndContext.layerBlueprint.parameters.map(getParameterDefaultValue),
                 ),
@@ -72,15 +75,18 @@
     const nodeTypes: NodeTypes = {
         layer: LayerNode,
     };
+
+    function handleSave() {
+        onSave();
+    }
 </script>
 
 <main>
     <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
-        <Controls />
-        <Background bgColor="#D3D3D3" patternColor="#000000" />
-        <MiniMap />
+        <Background />
     </SvelteFlow>
     <Sidebar />
+    <Button on:click={handleSave}>Save Node Architecture</Button>
 </main>
 
 <style>

@@ -4,8 +4,7 @@
     import SidebarLayer from './SidebarNode.svelte';
     import { onMount } from 'svelte';
     import { BackendApi } from '$lib/utilities/api.utilities';
-    import { NodeTypeEnum, type NodeType } from '$lib/types/node-type.enum';
-    import TestNode from '../nodes/TestNode.svelte';
+    import { type NodeType } from '$lib/types/node-type.enum';
 
     const dndContext = useDnD();
     let layers: Layer<any>[] = [];
