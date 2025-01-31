@@ -212,11 +212,10 @@ const createArchitectureStore = (): ArchitectureStore => {
 
     const deleteNodeFromActiveArchitecture = (id: string): void => {
         update((store) => {
-            let activeArchitecture = store.activeArchitecture as NodeArchitecture;
-            let nodes = get(activeArchitecture.nodes);
-            let filteredNodes = nodes.filter((n) => n.id !== id);
-            activeArchitecture.nodes = writable<Node[]>(filteredNodes);
-            store.activeArchitecture = activeArchitecture;
+            store.activeArchitecture?.nodes.update((nodes) => {
+                nodes = nodes.filter((node) => node.id !== id);
+                return nodes;
+            });
             return store;
         });
     }

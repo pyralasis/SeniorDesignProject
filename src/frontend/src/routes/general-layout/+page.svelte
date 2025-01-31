@@ -41,19 +41,10 @@
     import type { Edge, Node } from '@xyflow/svelte';
     import NavBar from '$lib/components/General/NavBar.svelte';
     import { architectureStore } from '$lib/stores/ArchitectureStore';
-
-    architectureStore.createNewArchitecture('New Architecture');
+    import { onMount } from 'svelte';
 
     let architectureNodes: Writable<Node[]> = writable([]);
     let architectureEdges: Writable<Edge[]> = writable([]);
-
-    architectureStore.subscribe((store) => {
-        if (!store.activeArchitecture) {
-            return;
-        }
-        architectureNodes = store.activeArchitecture.nodes;
-        architectureEdges = store.activeArchitecture.edges;
-    });
 
     function onSave() {
         architectureStore.saveActiveArchitecture();
@@ -76,6 +67,17 @@
         mytabs.push(newTab);
         $dummyTabs = mytabs;
     }
+
+    onMount(() => {
+        architectureStore.createNewArchitecture('New Architecture');
+        architectureStore.subscribe((store) => {
+            if (!store.activeArchitecture) {
+                return;
+            }
+            architectureNodes = store.activeArchitecture.nodes;
+            architectureEdges = store.activeArchitecture.edges;
+        });
+    });
 </script>
 
 <div class="wrapper">

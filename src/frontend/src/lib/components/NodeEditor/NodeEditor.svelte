@@ -13,8 +13,8 @@
     import { type Parameter, type ParameterValue } from '$lib/types/layer';
     import { Button } from 'kiwi-nl';
 
-    export let nodes: Writable<Node[]> = writable([]);
-    export let edges: Writable<Edge[]> = writable([]);
+    export let nodes: Writable<Node[]>;
+    export let edges: Writable<Edge[]>;
     export let onSave: () => void;
 
     const selectedNodeId: Writable<string> = writable('');
@@ -68,8 +68,10 @@
             position: { x: position.x, y: position.y },
         } satisfies Node;
 
-        $nodes.push(newNode);
-        $nodes = $nodes;
+        nodes.update((nodes) => {
+            nodes.push(newNode);
+            return nodes;
+        });
     };
 
     const nodeTypes: NodeTypes = {
@@ -82,9 +84,11 @@
 </script>
 
 <main>
-    <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
-        <Background />
-    </SvelteFlow>
+    {#key nodes}
+        <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
+            <Background />
+        </SvelteFlow>
+    {/key}
     <Sidebar />
     <Button on:click={handleSave}>Save Node Architecture</Button>
 </main>

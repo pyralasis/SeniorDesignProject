@@ -5,6 +5,7 @@
     import { getContext } from 'svelte';
     import type { Parameter, ParameterValue } from '$lib/types/layer';
     import { Button, ButtonSizeEnum, ButtonTypeEnum, Tag, TagColorEnum, TextInput } from 'kiwi-nl';
+    import { architectureStore } from '$lib/stores/ArchitectureStore';
 
     type $$Props = NodeProps;
 
@@ -13,7 +14,7 @@
 
     const color: Writable<string> = data?.color as Writable<string>;
     const title: Writable<string> = data?.title as Writable<string>;
-    const layerType: Writable<string> = data?.layerType as Writable<string>;
+    const layerType: Writable<string> = data?.layer_id as Writable<string>;
     const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
         { parameter: Parameter<any>; value: ParameterValue<any> }[]
     >;
@@ -43,9 +44,9 @@
         isEditMode = !isEditMode;
     }
 
-    // function deleteNode() {
-    //     $nodes = $nodes.filter((node) => node.id !== id);
-    // }
+    function deleteNode() {
+        architectureStore.deleteNodeFromActiveArchitecture(id);
+    }
 </script>
 
 <Handle type="target" position={Position.Left} />
@@ -71,9 +72,9 @@
         <div on:click|stopPropagation>
             <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.small} on:click={toggleEditMode}>&#9998;</Button>
         </div>
-        <!-- <div on:click|stopPropagation>
+        <div on:click|stopPropagation>
             <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.small} on:click={deleteNode}>&#128465;</Button>
-        </div> -->
+        </div>
     </div>
     {#if $expanded}
         <div class="node__content">
