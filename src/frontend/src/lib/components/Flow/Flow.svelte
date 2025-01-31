@@ -77,7 +77,7 @@
 <main>
     <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
         <Controls />
-        <Background />
+        <Background bgColor="#D3D3D3" patternColor="#000000" />
         <MiniMap />
     </SvelteFlow>
     <Sidebar />

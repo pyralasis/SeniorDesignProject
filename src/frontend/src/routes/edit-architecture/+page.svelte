@@ -20,13 +20,12 @@
         <div class="main__header">
             <Header>Editing Architecture: TITLE</Header>
         </div>
-
-        <SvelteFlowProvider>
-            <DnDProvider>
-                <Flow />
-            </DnDProvider>
-        </SvelteFlowProvider>
-
+        
+            <SvelteFlowProvider>
+                <DnDProvider>
+                    <Flow />
+                </DnDProvider>
+            </SvelteFlowProvider>
     </main>
 </div>
 
@@ -52,8 +51,7 @@
             display: flex;
             justify-content: center;
             padding: 50px;
-        }
-        
+        }       
     }
 </style>
 

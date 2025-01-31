@@ -22,6 +22,12 @@
         font-weight: 700;
         border-radius: 3px;
         cursor: grab;
-        width: 50px;
+        width: 5%;
+        height: 10%;
+        text-align: center;
+        min-height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 </style>
