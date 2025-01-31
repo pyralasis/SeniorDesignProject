@@ -1,8 +1,8 @@
 <script module>
     export type dummyData = { tabID: number; tabTitle: string };
     let test: dummyData[] = [
-        { tabID: 1, tabTitle: "A" },
-        { tabID: 2, tabTitle: "B" },
+        { tabID: 1, tabTitle: 'A' },
+        { tabID: 2, tabTitle: 'B' },
     ];
     export let dummyTabs = writable<dummyData[]>(test);
 </script>
@@ -31,15 +31,33 @@
         TagColorEnum,
         TextInput,
         PopoverSingleSelectContent,
-        InputSeries,
-    } from "kiwi-nl";
+    } from 'kiwi-nl';
 
-    import { SvelteFlowProvider } from "@xyflow/svelte";
-    import DnDProvider from "$lib/components/DnDProvider.svelte";
+    import { SvelteFlowProvider } from '@xyflow/svelte';
+    import DnDProvider from '$lib/components/DnDProvider.svelte';
 
-    import Flow from "$lib/components/Flow/Flow.svelte";
-    import { writable } from "svelte/store";
-    import NavBar from "$lib/components/General/NavBar.svelte";
+    import Flow from '$lib/components/NodeEditor/NodeEditor.svelte';
+    import { writable, type Writable } from 'svelte/store';
+    import type { Edge, Node } from '@xyflow/svelte';
+    import NavBar from '$lib/components/General/NavBar.svelte';
+    import { architectureStore } from '$lib/stores/ArchitectureStore';
+
+    architectureStore.createNewArchitecture('New Architecture');
+
+    let architectureNodes: Writable<Node[]> = writable([]);
+    let architectureEdges: Writable<Edge[]> = writable([]);
+
+    architectureStore.subscribe((store) => {
+        if (!store.activeArchitecture) {
+            return;
+        }
+        architectureNodes = store.activeArchitecture.nodes;
+        architectureEdges = store.activeArchitecture.edges;
+    });
+
+    function onSave() {
+        architectureStore.saveActiveArchitecture();
+    }
 
     let closeTab = (tabID: number) => {
         let mytabs = $dummyTabs;
@@ -51,8 +69,8 @@
             1,
         );
         $dummyTabs = mytabs;
-        console.log($dummyTabs);
     };
+
     function openTab(newTab: dummyData) {
         let mytabs = $dummyTabs;
         mytabs.push(newTab);
@@ -75,18 +93,10 @@
                 {#each $dummyTabs as tab, i}
                     <TabContent tabnum={i + 1}>
                         <div class="info-bar">
-                            <Header type={HeaderTypeEnum.h1}
-                                >Architecture Title</Header
-                            >
+                            <Header type={HeaderTypeEnum.h1}>Architecture Title</Header>
                             <br />
-                            <Button
-                                type={ButtonTypeEnum.primary}
-                                size={ButtonSizeEnum.medium}>Save</Button
-                            >
-                            <Button
-                                type={ButtonTypeEnum.primary}
-                                size={ButtonSizeEnum.medium}
-                                on:click={() => closeTab(tab.tabID)}
+                            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.medium}>Save</Button>
+                            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.medium} on:click={() => closeTab(tab.tabID)}
                                 >Close</Button
                             >
                         </div>
@@ -94,7 +104,7 @@
                         <div class="DnD">
                             <SvelteFlowProvider>
                                 <DnDProvider>
-                                    <Flow />
+                                    <Flow {onSave} nodes={architectureNodes} edges={architectureEdges} />
                                 </DnDProvider>
                             </SvelteFlowProvider>
                         </div>

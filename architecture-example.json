@@ -1,0 +1,122 @@
+{
+    "id": "8lwlru",
+    "name": "New Architecture",
+    "version": 0,
+    "inputs": [],
+    "layers": [
+        {
+            "id": 931223,
+            "layer_id": {},
+            "input": [],
+            "param_values": {}
+        },
+        {
+            "id": 23014,
+            "layer_id": {},
+            "input": [],
+            "param_values": {
+                "out_channels": {
+                    "type": "int",
+                    "value": 1
+                },
+                "kernel_size": {
+                    "type": "size2d",
+                    "value": [
+                        3,
+                        3
+                    ]
+                },
+                "stride": {
+                    "type": "size2d",
+                    "value": [
+                        1,
+                        1
+                    ]
+                },
+                "padding": {
+                    "type": "size2d",
+                    "value": [
+                        0,
+                        0
+                    ]
+                },
+                "padding_mode": {
+                    "type": "str",
+                    "value": "zeros"
+                },
+                "dilation": {
+                    "type": "size2d",
+                    "value": [
+                        1,
+                        1
+                    ]
+                },
+                "groups": {
+                    "type": "int",
+                    "value": 1
+                },
+                "bias": {
+                    "type": "bool",
+                    "value": true
+                }
+            }
+        },
+        {
+            "id": 975939,
+            "layer_id": {},
+            "input": [],
+            "param_values": {
+                "out_features": {
+                    "type": "int",
+                    "value": 1
+                },
+                "bias": {
+                    "type": "bool",
+                    "value": true
+                }
+            }
+        }
+    ],
+    "layout": {
+        "nodes": [
+            {
+                "x": 283.9853085690843,
+                "y": 69.84961551686081,
+                "metadata": {
+                    "color": "#ff4000",
+                    "title": "Node"
+                }
+            },
+            {
+                "x": 910.3508623231869,
+                "y": -157.2288859388591,
+                "metadata": {
+                    "color": "#ff4000",
+                    "title": "Node"
+                }
+            },
+            {
+                "x": -358.5461502557436,
+                "y": 41.21059969531501,
+                "metadata": {
+                    "color": "#ff4000",
+                    "title": "Node"
+                }
+            }
+        ],
+        "edges": [
+            {
+                "source": "931223",
+                "target": "23014",
+                "id": "xy-edge__931223-23014",
+                "selected": false
+            },
+            {
+                "source": "975939",
+                "target": "931223",
+                "id": "xy-edge__975939-931223",
+                "selected": false
+            }
+        ]
+    }
+}

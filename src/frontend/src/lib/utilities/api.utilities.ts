@@ -3,6 +3,7 @@ import { BACKEND_API_BASE_URL } from './api.constants';
 
 export const BackendApiRequestsEnum = {
     getAvailableLayers: `${BACKEND_API_BASE_URL}/layer/available`,
+    getLayerById: `${BACKEND_API_BASE_URL}/layer/get`,
     postLayerOutputSize: `${BACKEND_API_BASE_URL}/layer/output_size`,
     getAvailableArchitechture: `${BACKEND_API_BASE_URL}/architecture/available`,
     postDeleteArchitecture: `${BACKEND_API_BASE_URL}/architecture/delete`,
@@ -17,14 +18,34 @@ export class BackendApi {
         data.map((l: any) => {
             layers.push(l as Layer<any>);
         })
-        console.log(layers);
         return layers;
     }
 
     static async getAvailableLayers(): Promise<Layer<any>[]> {
-        const response = await fetch(BackendApiRequestsEnum.getAvailableLayers);
-        const data = await response.json();
-        return this.parseLayers(data);
+        return fetch(BackendApiRequestsEnum.getAvailableLayers, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                return this.parseLayers(data);
+            });
+    }
+
+    static async getLayerById(id: LayerId): Promise<Layer<any>> {
+        return fetch(`${BackendApiRequestsEnum.getLayerById}?id=${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                return this.parseLayers([data])[0];
+            });
+
     }
 }
 
