@@ -1,10 +1,11 @@
 <script lang="ts">
     import { type Writable, writable } from 'svelte/store';
     import { Handle, Position, type NodeProps } from '@xyflow/svelte';
-    import { Accordion, AccordionBody, AccordionHeader, Text, TextInput } from 'kiwi-nl';
-    import NodeField from './NodeField.svelte';
-    import { type NodeField as FieldDefinition } from './types/node-field.interface';
+    import NodeField from './NodeParameter.svelte';
     import { getContext } from 'svelte';
+    import type { Parameter, ParameterValue } from '$lib/types/layer';
+    import { Button, ButtonSizeEnum, ButtonTypeEnum, Tag, TagColorEnum, TextInput } from 'kiwi-nl';
+    import { architectureStore } from '$lib/stores/ArchitectureStore';
 
     type $$Props = NodeProps;
 
@@ -13,7 +14,10 @@
 
     const color: Writable<string> = data?.color as Writable<string>;
     const title: Writable<string> = data?.title as Writable<string>;
-    const fields: Writable<FieldDefinition[]> = data?.fields as Writable<FieldDefinition[]>;
+    const layerType: Writable<string> = data?.layer_id as Writable<string>;
+    const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
+        { parameter: Parameter<any>; value: ParameterValue<any> }[]
+    >;
     const selectedNodeId: Writable<string> = getContext('selectedNodeId');
 
     let selected = false;
@@ -29,11 +33,20 @@
         selectedNodeId.set(id);
     }
 
-    function updateValue(value: string) {
+    function updateValue(value: ParameterValue<any>) {
         console.log(value);
     }
 
     $: selected = $selectedNodeId === id;
+
+    let isEditMode = false;
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+    }
+
+    function deleteNode() {
+        architectureStore.deleteNodeFromActiveArchitecture(id);
+    }
 </script>
 
 <Handle type="target" position={Position.Left} />
@@ -43,13 +56,30 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="node__header" style="background-color: {$color};" on:click={handleToggleExpanded}>
-        <div class="node__title">{$title} {id}</div>
         <div style="transform: rotate({$rotationDegrees}deg); transition: transform 0.3s;">&#9660;</div>
+        {#if !isEditMode}
+            <div style="display: flex; flex-direction: row; gap: 10px;">
+                <div class="node__title">{$title} {id}</div>
+                <Tag color={TagColorEnum.white}>{$layerType}</Tag>
+            </div>
+        {:else}
+            <div style="display: grid; grid-template-columns: 80% 20%; grid-gap: 10px;">
+                <TextInput label="" bind:value={$title}></TextInput>
+                <input type="color" bind:value={$color} />
+            </div>
+        {/if}
+
+        <div on:click|stopPropagation>
+            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.small} on:click={toggleEditMode}>&#9998;</Button>
+        </div>
+        <div on:click|stopPropagation>
+            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.small} on:click={deleteNode}>&#128465;</Button>
+        </div>
     </div>
     {#if $expanded}
         <div class="node__content">
-            {#each $fields as field, index}
-                <NodeField type={field.type} label={field.label} required={field.required} onChange={updateValue} />
+            {#each $parameters as parameter, index}
+                <NodeField parameter={parameter.parameter} value={parameter.value} onChange={updateValue} />
             {/each}
         </div>
     {/if}
@@ -71,8 +101,9 @@
 
         &__header {
             padding: 8px;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 5% 85% 5% 5%;
+            grid-template-rows: 100%;
             align-items: center;
             cursor: pointer;
             font-weight: bold;
