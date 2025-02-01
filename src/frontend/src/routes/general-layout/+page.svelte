@@ -43,8 +43,18 @@
     import { architectureStore } from '$lib/stores/ArchitectureStore';
     import { onMount } from 'svelte';
 
+    architectureStore.createNewArchitecture('New Architecture');
+
     let architectureNodes: Writable<Node[]> = writable([]);
     let architectureEdges: Writable<Edge[]> = writable([]);
+
+    architectureStore.subscribe((store) => {
+        if (!store.activeArchitecture) {
+            return;
+        }
+        architectureNodes = store.activeArchitecture.nodes;
+        architectureEdges = store.activeArchitecture.edges;
+    });
 
     function onSave() {
         architectureStore.saveActiveArchitecture();
@@ -67,17 +77,6 @@
         mytabs.push(newTab);
         $dummyTabs = mytabs;
     }
-
-    onMount(() => {
-        architectureStore.createNewArchitecture('New Architecture');
-        architectureStore.subscribe((store) => {
-            if (!store.activeArchitecture) {
-                return;
-            }
-            architectureNodes = store.activeArchitecture.nodes;
-            architectureEdges = store.activeArchitecture.edges;
-        });
-    });
 </script>
 
 <div class="wrapper">
@@ -96,17 +95,18 @@
                     <TabContent tabnum={i + 1}>
                         <div class="info-bar">
                             <Header type={HeaderTypeEnum.h1}>Architecture Title</Header>
-                            <br />
-                            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.medium}>Save</Button>
-                            <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.medium} on:click={() => closeTab(tab.tabID)}
-                                >Close</Button
-                            >
                         </div>
 
                         <div class="DnD">
                             <SvelteFlowProvider>
                                 <DnDProvider>
-                                    <Flow {onSave} nodes={architectureNodes} edges={architectureEdges} />
+                                    <Flow
+                                        {onSave}
+                                        onCreateNode={architectureStore.addNodeToActiveArchitecture}
+                                        onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
+                                        nodes={architectureNodes}
+                                        edges={architectureEdges}
+                                    />
                                 </DnDProvider>
                             </SvelteFlowProvider>
                         </div>
@@ -129,6 +129,5 @@
     }
     main {
         background-color: white;
-        padding: 1em 2em;
     }
 </style>

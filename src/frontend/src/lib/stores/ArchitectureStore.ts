@@ -197,7 +197,6 @@ const createArchitectureStore = (): ArchitectureStore => {
             }
             return store;
         });
-        saveActiveArchitecture();
     }
 
     const addNodeToActiveArchitecture = (node: Node): void => {

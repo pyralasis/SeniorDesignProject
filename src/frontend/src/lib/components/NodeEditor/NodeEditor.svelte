@@ -9,20 +9,24 @@
     import LayerNode from '../nodes/LayerNode.svelte';
     import Sidebar from '$lib/components/Sidebar/Sidebar.svelte';
     import '@xyflow/svelte/dist/style.css';
-    import { setContext } from 'svelte';
     import { type Parameter, type ParameterValue } from '$lib/types/layer';
-    import { Button } from 'kiwi-nl';
+    import NodeEditorActions from './NodeEditorActions.svelte';
+    import { setContext } from 'svelte';
 
     export let nodes: Writable<Node[]>;
     export let edges: Writable<Edge[]>;
+    export let onDeleteNode: (nodeId: string) => void;
+    export let onCreateNode: (node: Node) => void;
     export let onSave: () => void;
-
-    const selectedNodeId: Writable<string> = writable('');
-
-    setContext('selectedNodeId', selectedNodeId);
 
     const { screenToFlowPosition } = useSvelteFlow();
     const dndContext = useDnD();
+    let selectedNodeTitle: Writable<string> | undefined;
+    let sidebarExpanded: Writable<boolean> = writable(true);
+
+    const xColor = writable<string>('#ff4000');
+    setContext('xColor', xColor);
+    setContext('sidebarExpanded', sidebarExpanded);
 
     function getParameterDefaultValue(parameter: Parameter<any>): { parameter: Parameter<any>; value: ParameterValue<any> } {
         return {
@@ -58,45 +62,70 @@
             id: `${Math.floor(Math.random() * 1000000)}`,
             type: $dndContext?.type,
             data: {
-                color: writable<string>('#ff4000'),
-                title: writable<string>('Node'),
+                color: writable<string>($xColor),
+                title: writable<string>('Untitled Node'),
                 layer_id: writable<string>($dndContext.layerBlueprint.name),
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
                     $dndContext.layerBlueprint.parameters.map(getParameterDefaultValue),
                 ),
+                expanded: writable<boolean>(false),
             },
+            dragHandle: '.node__header',
             position: { x: position.x, y: position.y },
         } satisfies Node;
 
-        nodes.update((nodes) => {
-            nodes.push(newNode);
-            return nodes;
-        });
+        onCreateNode(newNode);
     };
 
     const nodeTypes: NodeTypes = {
         layer: LayerNode,
     };
 
-    function handleSave() {
-        onSave();
+    function onDelete() {
+        onDeleteNode(selectedNode?.id ?? '');
     }
+
+    function onClearNodes() {
+        nodes.update((nodes) => (nodes = []));
+    }
+
+    $: selectedNode = $nodes.find((node) => node.selected);
+    $: selectedNodeTitle = selectedNode?.data.title as Writable<string> | undefined;
+    $: selectedNodeColor = selectedNode?.data.color as Writable<string> | undefined;
 </script>
 
-<main>
-    {#key nodes}
-        <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
-            <Background />
-        </SvelteFlow>
-    {/key}
-    <Sidebar />
-    <Button on:click={handleSave}>Save Node Architecture</Button>
-</main>
+<div class="node-editor">
+    <NodeEditorActions {selectedNodeTitle} {selectedNodeColor} {onDelete} {onClearNodes} />
+    <div class="node-editor__content">
+        <div class="node-editor__sidebar">
+            <Sidebar expanded={$sidebarExpanded} />
+        </div>
+        <div class="node-editor__flow">
+            <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
+                <Background />
+            </SvelteFlow>
+        </div>
+    </div>
+</div>
 
-<style>
-    main {
-        height: 75vh;
+<style lang="scss">
+    .node-editor {
         display: flex;
-        flex-direction: column-reverse;
+        flex-direction: column;
+        overflow: hidden;
+
+        &__content {
+            display: flex;
+            flex-direction: row;
+        }
+
+        &__flow {
+            width: 100%;
+            height: 700px;
+        }
+
+        &__sidebar {
+            width: fit-content;
+        }
     }
 </style>

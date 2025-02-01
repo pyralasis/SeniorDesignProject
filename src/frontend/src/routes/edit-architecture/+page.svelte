@@ -1,15 +1,14 @@
 <script lang="ts">
-    import DnDProvider from "$lib/components/DnDProvider.svelte";
-    import Flow from "$lib/components/Flow/Flow.svelte";
-    import NavBar from "$lib/components/General/NavBar.svelte";
-    import { SvelteFlowProvider } from "@xyflow/svelte";
-    import { Header } from "kiwi-nl";
+    import DnDProvider from '$lib/components/DnDProvider.svelte';
+    import NodeEditor from '$lib/components/NodeEditor/NodeEditor.svelte';
+    import NavBar from '$lib/components/General/NavBar.svelte';
+    import { SvelteFlowProvider } from '@xyflow/svelte';
+    import { Header } from 'kiwi-nl';
 
     //Need to set the loaded architecture and apply it to the flow.
     //Should this be done by passing the architecture id to this page
     //then set the loaded architecture, or should the select architecture
     //page set it?
-
 </script>
 
 <div class="wrapper">
@@ -20,12 +19,12 @@
         <div class="main__header">
             <Header>Editing Architecture: TITLE</Header>
         </div>
-        
-            <SvelteFlowProvider>
-                <DnDProvider>
-                    <Flow />
-                </DnDProvider>
-            </SvelteFlowProvider>
+
+        <SvelteFlowProvider>
+            <DnDProvider>
+                <NodeEditor />
+            </DnDProvider>
+        </SvelteFlowProvider>
     </main>
 </div>
 
@@ -47,11 +46,10 @@
         justify-content: center;
         max-height: 100vh;
         overflow-y: scroll;
-        &__header{
+        &__header {
             display: flex;
             justify-content: center;
             padding: 50px;
-        }       
+        }
     }
 </style>
-
