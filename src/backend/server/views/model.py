@@ -16,12 +16,9 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
 
     return bp
 
-
 ###
 ### Create Model View
 ###
-
-
 @dataclass
 class CreateModelRequestBody:
     architecture_id: FileId
