@@ -32,7 +32,7 @@ class BaseFileManager(ABC, Generic[T]):
 
     def __init__(self, save_path: Path, extension: str) -> None:
         self._extension = extension
-        self._suffixes = ["." + ext for ext in extension.split(".")]
+        self._suffixes = ["." + ext for ext in extension.split(".")[1:]]
         self._save_path = save_path
         self._save_path.mkdir(parents=True, exist_ok=True)
 
