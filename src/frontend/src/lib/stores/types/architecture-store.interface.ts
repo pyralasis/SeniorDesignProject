@@ -25,3 +25,8 @@ export interface ArchitectureStore extends Writable<ArchitectureStoreProps> {
     addNodeToActiveArchitecture: (node: Node) => void;
     deleteNodeFromActiveArchitecture: (id: string) => void;
 }
+
+export type AvailableArchitecturesResponse = {
+    available: string[],
+    success: boolean
+}

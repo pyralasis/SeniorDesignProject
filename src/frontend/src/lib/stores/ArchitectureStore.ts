@@ -5,7 +5,7 @@ import { get, writable, type Writable } from "svelte/store";
 import type { NetworkArchitectureDescription, ArchitectureId, NetworkLayerDescription, NetworkLayoutDescription, InputLayerDescription, LayoutId } from "$lib/types/architecture";
 import type { Node, Edge } from "@xyflow/svelte";
 import type { Parameter, ParameterValue } from "$lib/types/layer";
-import type { NodeArchitecture } from "./types/architecture-store.interface";
+import type { AvailableArchitecturesResponse, NodeArchitecture } from "./types/architecture-store.interface";
 
 function getLayerParametersByLayerId(layerId: string): Promise<any> {
     return BackendApi.getLayerById(layerId).then((layer) => {
@@ -63,8 +63,9 @@ const createArchitectureStore = (): ArchitectureStore => {
         })
             .then(response => response.json())
             .then(data => {
+                let response = data as AvailableArchitecturesResponse;
                 update((store) => {
-                    store.architectureIds = data;
+                    store.architectureIds = response.available;
                     return store;
                 });
             });
