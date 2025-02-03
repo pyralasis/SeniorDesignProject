@@ -14,7 +14,7 @@ LayerInstanceID: TypeAlias = int
 class InputLayerConfig:
     """An input to an architecture."""
 
-    id: LayerInstanceID
+    instance_id: LayerInstanceID
     size: TensorSize
 
 
@@ -22,11 +22,14 @@ class InputLayerConfig:
 class NetworkLayerConfig:
     """A layer within an architecture."""
 
-    id: LayerInstanceID  # a unique identifier for this layer instance
+    instance_id: LayerInstanceID  # a unique identifier for this layer instance
     layer_id: LayerID  # The ID of the layer type
-    input: LayerInstanceID | list[LayerInstanceID]  # The layer or input that feeds into this network.
+    input: list[LayerInstanceID]  # The layer or input that feeds into this network.
 
     param_values: dict[str, ParameterValue]  # the values for each parameter in the layer
+
+    def get_params(self) -> dict[str, any]:
+        return {key: param.val for key, param in self.param_values.items()}
 
 
 @dataclass
@@ -40,5 +43,7 @@ class ArchitectureConfig:
     version: int
     inputs: list[InputLayerConfig]
     layers: list[NetworkLayerConfig]
+    output: LayerInstanceID # id of layers that are outputs
+
 
     layout_file: str | None

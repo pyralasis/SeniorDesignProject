@@ -32,9 +32,14 @@ class SuccessfulResponse:
 
 
 @dataclass
-class ErrorResponse:
+class ErrorResponseInvalidArchitecture:
     success: Literal[False] = False
     error: Literal["invalid_architecture_id"] = "invalid_architecture_id"
+
+@dataclass
+class ErrorResponseModelCreationFailure:
+    success: Literal[False] = False
+    error: Literal["model_creation_failure"] = "model_creation_failure"
 
 
 # TODO
@@ -63,11 +68,21 @@ class CreateModelView(MethodView):
         # pass the architecture and the name to the model service and store the model_id
         # return the model_id
         if not self.architecture_service.files.exists(req.architecture_id):
-            return asdict(ErrorResponse())
+            return asdict(ErrorResponseInvalidArchitecture())
 
         # feel free to create a wrapper function on the architecture service for this
-        loaded_architecture: Loaded[ArchitectureConfig] = self.architecture_service.files.load(req.architecture_id)
-
-        model_id = self.service.create_model(loaded_architecture.data, req.name)
+        """
+        The view receives a request with the architecture_id
+        Use architecture service to get the architecture config
+        Pass architecture config to model service
+        Model service creates the model and returns any relevant info (probably model_id)
+        The view responds with whatever info needed
+        """
+        try:
+            loaded_architecture: Loaded[ArchitectureConfig] = self.architecture_service.load_architecture(req.architecture_id)
+            model_id = self.service.create_model(loaded_architecture.data, req.name)
+        except:
+            raise
+            return asdict(ErrorResponseModelCreationFailure())
 
         return asdict(SuccessfulResponse(model_id=model_id))
