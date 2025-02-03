@@ -3,7 +3,9 @@ from server.layer.service import LayerService
 from server.layer import LayerDefinition
 import torch
 from server.layer.size import TensorSize
-
+from pathlib import Path
+from server.util.file.manager import TorchWeightsFileManager
+import uuid
 """
 Sample model architecture:
 {
@@ -23,8 +25,9 @@ class ModelService:
     A service for managing PyTorch models.
     """
 
-    def __init__(self, layer_service: LayerService) -> None:
+    def __init__(self, layer_service: LayerService, save_path: Path) -> None:
         self.layer_service = layer_service
+        self.model_files = TorchWeightsFileManager(save_path, ".pt") # pass model.state_dict() to the save function
 
     # TODO
     # - create the model from the architecture
@@ -79,5 +82,12 @@ class ModelService:
         # now we have the created layers organized by instance id
         # we can now create the model
         model = torch.nn.Sequential(*created_layers.values())
-        import pdb; pdb.set_trace()
-        return model
+        
+        # make the model id
+        model_id = str(uuid.uuid4())
+
+        # save the model to the file system
+        self.model_files._save_to_path(self.model_files._to_path(model_id), model.state_dict())
+
+        # return the model id   
+        return model_id
