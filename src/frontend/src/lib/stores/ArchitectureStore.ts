@@ -5,7 +5,7 @@ import { get, writable, type Writable } from "svelte/store";
 import type { NetworkArchitectureDescription, ArchitectureId, NetworkLayerDescription, NetworkLayoutDescription, InputLayerDescription, LayoutId } from "$lib/types/architecture";
 import type { Node, Edge } from "@xyflow/svelte";
 import type { Parameter, ParameterValue } from "$lib/types/layer";
-import type { AvailableArchitecturesResponse, NodeArchitecture } from "./types/architecture-store.interface";
+import type { AvailableArchitecturesResponse, LoadArchitectureResponse, NodeArchitecture } from "./types/architecture-store.interface";
 
 function getLayerParametersByLayerId(layerId: string): Promise<any> {
     return BackendApi.getLayerById(layerId).then((layer) => {
@@ -54,8 +54,8 @@ const createArchitectureStore = (): ArchitectureStore => {
         activeArchitecture: undefined
     });
 
-    const getAvailableArchitectures = (): void => {
-        fetch(`${BACKEND_API_BASE_URL}/architecture/available`, {
+     const getAvailableArchitectures = async (): Promise<void> => {
+        await fetch(`${BACKEND_API_BASE_URL}/architecture/available`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -66,30 +66,31 @@ const createArchitectureStore = (): ArchitectureStore => {
                 let response = data as AvailableArchitecturesResponse;
                 update((store) => {
                     store.architectureIds = response.available;
+                    console.log(store.architectureIds)
                     return store;
                 });
             });
     }
 
-    const loadArchitectureById = (id: ArchitectureId): void => {
-        fetch(`${BACKEND_API_BASE_URL}/architecture/load`, {
+    const loadArchitectureById = async (id: ArchitectureId): Promise<void> => {
+        await fetch(`${BACKEND_API_BASE_URL}/architecture/load?` + new URLSearchParams({id: id}).toString(), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id: id })
 
         })
             .then(response => response.json())
             .then(data => {
                 update((store) => {
-                    const architecture = data.architecture;
+                    let response = data as LoadArchitectureResponse;
+                    const architecture = response.data.data;
                     const layout = data.layout
-                    const { nodes, edges } = parseLayersIntoNodesAndEdges(architecture.description.layers, layout);
+                    const { nodes, edges } = parseLayersIntoNodesAndEdges(architecture.layers, layout);
                     store.activeArchitecture = {
-                        id: architecture.id,
-                        fileName: architecture.file_name,
-                        name: architecture.description.name,
+                        id: response.data.id,
+                        fileName: architecture.name,
+                        name: architecture.name,
                         nodes: writable<Node[]>(nodes),
                         edges: writable<Edge[]>(edges)
                     }
@@ -105,8 +106,8 @@ const createArchitectureStore = (): ArchitectureStore => {
         });
     }
 
-    const deleteArchitecture = (id: ArchitectureId): void => {
-        fetch(`${BACKEND_API_BASE_URL}/architecture/delete`, {
+    const deleteArchitecture = async (id: ArchitectureId): Promise<void> => {
+        await fetch(`${BACKEND_API_BASE_URL}/architecture/delete`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -116,7 +117,7 @@ const createArchitectureStore = (): ArchitectureStore => {
         getAvailableArchitectures();
     }
 
-    const saveActiveArchitecture = (isNew: boolean = false): void => {
+    const saveActiveArchitecture = async (isNew: boolean = false): Promise<void> => {
         let activeArchitecture: NodeArchitecture | undefined;
         let nodes: Node[] = [];
         let edges: Edge[] = [];
@@ -166,7 +167,7 @@ const createArchitectureStore = (): ArchitectureStore => {
 
         console.log(architecture);
 
-        fetch(`${BACKEND_API_BASE_URL}/architecture/${isNew ? 'create' : 'update'}`, {
+        await fetch(`${BACKEND_API_BASE_URL}/architecture/${isNew ? 'create' : 'update'}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
