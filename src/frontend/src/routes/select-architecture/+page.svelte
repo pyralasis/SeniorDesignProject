@@ -1,12 +1,18 @@
-<script>
+<script lang="ts">
     import ArchitectureItemCreatePanel from '$lib/components/General/ArchitectureItemCreatePanel.svelte';
     import ArchitectureMenuItem from '$lib/components/General/ArchitectureMenuItem.svelte';
+    import { setContext } from 'svelte';
+    import { writable, type Writable } from 'svelte/store';
+
+    let selectedItemId: Writable<number> = writable(-1);
+
+    setContext('selected-item-id', selectedItemId);
 </script>
 
 <div class="main__panels">
     <ArchitectureItemCreatePanel></ArchitectureItemCreatePanel>
     {#each { length: 15 }, i}
-        <ArchitectureMenuItem title="TEST"></ArchitectureMenuItem>
+        <ArchitectureMenuItem title="TEST" id={i}></ArchitectureMenuItem>
     {/each}
 </div>
 
