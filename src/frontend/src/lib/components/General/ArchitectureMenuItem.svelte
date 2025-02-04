@@ -1,58 +1,29 @@
 <script lang="ts">
-    import { text } from "@sveltejs/kit";
-    import {
-        ButtonSizeEnum,
-        ButtonTypeEnum,
-        Flyout,
-        Header,
-        HeaderTypeEnum,
-        Popover,
-        PopoverChipTrigger,
-        PopoverMultiSelectContent,
-        TabContent,
-        TabLabel,
-        Tabs,
-        Button,
-        Accordion,
-        AccordionHeader,
-        AccordionBody,
-        Checkbox,
-        Text,
-        type PopoverItem,
-        Tag,
-        TagColorEnum,
-        TextInput,
-        PopoverSingleSelectContent,
-        InputSeries,
-    } from "kiwi-nl";
+    import { SoundUtility } from '$lib/utilities/sound.utility';
 
     export let title;
-    export let description;
-    export let openTabCallback;
 </script>
 
-<Accordion>
-    <AccordionHeader slot="header"
-        ><Header type={HeaderTypeEnum.h4}>{title}</Header></AccordionHeader
-    >
-    <AccordionBody slot="body">
-        <Text>{description}</Text>
-        <div class="button-container">
-            <Button
-                type={ButtonTypeEnum.secondary}
-                size={ButtonSizeEnum.small}
-                on:click={openTabCallback}>Edit</Button
-            >
-            <Button type={ButtonTypeEnum.secondary} size={ButtonSizeEnum.small}
-                >Delete</Button
-            >
-        </div>
-    </AccordionBody>
-</Accordion>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="architecture-menu-item" on:mouseenter={() => SoundUtility.playClick2()}>
+    <div class="architecture-menu-item-title">{title}</div>
+</div>
 
 <style>
-    .button-container {
+    .architecture-menu-item {
+        width: 100%;
+        height: 50px;
+        background-color: #000;
+        border: 1px solid #fff;
+        color: #fff;
         display: flex;
-        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+        &:hover {
+            transform: scale(1.05);
+            transition: transform 0.1s ease-in-out;
+        }
     }
 </style>

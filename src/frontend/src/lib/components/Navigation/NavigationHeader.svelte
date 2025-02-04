@@ -6,9 +6,21 @@
     import { clickOutside } from '$lib/directives/click-outside';
 
     let expanded: Writable<boolean> = writable(false);
+    let rotationDegrees: Writable<number> = writable(0);
+
+    const links: {
+        name: string;
+        href: string;
+    }[] = [
+        { name: 'Architectures', href: '/architectures' },
+        { name: 'Models', href: '/models' },
+        { name: 'Pipelines', href: '/pipelines' },
+        { name: 'Training', href: '/training' },
+    ];
 
     function toggleDrawer() {
         expanded.update((value) => !value);
+        rotationDegrees.update((value) => (value + 180) % 360);
     }
 
     function handleClickOutside() {
@@ -21,19 +33,19 @@
         <img src={Logo} alt="Check Logo" />
     </a>
 
-    <div class="drawer-container" class:expanded={$expanded} use:clickOutside on:click_outside={handleClickOutside}>
+    <div class="drawer-container" class:expanded={$expanded} use:clickOutside>
         <nav>
             <ul>
-                <li>Link 1</li>
-                <li>Link 2</li>
-                <li>Link 3</li>
+                {#each links as link}
+                    <a href={link.href}>{link.name}</a>
+                {/each}
             </ul>
         </nav>
 
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div class="icon-wrapper" on:click={toggleDrawer}>
-            <Icon name={$expanded ? IconNameEnum.plus : IconNameEnum.plus} />
+        <div class="icon-wrapper" on:click={toggleDrawer} style="transform: rotate({$rotationDegrees}deg);">
+            <Icon name={IconNameEnum.sideways_hamburger} />
         </div>
     </div>
 </div>
@@ -51,6 +63,7 @@
     .logo-container {
         padding-left: 16px;
         z-index: 2;
+        background-color: #000000;
     }
 
     .drawer-container {
@@ -59,10 +72,10 @@
         position: absolute;
         left: 0;
         height: 100%;
-        background-color: #1a1a1a;
-        transform: translateX(-100%);
+        background-color: #000000;
+        transform: translateX(-83%);
         transition: transform 0.3s ease;
-        padding-left: 175px; // Adjust based on your logo width
+        padding-left: 75px; // Adjust based on your logo width
         padding-right: 16px;
 
         &.expanded {
@@ -82,14 +95,17 @@
                 gap: 24px;
             }
 
-            li {
+            a {
+                text-decoration: none;
                 cursor: pointer;
                 padding: 8px 16px;
                 border-radius: 4px;
                 white-space: nowrap;
-
+                color: #ffffff;
                 &:hover {
-                    background-color: rgba(255, 255, 255, 0.1);
+                    color: #b91c1c;
+                    transition: all 0.3s ease;
+                    text-decoration: underline;
                 }
             }
         }
@@ -103,7 +119,7 @@
         margin-left: 16px;
 
         &:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            color: #b91c1c;
         }
     }
 </style>

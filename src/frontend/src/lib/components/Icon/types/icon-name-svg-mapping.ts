@@ -8,5 +8,21 @@ export const iconNameSvgMapping: Record<IconName, string> = {
     [IconNameEnum.plus]: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M8 3.5V12.5M3.5 8H12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 </svg>
+`,
+    [IconNameEnum.collapse]: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 0V16H6V0H4ZM7 3V8V13L12 7.5L7 3Z" fill="currentColor"/>
+</svg>
+`,
+    [IconNameEnum.sideways_hamburger]: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_130_22)">
+<path d="M12.3472 0L12.3472 16L9.69454 16L9.69454 -1.17949e-07L12.3472 0ZM5.69454 -2.95809e-07L5.69454 16L2.9998 16L2.9998 -4.15631e-07L5.69454 -2.95809e-07Z" fill="currentColor"/>
+</g>
+<defs>
+<clipPath id="clip0_130_22">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+
 `
 } as const;

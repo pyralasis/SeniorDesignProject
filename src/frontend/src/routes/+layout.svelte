@@ -19,5 +19,6 @@
         font-family: 'Inter', sans-serif;
         box-sizing: border-box;
         background-color: #000000;
+        scrollbar-color: #000 #fff;
     }
 </style>

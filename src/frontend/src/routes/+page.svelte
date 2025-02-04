@@ -1,5 +1,6 @@
 <script lang="ts">
-    import Logo from '$lib/assets/logo-2.svg';
+    import Logo from '$lib/assets/logo-3.svg';
+    import { SoundUtility } from '$lib/utilities/sound.utility';
 </script>
 
 <div class="home-page">
@@ -22,6 +23,8 @@
         justify-content: center;
         align-items: center;
         gap: 70px;
+        background: url('$lib/assets/background.png') no-repeat center center fixed;
+        background-size: cover;
     }
 
     .logo-container {
@@ -32,7 +35,7 @@
     }
 
     img {
-        width: 200px;
+        width: 250px;
     }
 
     .link-container {
@@ -50,7 +53,7 @@
         font-weight: 600;
         height: 80px;
         width: 200px;
-        border: 1px solid #000000;
+        border: 1px solid transparent;
         display: flex;
         align-items: center;
         justify-content: center;
