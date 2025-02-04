@@ -4,6 +4,7 @@
     import Icon from '../Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
     import { clickOutside } from '$lib/directives/click-outside';
+    import { SoundUtility } from '$lib/utilities/sound.utility';
 
     let expanded: Writable<boolean> = writable(false);
     let rotationDegrees: Writable<number> = writable(0);
@@ -19,6 +20,7 @@
     ];
 
     function toggleDrawer() {
+        SoundUtility.playSwoosh();
         expanded.update((value) => !value);
         rotationDegrees.update((value) => (value + 180) % 360);
     }

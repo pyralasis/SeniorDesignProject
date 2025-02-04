@@ -5,6 +5,7 @@
     import { writable, type Writable } from 'svelte/store';
     import Icon from '../Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
+    import { SoundUtility } from '$lib/utilities/sound.utility';
 
     export let layer: Layer<any> = {
         id: '',
@@ -24,13 +25,19 @@
     function handleMouseLeave() {
         hovered.update((value) => (value = false));
     }
+
+    function handleClick() {
+        SoundUtility.playGrab(0.2);
+    }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
     on:dragstart={(e) => onDragStart(e, NodeTypeEnum.Layer, layer)}
     on:mouseenter={handleMouseEnter}
     on:mouseleave={handleMouseLeave}
+    on:mousedown={handleClick}
     draggable={true}
     class="input-node node"
     style="

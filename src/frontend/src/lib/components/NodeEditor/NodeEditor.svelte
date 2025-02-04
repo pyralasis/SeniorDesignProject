@@ -12,6 +12,7 @@
     import { type Parameter, type ParameterValue } from '$lib/types/layer';
     import NodeEditorActions from './NodeEditorActions.svelte';
     import { setContext } from 'svelte';
+    import { SoundUtility } from '$lib/utilities/sound.utility';
 
     export let nodes: Writable<Node[]>;
     export let edges: Writable<Edge[]>;
@@ -67,6 +68,7 @@
 
     const onDrop = (event: DragEvent) => {
         event.preventDefault();
+        SoundUtility.playDrop(0.02);
 
         if (!$dndContext?.type) {
             return;

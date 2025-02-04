@@ -10,7 +10,7 @@ export class SoundUtility {
         }
     }
 
-    private static async playSound(soundPath: string) {
+    private static async playSound(soundPath: string, volume: number = 1) {
         this.initAudioContext();
         if (!this.audioContext) return;
 
@@ -18,6 +18,8 @@ export class SoundUtility {
             const response = await fetch(soundPath);
             const arrayBuffer = await response.arrayBuffer();
             const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+            const gainNode = this.audioContext.createGain();
+            gainNode.gain.value = volume;
 
             const source = this.audioContext.createBufferSource();
             source.buffer = audioBuffer;
@@ -28,32 +30,24 @@ export class SoundUtility {
         }
     }
 
-    /**
-     * Play click sound effect 1
-     */
-    public static playClick1() {
-        this.playSound('/src/lib/assets/sounds/lighter-click.mp3');
+
+    public static playClick1(volume: number = 1) {
+        this.playSound('/src/lib/assets/sounds/lighter-click.mp3', volume);
     }
 
-    /**
-     * Play click sound effect 2
-     */
-    public static playClick2() {
-        this.playSound('/src/lib/assets/sounds/lighter-click-2.mp3');
+    public static playClick2(volume: number = 1) {
+        this.playSound('/src/lib/assets/sounds/lighter-click-2.mp3', volume);
     }
 
-    /**
-     * Play success sound effect
-     */
-    public static playSuccess() {
-        this.playSound('/src/lib/assets/sounds/success.mp3');
+    public static playSwoosh(volume: number = 1) {
+        this.playSound('/src/lib/assets/sounds/swoosh.mp3', volume);
     }
 
-    /**
-     * Play error sound effect
-     */
-    public static playError() {
-        this.playSound('/src/lib/assets/sounds/error.mp3');
+    public static playGrab(volume: number = 1) {
+        this.playSound('/src/lib/assets/sounds/grab1.mp3', volume);
+    }
+
+    public static playDrop(volume: number = 1) {
+        this.playSound('/src/lib/assets/sounds/drop1.mp3', volume);
     }
 }
-

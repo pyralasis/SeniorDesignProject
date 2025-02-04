@@ -1,6 +1,5 @@
 <script lang="ts">
     import Logo from '$lib/assets/logo-3.svg';
-    import { SoundUtility } from '$lib/utilities/sound.utility';
 </script>
 
 <div class="home-page">
@@ -8,7 +7,7 @@
         <img src={Logo} alt="Home Page" />
     </div>
     <div class="link-container">
-        <a href="/general-layout">Architectures</a>
+        <a href="/select-architecture">Architectures</a>
         <a href="/general-layout">Models</a>
         <a href="/general-layout">Pipelines</a>
         <a href="/general-layout">Training</a>

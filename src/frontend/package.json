@@ -29,6 +29,7 @@
 		"file-saver": "^2.0.5",
 		"fs": "^0.0.1-security",
 		"gh-pages": "^6.1.1",
+		"gsap": "^3.12.7",
 		"kiwi-nl": "^0.0.8",
 		"save-as": "^0.1.8"
 	}

@@ -8,6 +8,15 @@ export class StylingUtility {
         },
     } as const;
 
+    static readonly whiteBorderButton = {
+        backgroundColor: '#000000',
+        border: '1px solid #ffffff',
+        hover: {
+            backgroundColor: '#090909',
+        },
+    } as const;
+
+
     // Text Input styles
     static readonly textInput = {
         backgroundColor: '#000000',
