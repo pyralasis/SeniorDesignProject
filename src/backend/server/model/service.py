@@ -84,7 +84,7 @@ class ModelService:
         model = torch.nn.Sequential(*created_layers.values())
         
         # make the model id
-        model_id = str(uuid.uuid4())
+        model_id = str(uuid.uuid1())
 
         # save the model to the file system
         self.model_files._save_to_path(self.model_files._to_path(model_id), model.state_dict())
