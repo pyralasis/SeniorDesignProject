@@ -34,7 +34,7 @@
 <div
     class="node"
     style="
-        outline: {selected ? '1' : '.5'}px solid {$color + (selected ? 'bb' : '34')};
+        outline: {selected ? '1.5' : '1'}px solid {$color + (selected ? 'bb' : '34')};
         cursor: pointer;
         transition: outline 0.2s;
     "
@@ -68,21 +68,19 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        border-radius: 4px;
         overflow: hidden;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 3px 7px #78787843;
         width: 250px;
         background-color: #ffffff;
         transition: height 0.2s;
 
         &__header {
-            padding: 2px;
+            padding: 4px;
             display: flex;
             align-items: center;
             cursor: pointer;
-            color: #232323;
-            background: rgb(242, 242, 242);
-            background: linear-gradient(180deg, rgb(248, 247, 247) 70%, rgb(235, 235, 235) 100%);
+            color: #ffffff;
+            background: #070707;
         }
 
         &__header-chevron {
@@ -105,12 +103,13 @@
             flex-direction: column;
             gap: 16px;
             cursor: default;
+            border-top: 1px solid #ffffff;
+            background-color: #070707;
         }
 
         &__title {
             font-size: 12px;
             font-weight: 600;
-            color: #232323;
         }
 
         &__content-empty {

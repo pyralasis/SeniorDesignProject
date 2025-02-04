@@ -3,6 +3,8 @@
     import { NodeTypeEnum, type NodeType } from '$lib/types/node-type.enum';
     import { getContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
+    import Icon from '../Icon/Icon.svelte';
+    import { IconNameEnum } from '../Icon/types/icon-name.enum';
 
     export let layer: Layer<any> = {
         id: '',
@@ -36,6 +38,7 @@
     "
 >
     <div class="node__title">
+        <Icon name={IconNameEnum.plus} />
         {layer.name}
     </div>
     <div class="node__params">
@@ -45,7 +48,6 @@
 
 <style lang="scss">
     .node {
-        border-radius: 8px;
         margin: 0.5rem;
         padding: 12px 16px;
         font-weight: 600;
@@ -56,19 +58,23 @@
         flex-direction: column;
         justify-content: space-between;
         transition: all 0.2s ease;
-        background-color: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        border: 1px solid;
+        background-color: #000000;
+        border: 1px solid #ffffff;
 
         &__title {
             font-size: 14px;
-            color: #727272;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
         }
 
         &__params {
             font-size: 12px;
-            color: #a8a8a8;
+            color: #ffffff;
             font-weight: 600;
+            margin-left: 26px;
         }
 
         &:hover {

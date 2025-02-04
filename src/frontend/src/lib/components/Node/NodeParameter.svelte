@@ -10,17 +10,68 @@
         value.type = type;
         onChange(value);
     }
+
+    const inputStyle = {
+        backgroundColor: '#000000',
+        color: '#ffffff',
+        border: '1px solid #ffffff',
+        label: {
+            color: '#ffffff',
+        },
+        hover: {
+            backgroundColor: '#000000',
+            color: '#ffffff',
+            border: '1px solid #ffffff',
+        },
+        focus: {
+            backgroundColor: '#000000',
+            color: '#ffffff',
+            border: '1px solid #ffffff',
+        },
+    };
+
+    const checkboxStyle = {
+        border: '2px solid #FFFFFF',
+        borderRadius: '0px',
+        hover: {
+            backgroundColor: '#000000',
+            border: '2px solid #CCCCCC',
+        },
+        checked: {
+            backgroundColor: '#000000',
+            border: '2px solid #FFFFFF',
+            hover: {
+                backgroundColor: '#111111',
+                border: '2px solid #CCCCCC',
+            },
+        },
+    };
 </script>
 
 <div class="node-field">
     {#if parameter.type === ParameterTypeEnum.Bool}
-        <Checkbox label={parameter.name} bind:checked={value.value} on:change={(event) => updateValue(event, ParameterTypeEnum.Bool)} />
+        <Checkbox
+            style={checkboxStyle}
+            label={parameter.name}
+            bind:checked={value.value}
+            on:change={(event) => updateValue(event, ParameterTypeEnum.Bool)}
+        />
     {:else if parameter.type === ParameterTypeEnum.Int}
-        <TextInput label={parameter.name} bind:value={value.value} on:change={(event) => updateValue(event, ParameterTypeEnum.Int)} />
+        <TextInput
+            style={inputStyle}
+            label={parameter.name}
+            bind:value={value.value}
+            on:change={(event) => updateValue(event, ParameterTypeEnum.Int)}
+        />
     {:else if parameter.type === ParameterTypeEnum.Float}
-        <TextInput label={parameter.name} on:change={(event) => updateValue(event, ParameterTypeEnum.Float)} />
+        <TextInput style={inputStyle} label={parameter.name} on:change={(event) => updateValue(event, ParameterTypeEnum.Float)} />
     {:else if parameter.type === ParameterTypeEnum.String}
-        <TextInput label={parameter.name} bind:value={value.value} on:change={(event) => updateValue(event, ParameterTypeEnum.String)} />
+        <TextInput
+            style={inputStyle}
+            label={parameter.name}
+            bind:value={value.value}
+            on:change={(event) => updateValue(event, ParameterTypeEnum.String)}
+        />
     {:else if parameter.type === ParameterTypeEnum.Size2D}
         <InputSeries label={parameter.name} on:change={(event) => updateValue(event, ParameterTypeEnum.Size2D)} />
     {/if}

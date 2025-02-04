@@ -1,1 +1,0 @@
-export type EnumOf<T extends Object> =T[keyof T];

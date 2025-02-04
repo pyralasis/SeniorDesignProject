@@ -4,6 +4,7 @@
     import { writable, type Writable } from 'svelte/store';
     import Icon from '../Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
+    import { StylingUtility } from '$lib/utilities/styling.utility';
 
     export let selectedNodeTitle: Writable<string> | undefined;
     export let selectedNodeColor: Writable<string> | undefined;
@@ -37,20 +38,24 @@
 
 <div class="node-editor-actions">
     <div class="node-editor-actions__left">
-        <Button type={ButtonTypeEnum.secondary} on:click={handleSidebarToggle}>
+        <Button type={ButtonTypeEnum.primary} on:click={handleSidebarToggle}>
             <div style="transform: rotate({$rotationDegrees}deg); transition: transform 0.2s;">
                 <Icon name={IconNameEnum.chevron_right} />
             </div>
         </Button>
+        {#if $selectedNodeTitle !== undefined}
+            <div class="node-editor-actions__input">
+                <TextInput style={StylingUtility.textInput} label="Node Title" on:change={onTitleChange} value={$selectedNodeTitle}
+                ></TextInput>
+            </div>
+        {/if}
         <div class="node-editor-actions__color">
             <input class="color-input" type="color" value={$selectedNodeColor ?? $xColor} on:change={onColorChange} />
         </div>
-        <div class="node-editor-actions__input" style="visibility: {$selectedNodeTitle ? 'visible' : 'hidden'};">
-            <TextInput label="Node Title" on:change={onTitleChange} value={$selectedNodeTitle}></TextInput>
-        </div>
     </div>
+
     <div class="node-editor-actions__delete">
-        <Button type={ButtonTypeEnum.secondary} on:click={onDelete}>Delete</Button>
+        <Button type={ButtonTypeEnum.primary} on:click={onDelete} style={StylingUtility.redButton}>Delete</Button>
         <Button type={ButtonTypeEnum.primary} on:click={onClearNodes}>Clear</Button>
     </div>
 </div>
@@ -59,16 +64,17 @@
     .node-editor-actions {
         display: flex;
         width: auto;
-        align-items: center;
+        align-items: flex-end;
         justify-content: space-between;
         padding: 16px;
-        border-bottom: 2px solid #eaeaea;
+        border-bottom: 2px solid #ffffff;
 
         &__left {
             display: flex;
             gap: 10px;
             width: 60%;
-            align-items: center;
+            height: 54px;
+            align-items: flex-end;
         }
 
         &__input {
@@ -96,25 +102,18 @@
         -webkit-appearance: none;
         border: none;
         cursor: pointer;
-        width: 25px;
-        height: 25px;
+        width: 16px;
+        height: 34px;
         padding: 0;
         background: none;
-        box-shadow: inset 0 0 10px #ad3b3b;
     }
 
     input[type='color']::-webkit-color-swatch-wrapper {
         padding: 0;
-        border-radius: 50%;
         overflow: hidden;
     }
 
     input[type='color']::-webkit-color-swatch {
-        border-radius: 50%;
-    }
-
-    input[type='color'] {
-        border-radius: 50%;
-        border: 1px solid #f1f1f1;
+        border: 0px solid #ffffff;
     }
 </style>

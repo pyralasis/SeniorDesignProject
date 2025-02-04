@@ -5,7 +5,6 @@
     import { onMount } from 'svelte';
     import { BackendApi } from '$lib/utilities/api.utilities';
     import { type NodeType } from '$lib/types/node-type.enum';
-    import { Button, Header, Text, TextColorEnum } from 'kiwi-nl';
 
     const dndContext = useDnD();
     let layers: Layer<any>[] = [];
@@ -32,7 +31,7 @@
 </script>
 
 <div class="sidebar" style="width: {expanded ? 'fit-content' : '0px'}; opacity: {expanded ? 1 : 0};">
-    <Header type="h3">Available Layers</Header>
+    <h3 class="sidebar__header">Available Layers</h3>
     <p class="sidebar__subheader">Drag and drop to add a layer to the architecture</p>
     <div class="sidebar__nodes-container">
         {#each layers as layer}
@@ -50,8 +49,9 @@
         justify-content: start;
         align-items: center;
         height: 100%;
-        border-right: 2px solid #eaeaea;
+        border-right: 2px solid #ffffff;
         padding: 16px 8px 0 8px;
+        background-color: #000000;
 
         &__nodes-container {
             position: relative;
@@ -59,22 +59,19 @@
             flex-direction: column;
             align-items: center;
             padding-top: 20px;
-            padding-bottom: 20px;
-
-            & > *:not(:last-child) {
-                margin-bottom: -20px;
-            }
         }
 
         &__header {
-            font-size: 16px;
+            font-size: 24px;
             font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0;
         }
 
         &__subheader {
             font-size: 10px;
             font-weight: 400;
-            color: #bfbfbf;
+            color: #ffffff;
             text-align: center;
         }
     }

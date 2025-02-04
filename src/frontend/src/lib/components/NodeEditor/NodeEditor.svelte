@@ -6,7 +6,7 @@
     import { type Node, SvelteFlow, Controls, Background, MiniMap, useSvelteFlow, type NodeTypes, type Edge } from '@xyflow/svelte';
     import { useDnD } from '$lib/utilities/DnDUtils';
 
-    import LayerNode from '../nodes/LayerNode.svelte';
+    import LayerNode from '../Node/LayerNode.svelte';
     import Sidebar from '$lib/components/Sidebar/Sidebar.svelte';
     import '@xyflow/svelte/dist/style.css';
     import { type Parameter, type ParameterValue } from '$lib/types/layer';
@@ -24,9 +24,28 @@
     let selectedNodeTitle: Writable<string> | undefined;
     let sidebarExpanded: Writable<boolean> = writable(true);
 
-    const xColor = writable<string>('#ff4000');
+    const xColor = writable<string>('#FFFFFF');
     setContext('xColor', xColor);
     setContext('sidebarExpanded', sidebarExpanded);
+
+    const inputStyle = {
+        backgroundColor: '#000000',
+        color: '#ffffff',
+        border: '1px solid #ffffff',
+        label: {
+            color: '#ffffff',
+        },
+        hover: {
+            backgroundColor: '#000000',
+            color: '#ffffff',
+            border: '1px solid #ffffff',
+        },
+        focus: {
+            backgroundColor: '#000000',
+            color: '#ffffff',
+            border: '1px solid #ffffff',
+        },
+    };
 
     function getParameterDefaultValue(parameter: Parameter<any>): { parameter: Parameter<any>; value: ParameterValue<any> } {
         return {
@@ -102,7 +121,7 @@
         </div>
         <div class="node-editor__flow">
             <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
-                <Background />
+                <Background bgColor="#000000" patternColor="#FFFFFF" />
             </SvelteFlow>
         </div>
     </div>
@@ -113,15 +132,18 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        background-color: #000000;
+        height: 100%;
 
         &__content {
             display: flex;
             flex-direction: row;
+            height: calc(100% + 30px);
         }
 
         &__flow {
             width: 100%;
-            height: 700px;
+            height: 100%;
         }
 
         &__sidebar {

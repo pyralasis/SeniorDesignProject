@@ -1,4 +1,12 @@
+<script lang="ts">
+    import { page } from '$app/state';
+    import NavigationHeader from '$lib/components/Navigation/NavigationHeader.svelte';
+</script>
+
 <div class="layout">
+    {#if page.data.hasHeader}
+        <NavigationHeader />
+    {/if}
     <slot></slot>
 </div>
 
@@ -10,5 +18,6 @@
         width: auto;
         font-family: 'Inter', sans-serif;
         box-sizing: border-box;
+        background-color: #000000;
     }
 </style>

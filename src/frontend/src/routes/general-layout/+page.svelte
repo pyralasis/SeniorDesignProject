@@ -8,40 +8,13 @@
 </script>
 
 <script lang="ts">
-    import {
-        ButtonSizeEnum,
-        ButtonTypeEnum,
-        Flyout,
-        Header,
-        HeaderTypeEnum,
-        Popover,
-        PopoverChipTrigger,
-        PopoverMultiSelectContent,
-        TabContent,
-        TabLabel,
-        Tabs,
-        Button,
-        Accordion,
-        AccordionHeader,
-        AccordionBody,
-        Checkbox,
-        Text,
-        type PopoverItem,
-        Tag,
-        TagColorEnum,
-        TextInput,
-        PopoverSingleSelectContent,
-    } from 'kiwi-nl';
-
     import { SvelteFlowProvider } from '@xyflow/svelte';
     import DnDProvider from '$lib/components/DnDProvider.svelte';
 
-    import Flow from '$lib/components/NodeEditor/NodeEditor.svelte';
+    import NodeEditor from '$lib/components/NodeEditor/NodeEditor.svelte';
     import { writable, type Writable } from 'svelte/store';
     import type { Edge, Node } from '@xyflow/svelte';
-    import NavBar from '$lib/components/General/NavBar.svelte';
     import { architectureStore } from '$lib/stores/ArchitectureStore';
-    import { onMount } from 'svelte';
 
     architectureStore.createNewArchitecture('New Architecture');
 
@@ -79,43 +52,17 @@
     }
 </script>
 
-<div class="wrapper">
-    <div class="nav-bar">
-        <NavBar></NavBar>
-    </div>
-    <main>
-        <Tabs activeTab={1}>
-            <svelte:fragment slot="labels">
-                {#each $dummyTabs as tab, i}
-                    <TabLabel tabnum={i + 1}>{tab.tabTitle}</TabLabel>
-                {/each}
-            </svelte:fragment>
-            <svelte:fragment slot="contents">
-                {#each $dummyTabs as tab, i}
-                    <TabContent tabnum={i + 1}>
-                        <div class="info-bar">
-                            <Header type={HeaderTypeEnum.h1}>Architecture Title</Header>
-                        </div>
-
-                        <div class="DnD">
-                            <SvelteFlowProvider>
-                                <DnDProvider>
-                                    <Flow
-                                        {onSave}
-                                        onCreateNode={architectureStore.addNodeToActiveArchitecture}
-                                        onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
-                                        nodes={architectureNodes}
-                                        edges={architectureEdges}
-                                    />
-                                </DnDProvider>
-                            </SvelteFlowProvider>
-                        </div>
-                    </TabContent>
-                {/each}
-            </svelte:fragment>
-        </Tabs>
-    </main>
-</div>
+<SvelteFlowProvider>
+    <DnDProvider>
+        <NodeEditor
+            {onSave}
+            onCreateNode={architectureStore.addNodeToActiveArchitecture}
+            onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
+            nodes={architectureNodes}
+            edges={architectureEdges}
+        />
+    </DnDProvider>
+</SvelteFlowProvider>
 
 <style>
     .wrapper {
@@ -127,7 +74,8 @@
         /* grid-gap: 10px; */
         grid-template-rows: 100%;
     }
-    main {
-        background-color: white;
+
+    h1 {
+        color: white;
     }
 </style>
