@@ -1,8 +1,10 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    import type { ArchitectureId } from "$lib/types/architecture";
     import { Button, ButtonSizeEnum, ButtonTypeEnum, Header, HeaderTypeEnum } from "kiwi-nl";
     
     export let title: string;
+    export let id: ArchitectureId;
 </script>
 
 <div class="panel">
@@ -11,7 +13,7 @@
     </div>
 
     <div class="panel__buttons">
-        <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.large} on:click={() => {goto('/edit-architecture')}}>
+        <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.large} on:click={() => {goto("/edit-architecture?id=" + id)}}>
             Edit
         </Button>
         <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.large}>

@@ -2,8 +2,13 @@
     import ArchitectureItemCreatePanel from "$lib/components/General/ArchitectureItemCreatePanel.svelte";
     import ArchitectureItemPanel from "$lib/components/General/ArchitectureItemPanel.svelte";
     import NavBar from "$lib/components/General/NavBar.svelte";
+    import { architectureStore } from "$lib/stores/ArchitectureStore";
     import { Header } from "kiwi-nl";
+    import { onMount } from "svelte";
 
+    onMount(async () => {
+        await architectureStore.getAvailableArchitectures();
+	});
 </script>
 
 <div class="wrapper">
@@ -16,8 +21,8 @@
         </div>
         <div class="main__panels">
             <ArchitectureItemCreatePanel></ArchitectureItemCreatePanel>
-            {#each { length: 100 }, i}
-            <ArchitectureItemPanel title="TEST {i}"></ArchitectureItemPanel>
+            {#each $architectureStore.architectureIds as id}
+            <ArchitectureItemPanel title="{id}" id={id}></ArchitectureItemPanel>
             {/each} 
         </div>
     </main>

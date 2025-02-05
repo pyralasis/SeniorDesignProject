@@ -1,14 +1,38 @@
 <script lang="ts">
-    import DnDProvider from '$lib/components/DnDProvider.svelte';
-    import NodeEditor from '$lib/components/NodeEditor/NodeEditor.svelte';
-    import NavBar from '$lib/components/General/NavBar.svelte';
-    import { SvelteFlowProvider } from '@xyflow/svelte';
-    import { Header } from 'kiwi-nl';
+    import DnDProvider from "$lib/components/DnDProvider.svelte";
+    import Flow from "$lib/components/NodeEditor/NodeEditor.svelte";
+    import NavBar from "$lib/components/General/NavBar.svelte";
+    import { SvelteFlowProvider} from "@xyflow/svelte";
+    import { Header } from "kiwi-nl";
+    import { writable, type Writable } from "svelte/store";
+    import { architectureStore } from "$lib/stores/ArchitectureStore";
+    import { onMount } from "svelte";
+    import { page } from '$app/state';
+    import type { ArchitectureId } from "$lib/types/architecture";
+    import type { Edge, Node } from '@xyflow/svelte';
+    
+    architectureStore.createNewArchitecture('New Architecture');
 
-    //Need to set the loaded architecture and apply it to the flow.
-    //Should this be done by passing the architecture id to this page
-    //then set the loaded architecture, or should the select architecture
-    //page set it?
+    let architectureNodes: Writable<Node[]> = writable([]);
+    let architectureEdges: Writable<Edge[]> = writable([]);
+
+    architectureStore.subscribe((store) => {
+        if (!store.activeArchitecture) {
+            return;
+        }
+        architectureNodes = store.activeArchitecture.nodes;
+        architectureEdges = store.activeArchitecture.edges;
+    });
+    onMount(async () => {
+        // uncomment this once the new endpoint for architecture and layout are working.
+        // await architectureStore.loadArchitectureById($architectureStore.architectureIds[0]);
+	});
+    let id: ArchitectureId | null = page.url.searchParams.get('id');
+
+    let onSave = () => {
+        console.log(id);
+        architectureStore.saveActiveArchitecture(id as string);
+    }
 </script>
 
 <div class="wrapper">
@@ -19,12 +43,18 @@
         <div class="main__header">
             <Header>Editing Architecture: TITLE</Header>
         </div>
-
         <SvelteFlowProvider>
             <DnDProvider>
-                <NodeEditor />
+                <Flow
+                    {onSave}
+                    onCreateNode={architectureStore.addNodeToActiveArchitecture}
+                    onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
+                    nodes={architectureNodes}
+                    edges={architectureEdges}
+                />
             </DnDProvider>
         </SvelteFlowProvider>
+
     </main>
 </div>
 
