@@ -58,6 +58,7 @@
             gap: 10px;
             justify-content: center;
             max-height: 90%;
+            min-height: 90%;
         }
         
     }
