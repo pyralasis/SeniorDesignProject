@@ -17,8 +17,9 @@ You can create and edit your Architecture through the Architecture Node Editor. 
 Once a Layer is in the Editor, you can connect it to other Layers and edit its Parameters.
 
 ## Supported Layer Types
+Provided are links to the Pytorch documentation for each Layer type.
 
-- ReLu
-- 2D Convolution
-- Linear
-- 2D Max Pooling
+- [ReLu](https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html)
+- [2D Convolution](https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html#torch.nn.Conv2d)
+- [Linear](https://pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear)
+- [2D Max Pooling](https://pytorch.org/docs/stable/generated/torch.nn.MaxPool2d.html#torch.nn.MaxPool2d)
