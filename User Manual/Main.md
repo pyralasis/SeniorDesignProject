@@ -4,7 +4,7 @@ DESCRIPTION GOES HERE I GUESS
 
 # Quick Links
 
-## Installation
+## [Installation](./Installation.md)
 
 [Bare Machine](./Installation.md#bare-machine)
 
@@ -14,7 +14,7 @@ DESCRIPTION GOES HERE I GUESS
 
 [Running the app](./Installation.md#running-the-app)
 
-## Architectures
+## [Architectures](./Architectures.md)
 
 [What is an Architecture](./Architectures.md#what-is-an-architecture)
 
@@ -25,6 +25,6 @@ DESCRIPTION GOES HERE I GUESS
 [Supported Layer Types](./Architectures.md#supported-layer-types)
 
 
-## Pipelines
+## [Pipelines](./Pipelines.md)
 
-## Models
+## [Models](./Models.md)
