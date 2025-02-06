@@ -1,6 +1,6 @@
 # senòr design
 
-## Development
+## Installation
 
 For reproducible development, we recommend using [Docker](https://www.docker.com/).
 You can build the Docker image with the following command **(make sure you are in the `src` directory for all of the following commands)**:
