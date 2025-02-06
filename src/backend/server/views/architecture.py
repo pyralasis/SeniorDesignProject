@@ -10,6 +10,7 @@ def create_architecture_blueprint(
 ) -> Blueprint:
     bp = Blueprint("architecture", __name__)
 
+    # this collectively adds file management endpoints for the architecture service
     bp.register_blueprint(create_file_blueprint(architecture_service.files, "architecture"))
 
     return bp

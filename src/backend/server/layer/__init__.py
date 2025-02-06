@@ -30,6 +30,12 @@ class LayerSizeCallable(Protocol):
 
 
 @dataclass
+class ParameterValue:
+    val: Any
+    type: str
+
+
+@dataclass
 class LayerDefinition:
     id: LayerID
     name: str

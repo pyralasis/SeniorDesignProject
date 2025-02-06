@@ -8,9 +8,9 @@ from server.layer.size import TensorSize
 # found here: https://pytorch.org/docs/stable/nn.html#linear-layers
 
 
-def linear_size_transformation(in_sizes: tuple[TensorSize, ...], output_features: int, **_) -> TensorSize:
+def linear_size_transformation(in_sizes: tuple[TensorSize, ...], out_features: int, **_) -> TensorSize:
     in_size = in_sizes[0]
-    return TensorSize(in_size[:-1] + (output_features,))
+    return TensorSize(in_size[:-1] + (out_features,))
 
 
 linear_layer = LayerDefinition(
