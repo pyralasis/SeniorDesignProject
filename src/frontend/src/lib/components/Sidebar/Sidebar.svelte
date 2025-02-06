@@ -49,7 +49,7 @@
         justify-content: start;
         align-items: center;
         height: 100%;
-        border-right: 2px solid #ffffff;
+        border-right: 1px solid #ffffff;
         padding: 16px 8px 0 8px;
         background-color: #000000;
 

@@ -71,7 +71,6 @@
         height: 100%;
         display: grid;
         grid-template-columns: 12% 88%;
-        /* grid-gap: 10px; */
         grid-template-rows: 100%;
     }
 

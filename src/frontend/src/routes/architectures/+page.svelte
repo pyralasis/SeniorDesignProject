@@ -1,5 +1,4 @@
 <script lang="ts">
-    import ArchitectureItemCreatePanel from '$lib/components/General/ArchitectureItemCreatePanel.svelte';
     import ArchitectureMenuItem from '$lib/components/General/ArchitectureMenuItem.svelte';
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import { Button } from 'kiwi-nl';
@@ -26,7 +25,7 @@
         {#if $selectedItemId !== -1}
             <div class="select-architecture-page__architecture-actions">
                 <div class="left-actions">
-                    <Button type="primary" style={StylingUtility.whiteBorderButton} href="/general-layout?id={$selectedItemId}"
+                    <Button type="primary" style={StylingUtility.whiteBorderButton} href="/architectures/edit?id={$selectedItemId}"
                         >Edit Architecture</Button
                     >
                     <Button type="primary" style={StylingUtility.whiteBorderButton}>Convert to Model</Button>
@@ -70,11 +69,13 @@
         &__architecture-items {
             display: flex;
             flex-direction: column;
-            max-height: calc(50px * 7);
+            max-height: calc(50px * 10);
             overflow-y: auto;
             overflow-x: hidden;
             padding: 32px 32px;
-            border: 1px solid #ffffff;
+            box-shadow:
+                inset 0px -100px 20px rgba(0, 0, 0, 0.4),
+                inset 0px 100px 20px rgba(0, 0, 0, 0.4);
         }
 
         &__architecture-actions {

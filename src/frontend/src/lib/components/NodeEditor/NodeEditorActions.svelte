@@ -67,7 +67,7 @@
         align-items: flex-end;
         justify-content: space-between;
         padding: 16px;
-        border-bottom: 2px solid #ffffff;
+        border-bottom: 1px solid #ffffff;
 
         &__left {
             display: flex;
