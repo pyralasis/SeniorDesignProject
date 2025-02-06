@@ -1,0 +1,15 @@
+{
+    "name": "check",
+    "version": "0.0.1",
+    "dependencies": {
+      "concurrently": "^9.1.0"
+    },
+    "scripts": {
+      "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+      "start:frontend": "cd frontend && npm run dev",
+      "start:backend": "cd backend && python3 run.py",
+      "install": "npm run install:frontend && npm run install:backend",
+      "install:frontend": "cd frontend && npm install",
+      "install:backend": "cd backend && pip install -r requirements.txt"
+    }
+  }

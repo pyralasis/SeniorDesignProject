@@ -3,16 +3,38 @@
 ## Development
 
 For reproducible development, we recommend using [Docker](https://www.docker.com/).
-You can build the Docker image with the following command (make sure you are in the `src` directory):
+You can build the Docker image with the following command **(make sure you are in the `src` directory for all of the following commands)**:
+
+### Bare Machine
+
+Make sure you have Python 3.10 installed, and that you have `pip` and `npm` installed.
+
+Then, run the following commands:
+
+```bash
+npm install # install
+npm start # start the frontend and backend concurrently
+```
+
+### Docker
+
+Alternatively, you can build the Docker image with the following command:
 
 ```bash
 docker build -t sdp .
 ```
 
+Building in docker will restrict dependencies to the container, so you will not need to install any dependencies on your host machine.
 You can then run the Docker container with the following command:
 
 ```bash
 docker run -it --rm  -v $(pwd):/app -w /app sdp
+```
+
+Once you are in the container, you can run the following command to start the frontend and backend:
+
+```bash
+npm start
 ```
 
 ### Dev Container
