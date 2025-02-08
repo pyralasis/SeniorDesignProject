@@ -1,0 +1,1 @@
+{"name":"New Architecture","version":0,"inputs":[],"layers":[{"instance_id":703363,"layer_id":"ReLU","input":[],"param_values":{}},{"instance_id":238133,"layer_id":"ReLU","input":[],"param_values":{}}],"output":0,"layout_file":"558018902"}

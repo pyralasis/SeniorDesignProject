@@ -13,6 +13,7 @@
     import NodeEditorActions from './NodeEditorActions.svelte';
     import { setContext } from 'svelte';
     import { SoundUtility } from '$lib/utilities/sound.utility';
+    const { fitView } = useSvelteFlow();
 
     export let nodes: Writable<Node[]>;
     export let edges: Writable<Edge[]>;
@@ -29,31 +30,12 @@
     setContext('xColor', xColor);
     setContext('sidebarExpanded', sidebarExpanded);
 
-    const inputStyle = {
-        backgroundColor: '#000000',
-        color: '#ffffff',
-        border: '1px solid #ffffff',
-        label: {
-            color: '#ffffff',
-        },
-        hover: {
-            backgroundColor: '#000000',
-            color: '#ffffff',
-            border: '1px solid #ffffff',
-        },
-        focus: {
-            backgroundColor: '#000000',
-            color: '#ffffff',
-            border: '1px solid #ffffff',
-        },
-    };
-
     function getParameterDefaultValue(parameter: Parameter<any>): { parameter: Parameter<any>; value: ParameterValue<any> } {
         return {
             parameter,
             value: {
                 type: parameter.type,
-                value: parameter.default,
+                val: parameter.default,
             },
         };
     }
@@ -85,7 +67,7 @@
             data: {
                 color: writable<string>($xColor),
                 title: writable<string>('Untitled Node'),
-                layer_id: writable<string>($dndContext.layerBlueprint.name),
+                layer_id: writable<string>($dndContext.layerBlueprint.id),
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
                     $dndContext.layerBlueprint.parameters.map(getParameterDefaultValue),
                 ),
@@ -110,7 +92,7 @@
         nodes.update((nodes) => (nodes = []));
     }
 
-    $: selectedNode = $nodes.find((node) => node.selected);
+    $: selectedNode = $nodes?.find((node) => node.selected);
     $: selectedNodeTitle = selectedNode?.data.title as Writable<string> | undefined;
     $: selectedNodeColor = selectedNode?.data.color as Writable<string> | undefined;
 </script>
