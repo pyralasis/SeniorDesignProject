@@ -23,7 +23,8 @@ export class SoundUtility {
 
             const source = this.audioContext.createBufferSource();
             source.buffer = audioBuffer;
-            source.connect(this.audioContext.destination);
+            source.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
             source.start();
         } catch (error) {
             console.error('Error playing sound:', error);

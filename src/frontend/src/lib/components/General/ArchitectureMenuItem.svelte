@@ -15,10 +15,11 @@
     function handleClick() {
         if (isSelected) {
             selectedItemId.set('');
-            SoundUtility.playClick1(0.2);
+            SoundUtility.playClick1(0.1);
             return;
         }
-        SoundUtility.playClick2(0.2);
+        SoundUtility.playClick2(0.1);
+
         selectedItemId.set(id);
     }
 
@@ -52,8 +53,8 @@
         }
 
         &.selected {
-            border: 1px solid #dc2626;
-            color: #dc2626;
+            border: 1px solid #fe2e00;
+            color: #fe2e00;
             transform: scale(1.03);
             transition: all 0.2s ease-in-out;
             z-index: 1;

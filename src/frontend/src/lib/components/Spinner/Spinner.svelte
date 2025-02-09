@@ -7,7 +7,7 @@
         <svg class="square white"></svg>
         <svg class="square"></svg>
         <svg class="square white"></svg>
-        <svg class="square red"></svg>
+        <svg class="square"></svg>
         <svg class="square white"></svg>
         <svg class="square"></svg>
         <svg class="square white"></svg>
@@ -48,10 +48,6 @@
         background-color: transparent;
         width: 12px;
         height: 12px;
-    }
-
-    .red {
-        background-color: #d32f2f;
     }
 
     .white {

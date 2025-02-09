@@ -27,7 +27,7 @@ export interface AvailableArchitecture {
 
 
 export interface ArchitectureStoreProps {
-    availableArchitectures: AvailableArchitecture[];
+    availableArchitectures: AvailableArchitecture[] | undefined;
     activeArchitecture: NodeArchitecture | undefined;
 }
 
@@ -55,8 +55,6 @@ export type AvailableArchitecturesResponse = {
     }[],
     success: boolean
 }
-
-
 
 export type LoadArchitectureResponse = {
     object: NetworkArchitectureDescription,

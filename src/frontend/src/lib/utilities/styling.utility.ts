@@ -1,10 +1,10 @@
 export class StylingUtility {
     // Button styles
     static readonly redButton = {
-        backgroundColor: '#dc2626',
-        border: '1px solid #dc2626',
+        backgroundColor: '#FE2E00',
+        border: '1px solid #FE2E00',
         hover: {
-            backgroundColor: '#b91c1c',
+            backgroundColor: '#cf2600',
         },
     } as const;
 

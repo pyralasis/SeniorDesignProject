@@ -55,11 +55,12 @@ async function parseLayersIntoNodesAndEdges(layers: any[], layout: any): Promise
 
 const createArchitectureStore = (): ArchitectureStore => {
     const { subscribe, set, update } = writable<ArchitectureStoreProps>({
-        availableArchitectures: [],
+        availableArchitectures: undefined,
         activeArchitecture: undefined
     });
 
     const getAvailableArchitectures = async (): Promise<void> => {
+        await new Promise(resolve => setTimeout(resolve, 2000));
         await fetch(`${BACKEND_API_BASE_URL}/architecture/available`, {
             method: 'GET',
             headers: {
@@ -211,19 +212,21 @@ const createArchitectureStore = (): ArchitectureStore => {
             )
         }).then((response) => response.json()).then((data: { id: string }) => {
             if (isNew) {
-                aStore.availableArchitectures.push({
+                aStore.availableArchitectures = [...(aStore.availableArchitectures ?? []), {
                     id: data.id,
                     meta: {
                         name: aStore.activeArchitecture?.meta.name ?? '',
+
                         description: aStore.activeArchitecture?.meta.description ?? '',
                     },
                     info: {
                         version: 0
                     }
-                });
+                }];
             }
         });
     }
+
 
     const createNewArchitecture = async (name: string, description?: string): Promise<void> => {
         update((store) => {

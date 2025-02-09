@@ -5,6 +5,7 @@ export const IconNameEnum = {
     plus: 'plus',
     collapse: 'collapse',
     sideways_hamburger: 'sideways_hamburger',
+    trash: 'trash',
 } as const;
 
 export type IconName = EnumOf<typeof IconNameEnum>;
