@@ -1,0 +1,1 @@
+{"inputs":[{"instance_id":1,"size":[10]}],"layers":[{"instance_id":2,"layer_id":"linear","input":[1],"param_values":{"out_features":{"val":5,"type":"int"},"bias":{"val":true,"type":"bool"}}},{"instance_id":3,"layer_id":"linear","input":[2],"param_values":{"out_features":{"val":1,"type":"int"},"bias":{"val":true,"type":"bool"}}}],"output":3}

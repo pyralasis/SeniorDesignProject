@@ -2,13 +2,9 @@ from dataclasses import dataclass
 from typing import Any, Protocol, TypeAlias
 
 import torch
-
 from server.layer.input import InputDefinition
-from server.params import (
-    Parameter,
-)
 from server.layer.size import TensorSize
-
+from server.params import Parameter
 
 LayerID: TypeAlias = str
 

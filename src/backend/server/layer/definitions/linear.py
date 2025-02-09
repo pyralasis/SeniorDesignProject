@@ -1,9 +1,9 @@
 import torch
 from server.layer import LayerDefinition
-from server.params.constraints import WithRange
 from server.layer.input import InputDefinition
-from server.params import BoolParameter, IntParameter
 from server.layer.size import TensorSize
+from server.params import BoolParameter, IntParameter
+from server.params.constraints import WithRange
 
 # found here: https://pytorch.org/docs/stable/nn.html#linear-layers
 

@@ -1,16 +1,15 @@
-from abc import ABC, abstractmethod
 import io
 import os
-from pathlib import Path
 import pickle
-import random
+from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, Generic, TypeVar
-from pydantic import TypeAdapter, ValidationError
-import torch
 
-from server.util.file.loaded import Loaded
+import torch
+from pydantic import TypeAdapter, ValidationError
 from server.util.override_decorator import override
-from .id import FileId, is_file_id
+
+from .file import FileId, LoadedFile, is_file_id
 
 T = TypeVar("T")
 
@@ -27,54 +26,83 @@ class InvalidFileFormatError(Exception):
         self.path = path
 
 
-class BaseFileManager(ABC, Generic[T]):
-    _save_path: Path
+class IFileManager(ABC, Generic[T]):
+    @abstractmethod
+    def save_to(self, id: int, data: T):
+        """
+        Saves a file with the given data.
+        """
+        ...
 
-    def __init__(self, save_path: Path, extension: str) -> None:
+    @abstractmethod
+    def delete(self, id: int):
+        """
+        Deletes the file with the given id.
+        """
+        ...
+
+    @abstractmethod
+    def available(self) -> list[FileId]:
+        """
+        Returns a list of all available file id's.
+        """
+        ...
+
+    @abstractmethod
+    def load_all(self) -> list[LoadedFile[T]]:
+        """
+        Tries to load all available files in the save folder.
+        """
+        ...
+
+    @abstractmethod
+    def load(self, id: FileId) -> T: ...
+
+    @abstractmethod
+    def exists(self, id: FileId) -> bool: ...
+
+
+class INetworkFileManager(IFileManager[T], ABC, Generic[T]):
+    @abstractmethod
+    def file_type(self) -> type[T]: ...
+
+    @abstractmethod
+    def api_name(self) -> str:
+        """
+        Returns the name of the api endpoint prefix used by this file manager.
+        """
+        ...
+
+
+class BaseFileManager(IFileManager, ABC, Generic[T]):
+    _save_path: Path
+    _file_type: type[T]
+
+    def __init__(self, name: str, save_path: Path, extension: str) -> None:
+        self.name = name
         self._extension = extension
         self._suffixes = ["." + ext for ext in extension.split(".")[1:]]
         self._save_path = save_path
         self._save_path.mkdir(parents=True, exist_ok=True)
 
-    def create(self, data: T) -> FileId:
-        """
-        Creates a new file with the given data. Returns the id of the file.
-        """
-
-        id = self._generate_id()
-        path = self._to_path(id)
-        self._save_to_path(path, data)
-
-        return id
-
-    def update(self, id: int, data: T):
-        """
-        Updates the file with the given id to the new data.
-        """
-
-        if not self.exists(id):
-            raise FileIdNotFoundError(id)
-
+    @override
+    def save_to(self, id: int, data: T):
         path = self._to_path(id)
         self._save_to_path(path, data)
 
     @abstractmethod
     def _save_to_path(self, path: Path, data: T): ...
 
+    @override
     def delete(self, id: int):
-        """
-        Deletes the file with the given id.
-        """
         if not self.exists(id):
             raise FileIdNotFoundError(id)
 
         path = self._to_path(id)
         os.remove(path)
 
+    @override
     def available(self) -> list[FileId]:
-        """
-        Returns a list of all available file id's.
-        """
         ids = []
         for path in os.listdir(self._save_path):
             path = self._save_path.joinpath(path)
@@ -83,10 +111,8 @@ class BaseFileManager(ABC, Generic[T]):
                 ids.append(int(id_str))
         return ids
 
-    def load_all(self) -> list[Loaded[T]]:
-        """
-        Tries to load all available files in the save folder.
-        """
+    @override
+    def load_all(self) -> list[LoadedFile[T]]:
         values = []
         for id in self.available():
             try:
@@ -95,36 +121,34 @@ class BaseFileManager(ABC, Generic[T]):
                 continue
         return values
 
-    def load(self, id: FileId) -> Loaded[T]:
+    @override
+    def load(self, id: FileId) -> T:
+        if not self.exists(id):
+            raise FileIdNotFoundError(id)
+
         path = self._to_path(id)
-        return Loaded[T](id, self._load_from_path(path))
+        return self._load_from_path(path)
 
     @abstractmethod
     def _load_from_path(self, path: Path) -> T: ...
 
+    @override
     def exists(self, id: FileId) -> bool:
         return os.path.exists(self._to_path(id))
 
+    @override
     def _to_path(self, id: FileId) -> Path:
         return self._save_path.joinpath(f"{id}" + self._extension)
 
-    def _generate_id(self) -> FileId:
-        id = random.randint(1, 1000000000)
 
-        while self.exists(id):
-            id = random.randint(1, 1000000000)
-
-        return id
-
-
-class JsonFileManager(BaseFileManager[T], Generic[T]):
+class JsonFileManager(INetworkFileManager[T], BaseFileManager[T], Generic[T]):
     _adapter: TypeAdapter[T]
-    file_type: type[T]
+    _file_type: type[T]
 
-    def __init__(self, save_path: Path, file_type: type[T], extension: str) -> None:
+    def __init__(self, name: str, save_path: Path, file_type: type[T], extension: str) -> None:
         self._adapter = TypeAdapter(file_type)
-        self.file_type = file_type
-        super().__init__(save_path, extension)
+        self._file_type = file_type
+        super().__init__(name, save_path, extension)
 
     @override
     def _save_to_path(self, path: Path, data: T):
@@ -139,10 +163,18 @@ class JsonFileManager(BaseFileManager[T], Generic[T]):
         except ValidationError:
             raise InvalidFileFormatError(path)
 
+    @override
+    def file_type(self) -> type:
+        return self._file_type
+
+    @override
+    def api_name(self) -> str:
+        return self.name
+
 
 class TorchWeightsFileManager(BaseFileManager[dict[str, Any]]):
-    def __init__(self, save_path: Path, extension: str) -> None:
-        super().__init__(save_path, extension)
+    def __init__(self, name: str, save_path: Path, extension: str) -> None:
+        super().__init__(name, save_path, extension)
 
     @override
     def _save_to_path(self, path: Path, data: dict[str, Any]):

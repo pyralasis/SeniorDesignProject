@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from typing import TypeAlias
+from typing import Any, TypeAlias
 
-from server.params import ParameterValue
 from server.layer import LayerID
 from server.layer.size import TensorSize
-
+from server.params import ParameterValue
 
 # This can be any number as long as all layer instance ids within an architecture are unique.
 LayerInstanceID: TypeAlias = int
@@ -28,7 +27,7 @@ class NetworkLayerConfig:
 
     param_values: dict[str, ParameterValue]  # the values for each parameter in the layer
 
-    def get_params(self) -> dict[str, any]:
+    def get_params(self) -> dict[str, Any]:
         return {key: param.val for key, param in self.param_values.items()}
 
 
@@ -39,11 +38,6 @@ class ArchitectureConfig:
     structure that gets saved to disk for each architecture.
     """
 
-    name: str
-    version: int
     inputs: list[InputLayerConfig]
     layers: list[NetworkLayerConfig]
-    output: LayerInstanceID # id of layers that are outputs
-
-
-    layout_file: str | None
+    output: LayerInstanceID  # id of layers that are outputs

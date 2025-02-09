@@ -1,12 +1,15 @@
 from dataclasses import asdict, dataclass
 from typing import Literal
-from quart.views import MethodView
+
 from pydantic import TypeAdapter
 from quart import Blueprint, ResponseReturnValue, request
+from quart.views import MethodView
 from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
 from server.model.service import ModelService
-from server.util.file import Loaded, FileId
+from server.util.file import FileId
+from server.util.file.blueprint import create_file_blueprint
+from server.util.file.meta import MetaData
 
 
 def create_model_blueprint(model_service: ModelService, architecture_service: ArchitectureService) -> Blueprint:
@@ -14,15 +17,24 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
 
     bp.add_url_rule("/create", view_func=CreateModelView.as_view("create_model", model_service, architecture_service))
 
+    # Allows for editing meta data
+    bp.register_blueprint(
+        create_file_blueprint(model_service.models.meta_files, model_service.models),
+        url_prefix=f"/{model_service.models.meta_files.api_name()}",
+    )
+
     return bp
+
 
 ###
 ### Create Model View
 ###
+
+
 @dataclass
 class CreateModelRequestBody:
     architecture_id: FileId
-    name: str
+    meta: MetaData
 
 
 @dataclass
@@ -35,6 +47,7 @@ class SuccessfulResponse:
 class ErrorResponseInvalidArchitecture:
     success: Literal[False] = False
     error: Literal["invalid_architecture_id"] = "invalid_architecture_id"
+
 
 @dataclass
 class ErrorResponseModelCreationFailure:
@@ -67,7 +80,7 @@ class CreateModelView(MethodView):
         # use the architecture service to get the architecture
         # pass the architecture and the name to the model service and store the model_id
         # return the model_id
-        if not self.architecture_service.files.exists(req.architecture_id):
+        if not self.architecture_service.architectures.exists(req.architecture_id):
             return asdict(ErrorResponseInvalidArchitecture())
 
         # feel free to create a wrapper function on the architecture service for this
@@ -79,10 +92,9 @@ class CreateModelView(MethodView):
         The view responds with whatever info needed
         """
         try:
-            loaded_architecture: Loaded[ArchitectureConfig] = self.architecture_service.load_architecture(req.architecture_id)
-            model_id = self.service.create_model(loaded_architecture.data, req.name)
+            loaded_architecture: ArchitectureConfig = self.architecture_service.load_architecture(req.architecture_id)
+            model_id = self.service.create_model(loaded_architecture, req.meta)
         except:
-            raise
             return asdict(ErrorResponseModelCreationFailure())
 
         return asdict(SuccessfulResponse(model_id=model_id))

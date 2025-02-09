@@ -1,10 +1,9 @@
-from quart.views import MethodView
 from quart import Blueprint
-
+from quart.views import MethodView
 from server.data.service import DataService
 from server.data.sources.base import DataSourceDescription
 from server.data.transforms.base import TransformDescription
-from server.util.file.blueprint import create_file_blueprint
+from server.util.file import create_object_blueprint
 
 
 def create_data_blueprint(
@@ -21,7 +20,7 @@ def create_data_blueprint(
         view_func=AvailableTransformsView.as_view("available_transforms", data_service),
     )
 
-    bp.register_blueprint(create_file_blueprint(data_service.pipelines, "pipeline"))
+    bp.register_blueprint(create_object_blueprint(data_service.pipelines))
 
     return bp
 
