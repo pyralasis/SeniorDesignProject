@@ -245,13 +245,13 @@ class UpdateObjectView(MethodView, Generic[T]):
 
     def __init__(self, file_coord: FileCoordinator):
         self.file_coord = file_coord
-        self.adapter = TypeAdapter(UpdateRequestBody[file_coord.obj_type])
+        self.adapter = TypeAdapter(UpdateObjectRequestBody[file_coord.obj_type])
 
     async def post(self) -> ResponseReturnValue:
         try:
             body = self.adapter.validate_json(await request.get_data())
-            self.file_coord.update(body.id, body.data)
-            return asdict(UpdateOkResponse())
+            self.file_coord.update(body.id, body.object)
+            return asdict(UpdateObjectOkResponse())
 
         except ValidationError as err:
             return asdict(ParseErrResponse(str(err))), 400
