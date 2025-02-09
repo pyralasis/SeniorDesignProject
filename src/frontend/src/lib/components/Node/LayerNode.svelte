@@ -22,7 +22,6 @@
     const rotationDegrees = writable(0);
 
     function handleToggleExpanded() {
-        console.log('$expanded', $expanded);
         expanded.update((value) => !value);
         rotationDegrees.update((value) => (value === 0 ? 90 : 0));
     }

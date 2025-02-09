@@ -18,14 +18,14 @@
         <Checkbox
             style={StylingUtility.checkbox}
             label={parameter.name}
-            bind:checked={value.value}
+            bind:checked={value.val}
             on:change={(event) => updateValue(event, ParameterTypeEnum.Bool)}
         />
     {:else if parameter.type === ParameterTypeEnum.Int}
         <TextInput
             style={StylingUtility.textInput}
             label={parameter.name}
-            bind:value={value.value}
+            bind:value={value.val}
             on:change={(event) => updateValue(event, ParameterTypeEnum.Int)}
         />
     {:else if parameter.type === ParameterTypeEnum.Float}
@@ -38,7 +38,7 @@
         <TextInput
             style={StylingUtility.textInput}
             label={parameter.name}
-            bind:value={value.value}
+            bind:value={value.val}
             on:change={(event) => updateValue(event, ParameterTypeEnum.String)}
         />
     {:else if parameter.type === ParameterTypeEnum.Size2D}
@@ -47,7 +47,7 @@
             label={parameter.name}
             inputamount={2}
             on:change={(event) => updateValue(event, ParameterTypeEnum.Size2D)}
-            bind:value={value.value}
+            bind:value={value.val}
         />
     {/if}
 </div>

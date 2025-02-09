@@ -6,11 +6,12 @@ export type InputLayerDescription = {
 };
 
 export type NetworkLayerDescription = {
-    id: LayerInstanceId;
+    instance_id: LayerInstanceId;
     layer_id: LayerId;
     input: LayerInstanceId | LayerInstanceId[];
     param_values: { [id: string]: ParameterValue<any> }
 }
+
 
 export type ArchitectureId = string;
 
@@ -26,7 +27,6 @@ export type NetworkNodeDescription = {
 }
 
 export type NetworkLayoutDescription = {
-    id: LayoutId;
     nodes: NetworkNodeDescription[];
     edges: any[];
 }
@@ -37,5 +37,6 @@ export type NetworkArchitectureDescription = {
     version: number;
     inputs: InputLayerDescription[];
     layers: NetworkLayerDescription[];
-    layout: NetworkLayoutDescription;
+    layout_file: string;
+    output: LayerInstanceId;
 };

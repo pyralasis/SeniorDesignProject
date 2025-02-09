@@ -20,6 +20,15 @@
 </div>
 
 <style>
+    main {
+        background-color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        height: 100vh;
+    }
+
     .loading-animation {
         width: 36px;
         height: 36px;
@@ -53,28 +62,36 @@
         position: absolute;
         right: -12px;
         top: 0;
-        animation: slideLeft 4s infinite;
+        animation:
+            slideLeft 4s infinite,
+            topRight 4s infinite;
     }
 
     .right-bottom {
         position: absolute;
         right: -12px;
         top: 24px;
-        animation: slideLeft 4s infinite;
+        animation:
+            slideLeft 4s infinite,
+            bottomRight 4s infinite;
     }
 
     .bottom-left {
         position: absolute;
         left: 0;
         top: 36px;
-        animation: slideUp 4s infinite;
+        animation:
+            slideUp 4s infinite,
+            bottomLeft 4s infinite;
     }
 
     .bottom-right {
         position: absolute;
         left: 24px;
         top: 36px;
-        animation: slideUp 4s infinite;
+        animation:
+            slideUp 4s infinite,
+            bottomRight 4s infinite;
     }
 
     @keyframes rotateSpringPauseTopLeft {
@@ -137,6 +154,53 @@
         }
         100% {
             transform: rotate(360deg);
+        }
+    }
+
+    @keyframes topRight {
+        0%,
+        31.25% {
+            border-radius: 0 0 0 0;
+        }
+        43.75% {
+            border-radius: 0 16px 0 0;
+        }
+        93.75% {
+            border-radius: 0 16px 0 0;
+        }
+        100% {
+            border-radius: 0 0 0 0;
+        }
+    }
+
+    @keyframes bottomRight {
+        0%,
+        31.25% {
+            border-radius: 0 0 0 0;
+        }
+        43.75% {
+            border-radius: 0 0 16px 0;
+        }
+        93.75% {
+            border-radius: 0 0 16px 0;
+        }
+        100% {
+            border-radius: 0 0 0 0;
+        }
+    }
+    @keyframes bottomLeft {
+        0%,
+        31.25% {
+            border-radius: 0 0 0 0;
+        }
+        43.75% {
+            border-radius: 0 0 0 16px;
+        }
+        93.75% {
+            border-radius: 0 0 0 16px;
+        }
+        100% {
+            border-radius: 0 0 0 0;
         }
     }
 </style>

@@ -5,10 +5,11 @@ import type { InputDefinition, Layer } from '$lib/types/layer';
 
 export interface NodeArchitecture {
     id: string;
-    fileName: string;
     name: string;
+    layout_file: string;
     nodes: Writable<Node[]>;
     edges: Writable<Edge[]>;
+    loading: boolean;
 }
 
 export interface ArchitectureStoreProps {
@@ -21,7 +22,7 @@ export interface ArchitectureStore extends Writable<ArchitectureStoreProps> {
     loadArchitectureById: (id: ArchitectureId) => void;
     clearActiveArchitecture: () => void;
     deleteArchitecture: (id: ArchitectureId) => void;
-    saveActiveArchitecture: (fileName: string, isNew?: boolean) => void;
+    saveActiveArchitecture: (isNew?: boolean) => void;
     createNewArchitecture: (name: string) => void;
     addNodeToActiveArchitecture: (node: Node) => void;
     deleteNodeFromActiveArchitecture: (id: string) => void;

@@ -16,9 +16,15 @@ export class BackendApi {
     static parseLayers(data: any): Layer<any>[] {
         let layers: Layer<any>[] = [];
         data.map((l: any) => {
-            layers.push(l as Layer<any>);
+            layers.push({
+                id: l.id,
+                name: l.name,
+                inputs: l.inputs,
+                parameters: l.parameters
+            } as Layer<any>);
         })
         return layers;
+
     }
 
     static async getAvailableLayers(): Promise<Layer<any>[]> {
@@ -43,7 +49,7 @@ export class BackendApi {
         })
             .then(response => response.json())
             .then(data => {
-                return this.parseLayers([data])[0];
+                return this.parseLayers([data.layer])[0];
             });
 
     }

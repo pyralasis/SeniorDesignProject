@@ -34,7 +34,7 @@ export type Parameter<T> = {
 }
 
 export type ParameterValue<T> = {
-    value: T,
+    val: T,
     type: ParameterType
 }
 

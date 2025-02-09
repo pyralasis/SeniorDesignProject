@@ -5,7 +5,8 @@
     import { setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
 
-    let selectedItemId: Writable<number> = writable(-1);
+    let selectedItemId: Writable<string> = writable('');
+    let ids = ['9992463'];
 
     setContext('selected-item-id', selectedItemId);
 </script>
@@ -18,14 +19,15 @@
     </div>
     <div class="select-architecture-page__panels">
         <div class="select-architecture-page__architecture-items">
-            {#each { length: 25 }, i}
-                <ArchitectureMenuItem title="TEST icles" id={i}></ArchitectureMenuItem>
+            {#each ids as id}
+                <ArchitectureMenuItem title="TEST icles" {id}></ArchitectureMenuItem>
             {/each}
         </div>
-        {#if $selectedItemId !== -1}
+
+        {#if $selectedItemId !== ''}
             <div class="select-architecture-page__architecture-actions">
                 <div class="left-actions">
-                    <Button type="primary" style={StylingUtility.whiteBorderButton} href="/architectures/edit?id={$selectedItemId}"
+                    <Button type="primary" style={StylingUtility.whiteBorderButton} href="/architectures/edit/{$selectedItemId}"
                         >Edit Architecture</Button
                     >
                     <Button type="primary" style={StylingUtility.whiteBorderButton}>Convert to Model</Button>
@@ -33,7 +35,7 @@
                 <div class="delete-action"><Button type="primary" style={StylingUtility.redButton}>Delete Architecture</Button></div>
             </div>
         {/if}
-        {#if $selectedItemId === -1}
+        {#if $selectedItemId === ''}
             <div class="select-architecture-page__architecture-actions">
                 <Button type="primary" style={StylingUtility.whiteBorderButton}>Create New Architecture</Button>
             </div>

@@ -5,16 +5,16 @@
     import type { Writable } from 'svelte/store';
 
     export let title;
-    export let id: number;
+    export let id: string;
 
-    const selectedItemId = getContext<Writable<number>>('selected-item-id');
+    const selectedItemId = getContext<Writable<string>>('selected-item-id');
 
     let isSelected = false;
     let titleElement: HTMLElement;
 
     function handleClick() {
         if (isSelected) {
-            selectedItemId.set(-1);
+            selectedItemId.set('');
             SoundUtility.playClick1(0.2);
             return;
         }
