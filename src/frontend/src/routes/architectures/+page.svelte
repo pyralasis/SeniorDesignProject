@@ -1,14 +1,21 @@
 <script lang="ts">
     import ArchitectureMenuItem from '$lib/components/General/ArchitectureMenuItem.svelte';
+    import { architectureStore } from '$lib/stores/ArchitectureStore';
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import { Button } from 'kiwi-nl';
     import { setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
 
+    architectureStore.getAvailableArchitectures();
+
     let selectedItemId: Writable<string> = writable('');
-    let ids = ['9992463'];
+    $: availableArchitectures = $architectureStore.availableArchitectures;
 
     setContext('selected-item-id', selectedItemId);
+
+    function handleCreateNewArchitecture(): void {
+        architectureStore.createNewArchitecture('New Architecture');
+    }
 </script>
 
 <div class="select-architecture-page">
@@ -19,8 +26,8 @@
     </div>
     <div class="select-architecture-page__panels">
         <div class="select-architecture-page__architecture-items">
-            {#each ids as id}
-                <ArchitectureMenuItem title="TEST icles" {id}></ArchitectureMenuItem>
+            {#each availableArchitectures as a}
+                <ArchitectureMenuItem title={a.meta.name} id={a.id}></ArchitectureMenuItem>
             {/each}
         </div>
 
@@ -37,7 +44,9 @@
         {/if}
         {#if $selectedItemId === ''}
             <div class="select-architecture-page__architecture-actions">
-                <Button type="primary" style={StylingUtility.whiteBorderButton}>Create New Architecture</Button>
+                <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={handleCreateNewArchitecture}
+                    >Create New Architecture</Button
+                >
             </div>
         {/if}
     </div>

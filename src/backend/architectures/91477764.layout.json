@@ -1,0 +1,1 @@
+{"nodes":{"202608":{"x":737.0,"y":136.203125,"metadata":{"color":"#59ff00","title":"Titled Node"}},"894642":{"x":180.0,"y":30.203125,"metadata":{"color":"#FFFFFF","title":"Untitled Node"}}},"edges":[{"source":"894642","target":"202608","id":"xy-edge__894642-202608","selected":false},{"source":"202608","target":"177808","id":"xy-edge__202608-177808","selected":false}]}

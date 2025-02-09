@@ -2,10 +2,10 @@ import { type ArchitectureStore, type ArchitectureStoreProps } from "./types/arc
 import { BACKEND_API_BASE_URL } from "$lib/utilities/api.constants";
 import { BackendApi } from "$lib/utilities/api.utilities";
 import { get, writable, type Writable } from "svelte/store";
-import type { NetworkArchitectureDescription, ArchitectureId, NetworkLayerDescription, NetworkLayoutDescription, InputLayerDescription, LayoutId } from "$lib/types/architecture";
+import type { NetworkArchitectureDescription, ArchitectureId, NetworkLayoutDescription, ArchitectureDataDescription, ArchitectureMetaDescription, ArchitectureInfoDescription, ArchitectureVersion } from "$lib/types/architecture";
 import type { Node, Edge } from "@xyflow/svelte";
 import type { Parameter, ParameterValue } from "$lib/types/layer";
-import type { ArchitectureData, AvailableArchitecturesResponse, LoadArchitectureResponse, NodeArchitecture } from "./types/architecture-store.interface";
+import type { AvailableArchitecturesResponse, LoadArchitectureResponse, } from "./types/architecture-store.interface";
 
 function getLayerParametersByLayerId(layerId: string): Promise<any> {
     return BackendApi.getLayerById(layerId.toLowerCase()).then((layer) => {
@@ -27,10 +27,12 @@ async function parseLayersIntoNodesAndEdges(layers: any[], layout: any): Promise
             id: layer.instance_id.toString(),
             type: 'layer',
             data: {
-                color: writable<string>(layout.nodes[layer.instance_id].metadata.color),
-                title: writable<string>(layout.nodes[layer.instance_id].metadata.title),
+                color: writable<string>(layout.nodes[layer.instance_id]?.metadata.color ?? '#FFFFFF'),
+                title: writable<string>(layout.nodes[layer.instance_id]?.metadata.title ?? 'Untitled Layer'),
                 layer_id: writable<string>(layer.layer_id),
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
+
+
                     Object.entries(layer.param_values).map(([key, value]) => {
                         let parameterTemplate = findParameterById(layerParameters, key);
                         return ({
@@ -41,17 +43,19 @@ async function parseLayersIntoNodesAndEdges(layers: any[], layout: any): Promise
                 ),
                 expanded: writable<boolean>(false),
             },
-            position: { x: layout.nodes[layer.instance_id].x, y: layout.nodes[layer.instance_id].y },
+            position: { x: layout.nodes[layer.instance_id]?.x ?? 0, y: layout.nodes[layer.instance_id]?.y ?? 0 },
             dragHandle: '.node__header',
         } satisfies Node);
+
     }));
+
 
     return { nodes, edges };
 }
 
 const createArchitectureStore = (): ArchitectureStore => {
     const { subscribe, set, update } = writable<ArchitectureStoreProps>({
-        architectureIds: [],
+        availableArchitectures: [],
         activeArchitecture: undefined
     });
 
@@ -66,8 +70,20 @@ const createArchitectureStore = (): ArchitectureStore => {
             .then(data => {
                 let response = data as AvailableArchitecturesResponse;
                 update((store) => {
-                    store.architectureIds = response.available;
+                    store.availableArchitectures = response.available.map((arch) => {
+                        return {
+                            id: arch.id,
+                            meta: {
+                                name: arch.meta.name,
+                                description: arch.meta.description,
+                            },
+                            info: {
+                                version: arch.info.version,
+                            }
+                        };
+                    });
                     return store;
+
                 });
             });
     }
@@ -76,29 +92,27 @@ const createArchitectureStore = (): ArchitectureStore => {
         try {
             update(store => ({ ...store, activeArchitecture: undefined, loading: true }));
 
-            const archResponse = await fetch(`${BACKEND_API_BASE_URL}/architecture/load?${new URLSearchParams({ id }).toString()}`);
-            const archData = await archResponse.json() as LoadArchitectureResponse;
-
-            const layoutResponse = await fetch(
-                `${BACKEND_API_BASE_URL}/layout/load?${new URLSearchParams({
-                    id: archData.data.data.layout_file
-                }).toString()}`
-            );
-            const layoutData = await layoutResponse.json();
+            const response = await fetch(`${BACKEND_API_BASE_URL}/architecture/load?${new URLSearchParams({ id }).toString()}`);
+            const data = (await response.json() as LoadArchitectureResponse).object;
+            const archData = data.data.data;
+            const layoutData = data.data.layout;
 
             const { nodes, edges } = await parseLayersIntoNodesAndEdges(
-                archData.data.data.layers,
-                layoutData.data.data
+                archData.layers,
+                layoutData
             );
             update(store => ({
                 ...store,
                 activeArchitecture: {
-                    id: archData.data.id,
-                    name: archData.data.data.name,
-                    layout_file: archData.data.data.layout_file,
+                    id: data.id,
+                    meta: {
+                        name: data.data.meta.name,
+                        description: data.data.meta.description,
+                    },
                     nodes: writable<Node[]>(nodes),
                     edges: writable<Edge[]>(edges),
                     loading: false
+
                 }
 
             }));
@@ -131,49 +145,57 @@ const createArchitectureStore = (): ArchitectureStore => {
     }
 
     const saveActiveArchitecture = async (isNew: boolean = false): Promise<void> => {
-        const activeArchitecture = get(architectureStore).activeArchitecture;
-        if (!activeArchitecture) {
+        const aStore = get(architectureStore);
+        if (!aStore.activeArchitecture) {
             return;
         }
-
-        const nodes = get(activeArchitecture.nodes);
-        const edges = get(activeArchitecture.edges);
+        const nodes = get(aStore.activeArchitecture.nodes);
+        const edges = get(aStore.activeArchitecture.edges);
         const architecture: NetworkArchitectureDescription = {
-            id: activeArchitecture.id,
-            name: activeArchitecture.name,
-            version: 0, //TODO
-            inputs: [], //TODO
-            output: 0, //TODO
-            layers: nodes.map((node) => {
-                const parameters = get(node.data.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any>; }[]>);
-                return {
-                    instance_id: parseInt(node.id, 10),
-                    layer_id: get(node.data.layer_id as Writable<string>),
-                    input: [],
-                    param_values: Object.fromEntries(
-                        parameters.map(({ parameter, value }) => [parameter.id, value])
-                    )
-                };
-            }),
-            layout_file: activeArchitecture.layout_file,
-        };
+            id: aStore.activeArchitecture.id as ArchitectureId ?? '',
+            data: {
+                data: {
+                    inputs: [], //TODO
+                    layers: nodes.map((node) => {
+                        const parameters = get(node.data.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any>; }[]>);
+                        return {
 
+                            instance_id: parseInt(node.id, 10),
+                            layer_id: get(node.data.layer_id as Writable<string>),
+                            input: [],
+                            param_values: Object.fromEntries(
+                                parameters.map(({ parameter, value }) => [parameter.id, value])
+                            )
+                        };
+                    }),
+                    output: 0, //TODO
+                } as ArchitectureDataDescription,
+                layout: {
+                    nodes: Object.fromEntries(
+                        nodes.map(node => [
+                            node.id,
+                            {
+                                x: node.position.x,
+                                y: node.position.y,
+                                metadata: {
+                                    color: get(node.data.color as Writable<string>),
+                                    title: get(node.data.title as Writable<string>),
+                                }
+                            }
+                        ])
+                    ),
+                    edges
+                } as NetworkLayoutDescription,
+                meta: {
+                    name: aStore.activeArchitecture.meta.name,
+                    description: aStore.activeArchitecture.meta.description,
+                } as ArchitectureMetaDescription,
 
-        const layout = {
-            nodes: Object.fromEntries(
-                nodes.map(node => [
-                    node.id,
-                    {
-                        x: node.position.x,
-                        y: node.position.y,
-                        metadata: {
-                            color: get(node.data.color as Writable<string>),
-                            title: get(node.data.title as Writable<string>),
-                        }
-                    }
-                ])
-            ),
-            edges
+            },
+            info: {
+                version: 0 as ArchitectureVersion, //TODO
+            } as ArchitectureInfoDescription,
+
         };
 
         await fetch(`${BACKEND_API_BASE_URL}/architecture/${isNew ? 'create' : 'update'}`, {
@@ -183,48 +205,40 @@ const createArchitectureStore = (): ArchitectureStore => {
             },
             body: JSON.stringify(
                 isNew
-                    ? { data: architecture }
-                    : { id: activeArchitecture.id, data: architecture }
-            )
-        });
+                    ? { meta: architecture.data.meta, data: architecture.data.data, layout: architecture.data.layout }
+                    : { id: aStore.activeArchitecture.id, object: architecture.data }
 
-        await fetch(`${BACKEND_API_BASE_URL}/layout/${isNew ? 'create' : 'update'}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                id: activeArchitecture.layout_file,
-                data: layout
-            })
+            )
+        }).then((response) => response.json()).then((data: { id: string }) => {
+            if (isNew) {
+                aStore.availableArchitectures.push({
+                    id: data.id,
+                    meta: {
+                        name: aStore.activeArchitecture?.meta.name ?? '',
+                        description: aStore.activeArchitecture?.meta.description ?? '',
+                    },
+                    info: {
+                        version: 0
+                    }
+                });
+            }
         });
     }
 
-
-    const createNewArchitecture = (name: string): void => {
-        let id: ArchitectureId = Math.random().toString(36).substring(7);
-        let existingIds: ArchitectureId[] = [];
-
-        subscribe((store) => {
-            existingIds = store.architectureIds;
-        });
-
-        while (existingIds.includes(id)) {
-            id = Math.random().toString(36).substring(7);
-        }
-
+    const createNewArchitecture = async (name: string, description?: string): Promise<void> => {
         update((store) => {
-            store.architectureIds.push(id);
             store.activeArchitecture = {
-                id: id,
-                name: name,
+                meta: {
+                    name: name,
+                    description: description,
+                },
                 nodes: writable<Node[]>([]),
                 edges: writable<Edge[]>([]),
-                layout_file: id,
                 loading: false
             }
             return store;
         });
+        saveActiveArchitecture(true);
     }
 
     const addNodeToActiveArchitecture = (node: Node): void => {

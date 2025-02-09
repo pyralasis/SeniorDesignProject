@@ -5,7 +5,7 @@
     import { writable, type Writable } from 'svelte/store';
     import { architectureStore } from '$lib/stores/ArchitectureStore';
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import { page } from '$app/state';
 
     let nodes: Writable<Node[]>;
@@ -24,6 +24,10 @@
     function onSave() {
         architectureStore.saveActiveArchitecture();
     }
+
+    onDestroy(() => {
+        architectureStore.clearActiveArchitecture();
+    });
 
     onMount(async () => {
         await architectureStore.loadArchitectureById(id);
