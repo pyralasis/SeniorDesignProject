@@ -1,19 +1,10 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Callable,
-    Optional,
-    Protocol,
-    TypeAlias,
-)
+from typing import Any, Callable, Optional, Protocol, TypeAlias
 
-
-from server.params import (
-    Parameter,
-)
-
+from server.params import Parameter
 
 DataSourceId: TypeAlias = str
 
@@ -44,24 +35,26 @@ class DataSourceDefinition:
 
 
 class DataSource(ABC):
-    transform: Optional[Callable]
+    transforms: list[Callable]
 
     def __init__(self) -> None:
-        self.transform = None
+        self.transforms = []
 
-    def set_transform(self, transform: Optional[Callable]) -> None:
-        self.transform = transform
+    def add_transform(self, transform: Callable) -> None:
+        self.transforms.append(transform)
 
-    def setup(self) -> None: ...
+    # TODO: Make a setup method?
+    # @classmethod
+    # def setup(cls) -> None: ...
 
     @abstractmethod
     def _get(self, index: int) -> Any: ...
 
     def __getitem__(self, index: int) -> Any:
-        if self.transform is None:
-            return self._get(index)
-        else:
-            return self.transform(self._get(index))
+        val = self._get(index)
+        for transform in self.transforms:
+            val = transform(val)
+        return val
 
     @abstractmethod
     def __len__(self) -> int: ...

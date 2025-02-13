@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 from server.data.sources import DataSourceId
 from server.data.sources.base import DataSourceDefinition
@@ -18,19 +18,28 @@ class SourceConfig:
     src_id: DataSourceId
     param_values: dict[str, ParameterValue]
 
+    def get_params(self) -> dict[str, Any]:
+        return {key: param.val for key, param in self.param_values.items()}
+
 
 @dataclass
 class TransformConfig:
     type: Literal["transform"]
     instance_id: InstanceId
     transform_id: TransformId
-    input: list[InstanceId]
+    input: InstanceId  # TODO: multiple inputs
 
     param_values: dict[str, ParameterValue]
+
+    def get_params(self) -> dict[str, Any]:
+        return {key: param.val for key, param in self.param_values.items()}
+
+
+PipelineElement: TypeAlias = SourceConfig | TransformConfig
 
 
 @dataclass
 class PipelineConfig:
-    elements: list[SourceConfig | TransformConfig]
+    elements: list[PipelineElement]
     value_output: InstanceId
     label_output: InstanceId

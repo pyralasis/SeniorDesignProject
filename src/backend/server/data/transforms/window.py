@@ -1,7 +1,6 @@
 from turtle import width
 from typing import Any, final
 
-from torch import Tensor
 import torch
 from server.data.sources.base import DataSource
 from server.data.transforms.base import DataSourceTransformDefinition
@@ -22,7 +21,10 @@ class OverlappingWindowDataSource(DataSource):
     def _get(self, index: int) -> Any:
         vals = []
         for i in range(index, index + self.width):
-            vals.append(self.in_src[i])
+            val: torch.Tensor = self.in_src[i]
+            if val.dim() == 0:
+                val = val.view(-1)
+            vals.append(val)
         return torch.concat(vals)
 
     def __len__(self) -> int:
