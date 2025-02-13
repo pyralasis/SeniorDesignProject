@@ -6,6 +6,7 @@
 
     export let title;
     export let id: string;
+    export let lastModified: string;
 
     const selectedItemId = getContext<Writable<string>>('selected-item-id');
 
@@ -33,14 +34,17 @@
     <div class="architecture-menu-item-title" bind:this={titleElement}>
         {title}
     </div>
+    <div class="architecture-menu-item__separator">-------------------</div>
+    <div class="architecture-menu-item__last-modified">
+        {lastModified}
+    </div>
 </div>
 
 <style>
     .architecture-menu-item {
         width: 100%;
         min-height: 50px;
-        background-color: #000;
-        border: 1px solid #fff;
+        background-color: #111;
         color: #fff;
         display: flex;
         align-items: center;

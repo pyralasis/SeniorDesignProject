@@ -65,7 +65,7 @@
         flex-direction: column;
         justify-content: space-between;
         transition: all 0.2s ease;
-        background-color: #000000;
+        background-color: #111111;
         border: 1px solid #ffffff;
 
         &__title {

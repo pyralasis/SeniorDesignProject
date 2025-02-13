@@ -34,6 +34,7 @@
         justify-content: center;
         width: 50%;
         border-right: 1px solid #ffffff;
+        background: url('$lib/assets/PatternAsset.png') repeat center center;
     }
 
     .right-container {

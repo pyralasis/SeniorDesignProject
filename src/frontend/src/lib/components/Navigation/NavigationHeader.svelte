@@ -66,7 +66,7 @@
     .logo-container {
         padding-left: 16px;
         z-index: 2;
-        background-color: #000000;
+        background-color: #111111;
         height: 27px;
     }
 
@@ -80,7 +80,7 @@
         position: absolute;
         left: 0;
         height: 100%;
-        background-color: #000000;
+        background-color: #111111;
         transform: translateX(-83%);
         transition: transform 0.3s ease;
         padding-left: 75px; // Adjust based on your logo width

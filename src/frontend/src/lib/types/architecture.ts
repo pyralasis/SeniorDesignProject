@@ -44,6 +44,8 @@ export type ArchitectureInfoDescription = {
 export type ArchitectureMetaDescription = {
     name: string,
     description?: string,
+    created_at: string,
+    last_modified: string,
 }
 
 export type NetworkArchitectureDescription = {
@@ -51,7 +53,7 @@ export type NetworkArchitectureDescription = {
     data: {
         data: ArchitectureDataDescription,
         layout: NetworkLayoutDescription,
-        meta: ArchitectureMetaDescription
+        meta: ArchitectureMetaDescription,
     }
     info?: ArchitectureInfoDescription
 

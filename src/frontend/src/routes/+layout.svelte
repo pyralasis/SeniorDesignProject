@@ -18,7 +18,7 @@
         width: auto;
         font-family: 'Inter', sans-serif;
         box-sizing: border-box;
-        background-color: #000000;
-        scrollbar-color: #000 #fff;
+        background-color: #111111;
+        scrollbar-color: #111 #fff;
     }
 </style>

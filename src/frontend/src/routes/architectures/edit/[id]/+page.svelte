@@ -7,11 +7,16 @@
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
     import { onDestroy, onMount } from 'svelte';
     import { page } from '$app/state';
+    import { Button, TextInput } from 'kiwi-nl';
+    import { StylingUtility } from '$lib/utilities/styling.utility';
+    import Icon from '$lib/components/Icon/Icon.svelte';
+    import { IconNameEnum } from '$lib/components/Icon/types/icon-name.enum';
 
     let nodes: Writable<Node[]>;
     let edges: Writable<Edge[]>;
 
     $: id = page.params.id;
+    let isEditingTitle: Writable<boolean> = writable(false);
 
     architectureStore.subscribe((store) => {
         if (!store.activeArchitecture) {
@@ -32,33 +37,84 @@
     onMount(async () => {
         await architectureStore.loadArchitectureById(id);
     });
+
+    function onTitleChange(event: CustomEvent) {
+        if (!$architectureStore.activeArchitecture) {
+            return;
+        }
+        $architectureStore.activeArchitecture.meta.name = event.detail.value;
+    }
 </script>
 
-<button on:click={onSave}>Save</button>
+<div class="edit-architectures-page">
+    <div class="edit-architectures-page__header">
+        <div class="edit-architectures-page__header-left">
+            {#if $isEditingTitle}
+                <TextInput
+                    label="Architecture Name"
+                    on:change={onTitleChange}
+                    value={$architectureStore.activeArchitecture?.meta.name}
+                    style={StylingUtility.textInput}
+                ></TextInput>
+                <Button style={StylingUtility.defaultButton} on:click={() => isEditingTitle.set(false)}
+                    ><Icon name={IconNameEnum.checkmark} /></Button
+                >
+            {:else}
+                <h1>{$architectureStore.activeArchitecture?.meta.name}</h1>
+                <Button style={StylingUtility.defaultButton} on:click={() => isEditingTitle.set(true)}
+                    ><Icon name={IconNameEnum.pencil} /></Button
+                >
+            {/if}
+        </div>
+        <Button type="primary" style={StylingUtility.defaultButton} on:click={onSave}><Icon name={IconNameEnum.save} /></Button>
+    </div>
+    <SvelteFlowProvider>
+        <DnDProvider>
+            {#if $architectureStore.activeArchitecture?.loading}
+                <div class="spinner-container">
+                    <Spinner />
+                </div>
+            {:else if !$architectureStore.activeArchitecture?.loading && nodes && edges}
+                <NodeEditor
+                    {onSave}
+                    onCreateNode={architectureStore.addNodeToActiveArchitecture}
+                    onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
+                    {nodes}
+                    {edges}
+                />
+            {:else}
+                <div class="spinner-container">
+                    <Spinner />
+                </div>
+            {/if}
+        </DnDProvider>
+    </SvelteFlowProvider>
+</div>
 
-<SvelteFlowProvider>
-    <DnDProvider>
-        {#if $architectureStore.activeArchitecture?.loading}
-            <div class="spinner-container">
-                <Spinner />
-            </div>
-        {:else if !$architectureStore.activeArchitecture?.loading && nodes && edges}
-            <NodeEditor
-                {onSave}
-                onCreateNode={architectureStore.addNodeToActiveArchitecture}
-                onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
-                {nodes}
-                {edges}
-            />
-        {:else}
-            <div class="spinner-container">
-                <Spinner />
-            </div>
-        {/if}
-    </DnDProvider>
-</SvelteFlowProvider>
+<style lang="scss">
+    .edit-architectures-page {
+        width: 100%;
+        height: 100%;
 
-<style>
+        &__header {
+            padding: 16px;
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            height: 54px;
+        }
+
+        &__header-left {
+            display: flex;
+            align-items: end;
+            gap: 8px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #ffffff;
+        }
+    }
     .spinner-container {
         display: flex;
         justify-content: center;

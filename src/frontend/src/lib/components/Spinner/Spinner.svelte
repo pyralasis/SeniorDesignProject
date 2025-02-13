@@ -20,15 +20,6 @@
 </div>
 
 <style>
-    main {
-        background-color: black;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100vw;
-        height: 100vh;
-    }
-
     .loading-animation {
         width: 36px;
         height: 36px;
@@ -52,6 +43,7 @@
 
     .white {
         background-color: #ffffff;
+        /* outline: 1px solid #ffffff; */
     }
 
     .right-top {

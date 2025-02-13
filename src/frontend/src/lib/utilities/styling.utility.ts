@@ -1,37 +1,47 @@
 export class StylingUtility {
     // Button styles
-    static readonly redButton = {
-        backgroundColor: '#FE2E00',
-        border: '1px solid #FE2E00',
+    static defaultButton = {
+        color: '#ffffff',
+        backgroundColor: 'transparent',
+        border: '1px solid transparent',
         hover: {
-            backgroundColor: '#cf2600',
+            backgroundColor: '#252525',
+        },
+    } as const;
+
+    static readonly redButton = {
+        color: '#FE2E00',
+        backgroundColor: '#FE2E0030',
+        border: '0px solid #transparent',
+        hover: {
+            backgroundColor: '#FE2E0050',
         },
     } as const;
 
     static readonly whiteBorderButton = {
-        backgroundColor: '#000000',
+        backgroundColor: '#111111',
         border: '1px solid #ffffff',
         hover: {
-            backgroundColor: '#090909',
+            backgroundColor: '#252525',
         },
     } as const;
 
 
     // Text Input styles
     static readonly textInput = {
-        backgroundColor: '#000000',
+        backgroundColor: '#111111',
         color: '#ffffff',
         border: '1px solid #ffffff',
         label: {
             color: '#ffffff',
         },
         hover: {
-            backgroundColor: '#000000',
+            backgroundColor: '#111111',
             color: '#ffffff',
             border: '1px solid #ffffff',
         },
         focus: {
-            backgroundColor: '#000000',
+            backgroundColor: '#111111',
             color: '#ffffff',
             border: '1px solid #ffffff',
         },
@@ -39,19 +49,19 @@ export class StylingUtility {
 
     // Input Series
     static readonly inputSeries = {
-        backgroundColor: '#000000',
+        backgroundColor: '#111111',
         color: '#ffffff',
         border: '1px solid #ffffff',
         label: {
             color: '#ffffff',
         },
         hover: {
-            backgroundColor: '#000000',
+            backgroundColor: '#111111',
             color: '#ffffff',
             border: '1px solid #ffffff',
         },
         focus: {
-            backgroundColor: '#000000',
+            backgroundColor: '#111111',
             color: '#ffffff',
             border: '1px solid #ffffff',
         },
@@ -62,11 +72,11 @@ export class StylingUtility {
         border: '2px solid #FFFFFF',
         borderRadius: '0px',
         hover: {
-            backgroundColor: '#000000',
+            backgroundColor: '#111111',
             border: '2px solid #CCCCCC',
         },
         checked: {
-            backgroundColor: '#000000',
+            backgroundColor: '#111111',
             border: '2px solid #FFFFFF',
             hover: {
                 backgroundColor: '#111111',

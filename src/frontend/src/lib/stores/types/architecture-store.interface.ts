@@ -8,6 +8,9 @@ export interface NodeArchitecture {
     meta: {
         name: string;
         description?: string;
+        last_modified?: string;
+        created_at?: string;
+        version?: number;
     }
     nodes: Writable<Node[]>;
     edges: Writable<Edge[]>;
@@ -19,6 +22,8 @@ export interface AvailableArchitecture {
     meta: {
         name: string;
         description?: string;
+        lastModified?: string;
+        createdAt?: string;
     },
     info: {
         version: ArchitectureVersion;
@@ -48,6 +53,8 @@ export type AvailableArchitecturesResponse = {
         meta: {
             name: string;
             description?: string;
+            last_modified?: string;
+            created_at?: string;
         }
         info: {
             version: ArchitectureVersion;

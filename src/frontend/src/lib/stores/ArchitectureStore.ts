@@ -77,6 +77,8 @@ const createArchitectureStore = (): ArchitectureStore => {
                             meta: {
                                 name: arch.meta.name,
                                 description: arch.meta.description,
+                                lastModified: arch.meta.last_modified,
+                                createdAt: arch.meta.created_at,
                             },
                             info: {
                                 version: arch.info.version,
@@ -109,6 +111,9 @@ const createArchitectureStore = (): ArchitectureStore => {
                     meta: {
                         name: data.data.meta.name,
                         description: data.data.meta.description,
+                        created_at: data.data.meta.created_at,
+                        last_modified: data.data.meta.last_modified,
+                        version: data.info?.version ?? 0,
                     },
                     nodes: writable<Node[]>(nodes),
                     edges: writable<Edge[]>(edges),
@@ -190,11 +195,13 @@ const createArchitectureStore = (): ArchitectureStore => {
                 meta: {
                     name: aStore.activeArchitecture.meta.name,
                     description: aStore.activeArchitecture.meta.description,
+                    created_at: aStore.activeArchitecture.meta.created_at,
+                    last_modified: aStore.activeArchitecture.meta.last_modified,
                 } as ArchitectureMetaDescription,
 
             },
             info: {
-                version: 0 as ArchitectureVersion, //TODO
+                version: aStore.activeArchitecture?.meta.version ?? 0 as ArchitectureVersion, //TODO
             } as ArchitectureInfoDescription,
 
         };
@@ -216,11 +223,10 @@ const createArchitectureStore = (): ArchitectureStore => {
                     id: data.id,
                     meta: {
                         name: aStore.activeArchitecture?.meta.name ?? '',
-
                         description: aStore.activeArchitecture?.meta.description ?? '',
                     },
                     info: {
-                        version: 0
+                        version: aStore.activeArchitecture?.meta.version ?? 0
                     }
                 }];
             }
@@ -234,6 +240,9 @@ const createArchitectureStore = (): ArchitectureStore => {
                 meta: {
                     name: name,
                     description: description,
+                    created_at: new Date().toISOString(),
+                    last_modified: new Date().toISOString(),
+                    version: 0
                 },
                 nodes: writable<Node[]>([]),
                 edges: writable<Edge[]>([]),
