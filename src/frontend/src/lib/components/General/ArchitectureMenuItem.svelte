@@ -6,6 +6,7 @@
 
     export let title;
     export let id: string;
+    export let lastModified: string;
 
     const selectedItemId = getContext<Writable<string>>('selected-item-id');
 
@@ -15,10 +16,11 @@
     function handleClick() {
         if (isSelected) {
             selectedItemId.set('');
-            SoundUtility.playClick1(0.2);
+            SoundUtility.playClick1(0.1);
             return;
         }
-        SoundUtility.playClick2(0.2);
+        SoundUtility.playClick2(0.1);
+
         selectedItemId.set(id);
     }
 
@@ -32,14 +34,17 @@
     <div class="architecture-menu-item-title" bind:this={titleElement}>
         {title}
     </div>
+    <div class="architecture-menu-item__separator">-------------------</div>
+    <div class="architecture-menu-item__last-modified">
+        {lastModified}
+    </div>
 </div>
 
 <style>
     .architecture-menu-item {
         width: 100%;
         min-height: 50px;
-        background-color: #000;
-        border: 1px solid #fff;
+        background-color: #111;
         color: #fff;
         display: flex;
         align-items: center;
@@ -52,8 +57,8 @@
         }
 
         &.selected {
-            border: 1px solid #dc2626;
-            color: #dc2626;
+            border: 1px solid #fe2e00;
+            color: #fe2e00;
             transform: scale(1.03);
             transition: all 0.2s ease-in-out;
             z-index: 1;

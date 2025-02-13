@@ -105,7 +105,7 @@
         </div>
         <div class="node-editor__flow">
             <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
-                <Background bgColor="#000000" patternColor="#FFFFFF" />
+                <Background bgColor="#111111" patternColor="#FFFFFF" />
             </SvelteFlow>
         </div>
     </div>
@@ -116,7 +116,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        background-color: #000000;
+        background-color: #111111;
         height: 100%;
 
         &__content {

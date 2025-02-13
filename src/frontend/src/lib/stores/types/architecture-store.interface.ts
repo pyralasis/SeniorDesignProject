@@ -1,19 +1,38 @@
 import { type Writable } from 'svelte/store';
-import { type NetworkArchitectureDescription, type ArchitectureId, type NetworkLayerDescription } from '$lib/types/architecture';
+import { type NetworkArchitectureDescription, type ArchitectureId, type NetworkLayerDescription, type ArchitectureVersion } from '$lib/types/architecture';
 import { type Node, type Edge } from '@xyflow/svelte';
 import type { InputDefinition, Layer } from '$lib/types/layer';
 
 export interface NodeArchitecture {
-    id: string;
-    name: string;
-    layout_file: string;
+    id?: string;
+    meta: {
+        name: string;
+        description?: string;
+        last_modified?: string;
+        created_at?: string;
+        version?: number;
+    }
     nodes: Writable<Node[]>;
     edges: Writable<Edge[]>;
     loading: boolean;
 }
 
+export interface AvailableArchitecture {
+    id: ArchitectureId;
+    meta: {
+        name: string;
+        description?: string;
+        lastModified?: string;
+        createdAt?: string;
+    },
+    info: {
+        version: ArchitectureVersion;
+    }
+}
+
+
 export interface ArchitectureStoreProps {
-    architectureIds: ArchitectureId[];
+    availableArchitectures: AvailableArchitecture[] | undefined;
     activeArchitecture: NodeArchitecture | undefined;
 }
 
@@ -29,25 +48,22 @@ export interface ArchitectureStore extends Writable<ArchitectureStoreProps> {
 }
 
 export type AvailableArchitecturesResponse = {
-    available: string[],
+    available: {
+        id: ArchitectureId;
+        meta: {
+            name: string;
+            description?: string;
+            last_modified?: string;
+            created_at?: string;
+        }
+        info: {
+            version: ArchitectureVersion;
+        }
+    }[],
     success: boolean
 }
 
 export type LoadArchitectureResponse = {
-    data: LoadArchitectureBody,
+    object: NetworkArchitectureDescription,
     success: boolean
 }
-
-export type LoadArchitectureBody = {
-    data: ArchitectureData
-    id: string
-}
-
-export type ArchitectureData = {
-    inputs: InputDefinition[],
-    layers: NetworkLayerDescription[],
-    layout_file: string,
-    name: string,
-    version: number
-}
-

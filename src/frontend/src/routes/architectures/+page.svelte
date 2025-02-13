@@ -1,104 +1,132 @@
 <script lang="ts">
     import ArchitectureMenuItem from '$lib/components/General/ArchitectureMenuItem.svelte';
+    import Icon from '$lib/components/Icon/Icon.svelte';
+    import Spinner from '$lib/components/Spinner/Spinner.svelte';
+    import { architectureStore } from '$lib/stores/ArchitectureStore';
+    import type { AvailableArchitecture } from '$lib/stores/types/architecture-store.interface';
     import { StylingUtility } from '$lib/utilities/styling.utility';
-    import { Button } from 'kiwi-nl';
+    import { Button, TextInput } from 'kiwi-nl';
     import { setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
 
+    architectureStore.getAvailableArchitectures();
+
     let selectedItemId: Writable<string> = writable('');
-    let ids = ['9992463'];
+    let creatingNewArchitecture: Writable<boolean> = writable(false);
+    let newArchitectureName: string = '';
 
     setContext('selected-item-id', selectedItemId);
+
+    function handleCreateNewArchitecture(): void {
+        architectureStore.createNewArchitecture(newArchitectureName);
+        creatingNewArchitecture.set(false);
+    }
+
+    function handleDeleteArchitecture(id: string): void {
+        architectureStore.deleteArchitecture(id);
+        selectedItemId.set('');
+    }
+
+    $: $selectedItemId === '' && creatingNewArchitecture.set(false);
 </script>
 
 <div class="select-architecture-page">
-    <div class="select-architecture-page__header">
-        <h1>Select Architecture</h1>
-        <p>Select the architecture you would like to edit, delete, or convert to a model</p>
-        <p>Or start from scratch with a new architecture</p>
-    </div>
-    <div class="select-architecture-page__panels">
-        <div class="select-architecture-page__architecture-items">
-            {#each ids as id}
-                <ArchitectureMenuItem title="TEST icles" {id}></ArchitectureMenuItem>
-            {/each}
+    <div class="select-architecture-page__top">
+        <div class="select-architecture-page__top-left">
+            <p>
+                Select the architecture you would like to edit, delete, or convert to a model or start from scratch with a new architecture
+            </p>
+            <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={() => creatingNewArchitecture.set(true)}
+                >Create New Architecture</Button
+            >
         </div>
-
+        <div class="select-architecture-page__top-right">
+            <div class="select-architecture-page__architecture-items">
+                {#if $architectureStore.availableArchitectures === undefined}
+                    <div class="spinner">
+                        <Spinner></Spinner>
+                    </div>
+                {:else if $architectureStore.availableArchitectures.length === 0}
+                    <p class="no-architectures-found">No architectures found</p>
+                {:else}
+                    {#each $architectureStore.availableArchitectures as a, i}
+                        <ArchitectureMenuItem title={a.meta.name} id={a.id} lastModified={a.meta?.lastModified ?? a.meta?.createdAt ?? ''}
+                        ></ArchitectureMenuItem>
+                    {/each}
+                {/if}
+            </div>
+        </div>
+    </div>
+    <div class="select-architecture-page__bottom">
+        <div class="select-architecture-page__bottom-left"></div>
+        <div class="select-architecture-page__bottom-right">
+            <Button type="primary" style={StylingUtility.whiteBorderButton} href="/architectures/edit/{$selectedItemId}"
+                >Edit Architecture</Button
+            >
+            <Button type="primary" style={StylingUtility.whiteBorderButton}>Convert to Model</Button>
+            <Button type="primary" style={StylingUtility.redButton} on:click={() => handleDeleteArchitecture($selectedItemId)}
+                ><Icon name="trash" /></Button
+            >
+        </div>
+    </div>
+    <div class="select-architecture-page__header">
         {#if $selectedItemId !== ''}
             <div class="select-architecture-page__architecture-actions">
-                <div class="left-actions">
-                    <Button type="primary" style={StylingUtility.whiteBorderButton} href="/architectures/edit/{$selectedItemId}"
-                        >Edit Architecture</Button
-                    >
-                    <Button type="primary" style={StylingUtility.whiteBorderButton}>Convert to Model</Button>
-                </div>
-                <div class="delete-action"><Button type="primary" style={StylingUtility.redButton}>Delete Architecture</Button></div>
+                <div class="left-actions"></div>
             </div>
         {/if}
-        {#if $selectedItemId === ''}
-            <div class="select-architecture-page__architecture-actions">
-                <Button type="primary" style={StylingUtility.whiteBorderButton}>Create New Architecture</Button>
+
+        {#if $selectedItemId === '' && !$creatingNewArchitecture}
+            <div class="select-architecture-page__architecture-actions"></div>
+        {:else if $selectedItemId === '' && $creatingNewArchitecture}
+            <div class="select-architecture-page__create-new-architecture-actions">
+                <TextInput label="Architecture Name" style={StylingUtility.textInput} bind:value={newArchitectureName}></TextInput>
+            </div>
+            <div class="select-architecture-page__create-new-architecture-actions-buttons">
+                <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={() => handleCreateNewArchitecture()}
+                    >Create</Button
+                >
+                <Button type="primary" style={StylingUtility.redButton} on:click={() => creatingNewArchitecture.set(false)}>Cancel</Button>
             </div>
         {/if}
     </div>
+
+    <div class="select-architecture-page__panels"></div>
 </div>
 
 <style lang="scss">
     .select-architecture-page {
         display: flex;
         flex-direction: column;
-        height: 100vh;
-        align-items: center;
+        justify-content: start;
         overflow: hidden;
+        height: 100%;
 
-        &__header {
+        &__top {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: #ffffff;
-            padding: 24px 0;
-        }
-
-        &__panels {
-            max-width: 1000px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        &__architecture-items {
-            display: flex;
-            flex-direction: column;
-            max-height: calc(50px * 10);
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 32px 32px;
-            box-shadow:
-                inset 0px -100px 20px rgba(0, 0, 0, 0.4),
-                inset 0px 100px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        &__architecture-actions {
-            display: flex;
-            gap: 16px;
             justify-content: space-between;
+            align-items: center;
+            height: 75%;
         }
-    }
 
-    .left-actions {
-        display: flex;
-        gap: 16px;
-    }
+        &__bottom {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #ffffff;
+        }
 
-    .delete-action {
-        display: flex;
-        gap: 16px;
-    }
+        &__top-left {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 50%;
+        }
 
-    p,
-    h1 {
-        margin: 4px;
+        &__top-right {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 50%;
+        }
     }
 </style>

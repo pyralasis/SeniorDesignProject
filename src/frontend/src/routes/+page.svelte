@@ -1,47 +1,52 @@
 <script lang="ts">
-    import Logo from '$lib/assets/logo-3.svg';
+    import Logo from '$lib/assets/logo-5.svg';
 </script>
 
 <div class="home-page">
     <div class="content">
-        <div class="logo-container">
+        <div class="left-container">
             <img src={Logo} alt="Home Page" />
         </div>
-        <div class="link-container">
+        <div class="right-container">
             <a href="/architectures">Architectures</a>
-            <a href="/general-layout">Models</a>
             <a href="/pipelines">Pipelines</a>
-            <a href="/general-layout">Training</a>
+            <a href="/models">Models</a>
+            <a href="/training">Training</a>
         </div>
     </div>
 </div>
 
 <style lang="scss">
     .home-page {
-        display: flex;
-        height: 100vh;
-        justify-content: center;
-        align-items: center;
-        gap: 70px;
-        background: url('$lib/assets/background.png') no-repeat center center fixed;
-        background-size: cover;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
     }
 
     .content {
         display: flex;
-        justify-content: center;
-        gap: 120px;
-        height: fit-content;
+        height: 100%;
     }
 
-    .logo-container {
+    .left-container {
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 50%;
+        border-right: 1px solid #ffffff;
+        background: url('$lib/assets/PatternAsset.png') repeat center center;
+    }
+
+    .right-container {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: end;
+        width: 50%;
     }
 
     img {
-        width: 350px;
+        width: 321px;
     }
 
     .link-container {
@@ -54,16 +59,19 @@
 
     a {
         width: 100%;
-        align-items: center;
         text-decoration: none;
         color: #ffffff;
         font-size: 32px;
-        font-weight: 600;
-        border: 1px solid transparent;
-
+        font-weight: 500;
+        border-top: 1px solid #ffffff;
+        height: 15%;
+        transition:
+            color 0.3s ease,
+            height 0.5s ease-in-out;
+        padding: 38px 0 0 16px;
         &:hover {
-            color: #b91c1c;
-            transition: all 0.3s ease;
+            color: #fe2e00;
+            height: 40%;
         }
     }
 </style>

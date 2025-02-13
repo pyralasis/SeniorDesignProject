@@ -51,7 +51,7 @@
         height: 100%;
         border-right: 1px solid #ffffff;
         padding: 16px 8px 0 8px;
-        background-color: #000000;
+        background-color: #111111;
 
         &__nodes-container {
             position: relative;

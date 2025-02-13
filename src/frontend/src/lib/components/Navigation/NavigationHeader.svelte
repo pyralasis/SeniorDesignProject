@@ -1,12 +1,12 @@
 <script lang="ts">
-    import Logo from '$lib/assets/logo.svg';
+    import Logo from '$lib/assets/logo-5.svg';
     import { writable, type Writable } from 'svelte/store';
     import Icon from '../Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
     import { clickOutside } from '$lib/directives/click-outside';
     import { SoundUtility } from '$lib/utilities/sound.utility';
 
-    let expanded: Writable<boolean> = writable(false);
+    let expanded: Writable<boolean> = writable(true);
     let rotationDegrees: Writable<number> = writable(0);
 
     const links: {
@@ -46,9 +46,9 @@
 
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div class="icon-wrapper" on:click={toggleDrawer} style="transform: rotate({$rotationDegrees}deg);">
+        <!-- <div class="icon-wrapper" on:click={toggleDrawer} style="transform: rotate({$rotationDegrees}deg);">
             <Icon name={IconNameEnum.sideways_hamburger} />
-        </div>
+        </div> -->
     </div>
 </div>
 
@@ -60,12 +60,18 @@
         color: #ffffff;
         position: relative;
         overflow: hidden;
+        border-bottom: 1px solid #ffffff;
     }
 
     .logo-container {
         padding-left: 16px;
         z-index: 2;
-        background-color: #000000;
+        background-color: #111111;
+        height: 27px;
+    }
+
+    img {
+        height: 27px;
     }
 
     .drawer-container {
@@ -74,7 +80,7 @@
         position: absolute;
         left: 0;
         height: 100%;
-        background-color: #000000;
+        background-color: #111111;
         transform: translateX(-83%);
         transition: transform 0.3s ease;
         padding-left: 75px; // Adjust based on your logo width
@@ -105,7 +111,7 @@
                 white-space: nowrap;
                 color: #ffffff;
                 &:hover {
-                    color: #b91c1c;
+                    color: #fe2e00;
                     transition: all 0.3s ease;
                     text-decoration: underline;
                 }

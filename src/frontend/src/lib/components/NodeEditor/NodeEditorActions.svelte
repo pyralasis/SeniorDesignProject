@@ -38,7 +38,7 @@
 
 <div class="node-editor-actions">
     <div class="node-editor-actions__left">
-        <Button type={ButtonTypeEnum.primary} on:click={handleSidebarToggle}>
+        <Button type={ButtonTypeEnum.primary} on:click={handleSidebarToggle} style={StylingUtility.defaultButton}>
             <div style="transform: rotate({$rotationDegrees}deg); transition: transform 0.2s;">
                 <Icon name={IconNameEnum.chevron_right} />
             </div>
@@ -56,7 +56,7 @@
 
     <div class="node-editor-actions__delete">
         <Button type={ButtonTypeEnum.primary} on:click={onDelete} style={StylingUtility.redButton}>Delete</Button>
-        <Button type={ButtonTypeEnum.primary} on:click={onClearNodes}>Clear</Button>
+        <Button type={ButtonTypeEnum.primary} on:click={onClearNodes} style={StylingUtility.whiteBorderButton}>Clear</Button>
     </div>
 </div>
 
