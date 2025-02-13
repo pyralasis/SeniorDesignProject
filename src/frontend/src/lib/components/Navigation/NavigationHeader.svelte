@@ -47,9 +47,11 @@
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div class="icon-wrapper" on:click={toggleDrawer} style="transform: rotate({$rotationDegrees}deg);">
-            <Icon name={IconNameEnum.sideways_hamburger} />
+            <span class="material-symbols-outlined">
+                start
+            </span>
         </div>
-    </div>
+    </div> 
 </div>
 
 <style lang="scss">
@@ -124,4 +126,13 @@
             color: #b91c1c;
         }
     }
+
+    .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+
 </style>

@@ -14,6 +14,7 @@
 		"@sveltejs/adapter-static": "^3.0.5",
 		"@sveltejs/kit": "^2.15.1",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@types/lodash": "^4.17.15",
 		"@types/node": "^22.12.0",
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
@@ -31,6 +32,7 @@
 		"gh-pages": "^6.1.1",
 		"gsap": "^3.12.7",
 		"kiwi-nl": "^0.0.8",
+		"lodash": "^4.17.21",
 		"save-as": "^0.1.8"
 	}
 }
