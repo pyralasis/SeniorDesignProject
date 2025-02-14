@@ -41,8 +41,8 @@ export interface ArchitectureStore extends Writable<ArchitectureStoreProps> {
     loadArchitectureById: (id: ArchitectureId) => void;
     clearActiveArchitecture: () => void;
     deleteArchitecture: (id: ArchitectureId) => void;
-    saveActiveArchitecture: (isNew?: boolean) => void;
-    createNewArchitecture: (name: string) => void;
+    saveActiveArchitecture: (isNew?: boolean) => Promise<ArchitectureId | void>;
+    createNewArchitecture: (name: string, description: string) => void;
     addNodeToActiveArchitecture: (node: Node) => void;
     deleteNodeFromActiveArchitecture: (id: string) => void;
 }

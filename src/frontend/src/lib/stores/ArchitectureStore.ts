@@ -196,7 +196,7 @@ const createArchitectureStore = (): ArchitectureStore => {
                     name: aStore.activeArchitecture.meta.name,
                     description: aStore.activeArchitecture.meta.description,
                     created_at: aStore.activeArchitecture.meta.created_at,
-                    last_modified: aStore.activeArchitecture.meta.last_modified,
+                    last_modified: new Date().toISOString(),
                 } as ArchitectureMetaDescription,
 
             },
@@ -219,16 +219,7 @@ const createArchitectureStore = (): ArchitectureStore => {
             )
         }).then((response) => response.json()).then((data: { id: string }) => {
             if (isNew) {
-                aStore.availableArchitectures = [...(aStore.availableArchitectures ?? []), {
-                    id: data.id,
-                    meta: {
-                        name: aStore.activeArchitecture?.meta.name ?? '',
-                        description: aStore.activeArchitecture?.meta.description ?? '',
-                    },
-                    info: {
-                        version: aStore.activeArchitecture?.meta.version ?? 0
-                    }
-                }];
+                getAvailableArchitectures();
             }
         });
     }
