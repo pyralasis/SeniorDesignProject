@@ -10,16 +10,16 @@
     export let selectedNodeColor: Writable<string> | undefined;
     export let onDelete: () => void;
     export let onClearNodes: () => void;
-
+        
     let xColor: Writable<string> = getContext('xColor');
-    let sidebarExpanded: Writable<boolean> = getContext('sidebarExpanded');
+    let sidebarExpanded: Writable<boolean> = getContext('sidebarExpanded'); 
     let rotationDegrees: Writable<number> = writable(180);
 
     function handleSidebarToggle() {
         sidebarExpanded.update((expanded) => (expanded = !expanded));
         rotationDegrees.update((degrees) => (degrees = degrees === 0 ? 180 : 0));
     }
-
+ 
     function onTitleChange(event: CustomEvent) {
         if (!selectedNodeTitle) {
             return;
