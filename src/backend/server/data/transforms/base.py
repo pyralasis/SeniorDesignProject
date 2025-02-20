@@ -1,16 +1,8 @@
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Callable,
-    Literal,
-    Protocol,
-    TypeAlias,
-    TypeVar,
-)
+from typing import Any, Callable, Literal, Protocol, TypeAlias, TypeVar
 
 from server.data.sources.base import DataSource
 from server.params import Parameter
-
 
 TransformId: TypeAlias = str
 

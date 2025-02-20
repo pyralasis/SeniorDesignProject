@@ -1,34 +1,45 @@
 from dataclasses import dataclass
-from typing import TypeAlias
+from typing import Any, Literal, TypeAlias
 
 from server.data.sources import DataSourceId
+from server.data.sources.base import DataSourceDefinition
 from server.data.transforms import TransformId
+from server.data.transforms.base import TransformDefinition
 from server.params import ParameterValue
-
+from server.util.registry import Registry
 
 InstanceId: TypeAlias = int
 
 
 @dataclass
 class SourceConfig:
-    id: InstanceId
+    type: Literal["source"]
+    instance_id: InstanceId
     src_id: DataSourceId
     param_values: dict[str, ParameterValue]
+
+    def get_params(self) -> dict[str, Any]:
+        return {key: param.val for key, param in self.param_values.items()}
 
 
 @dataclass
 class TransformConfig:
-    id: InstanceId
+    type: Literal["transform"]
+    instance_id: InstanceId
     transform_id: TransformId
-    input: InstanceId | list[InstanceId]
+    input: InstanceId  # TODO: multiple inputs
 
     param_values: dict[str, ParameterValue]
+
+    def get_params(self) -> dict[str, Any]:
+        return {key: param.val for key, param in self.param_values.items()}
+
+
+PipelineElement: TypeAlias = SourceConfig | TransformConfig
 
 
 @dataclass
 class PipelineConfig:
-    name: str
-    sources: list[SourceConfig]
-    transforms: list[TransformConfig]
+    elements: list[PipelineElement]
     value_output: InstanceId
     label_output: InstanceId
