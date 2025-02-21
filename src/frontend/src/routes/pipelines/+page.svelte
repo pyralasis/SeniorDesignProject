@@ -1,16 +1,220 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import MenuItem from '$lib/components/General/MenuItem.svelte';
+    import Icon from '$lib/components/Icon/Icon.svelte';
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
+    import { pipelineStore } from '$lib/stores/PipelineStore';
+    import type { AvailablePipeline } from '$lib/stores/types/pipeline-store.interface copy';
+    import type { PipelineId } from '$lib/types/pipeline';
+    import { StylingUtility } from '$lib/utilities/styling.utility';
+    import { Button, TextInput } from 'kiwi-nl';
+    import { setContext } from 'svelte';
+    import { writable, type Writable } from 'svelte/store';
+
+    pipelineStore.getAvailablePipelines();
+
+    let selectedPipeline: Writable<AvailablePipeline | undefined> = writable(undefined);
+    let creatingNewPipeline: Writable<boolean> = writable(false);
+    let newPipelineName: string = '';
+    let newPipelineDescription: string = '';
+
+    setContext('selected-item', selectedPipeline);
+
+    async function handleCreateNewPipeline(): Promise<void> {
+        await pipelineStore.createNewPipeline(newPipelineName, newPipelineDescription);
+        creatingNewPipeline.set(false);
+    }
+
+    function handleDeletePipeline(id: PipelineId): void {
+        pipelineStore.deletePipeline(id);
+        selectedPipeline.set(undefined);
+    }
+
+    function handleCreateNewPipelineInitialisation(): void {
+        selectedPipeline.set(undefined);
+        newPipelineName = '';
+        newPipelineDescription = '';
+        creatingNewPipeline.set(true);
+    }
 </script>
 
-<div class="pipelines-page">
-    <Spinner />
+<div class="select-pipeline-page">
+    <div class="select-pipeline-page__header">
+        <h1>Select Pipeline</h1>
+    </div>
+    <div class="select-pipeline-page__top">
+        <div class="select-pipeline-page__top-left">
+            <p>Select the pipeline you would like to edit, delete, or convert to a model or start from scratch with a new pipeline</p>
+            <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={handleCreateNewPipelineInitialisation}
+                >Create New Pipeline</Button
+            >
+        </div>
+        <div class="select-pipeline-page__top-right">
+            <div class="select-pipeline-pipeline-items">
+                {#if $pipelineStore.availablePipelines === undefined}
+                    <div class="spinner">
+                        <Spinner></Spinner>
+                    </div>
+                {:else if $pipelineStore.availablePipelines.length === 0}
+                    <p class="no-pipelines-found">No pipelines found</p>
+                {:else}
+                    {#each $pipelineStore.availablePipelines as p, i}
+                        <MenuItem item={p}></MenuItem>
+                    {/each}
+                {/if}
+            </div>
+        </div>
+    </div>
+    <div class="select-pipeline-page__bottom">
+        <div class="select-pipeline-page__bottom-left">
+            {#if $selectedPipeline}
+                <div class="select-pipeline-page__bottom-left-pipeline-info">
+                    <h2>{$selectedPipeline.meta.name}</h2>
+                    <p>{$selectedPipeline.meta.description}</p>
+                </div>
+            {:else if $creatingNewPipeline}
+                <div class="select-pipeline-page__create-new-pipeline-actions">
+                    <div class="name-input">
+                        <TextInput label="Name" style={StylingUtility.textInput} bind:value={newPipelineName}></TextInput>
+                    </div>
+                    <div class="description-input">
+                        <TextInput label="Description" style={StylingUtility.textInput} bind:value={newPipelineDescription}></TextInput>
+                    </div>
+                </div>
+                <div class="select-pipeline-page__create-new-pipeline-actions-buttons">
+                    <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={async () => await handleCreateNewPipeline()}
+                        >Create</Button
+                    >
+                    <Button type="primary" style={StylingUtility.redButton} on:click={() => creatingNewPipeline.set(false)}>Cancel</Button>
+                </div>
+            {:else}
+                <div class="select-pipeline-page__bottom-left-empty">
+                    <p>No pipeline selected</p>
+                </div>
+            {/if}
+        </div>
+        <div class="select-pipeline-page__bottom-right">
+            {#if $selectedPipeline}
+                <Button type="primary" style={StylingUtility.whiteBorderButton} href="/pipelines/edit/{$selectedPipeline?.id}"
+                    >Open In Node Editor</Button
+                >
+                <Button type="primary" style={StylingUtility.whiteBorderButton}>Convert to Model</Button>
+                <Button
+                    type="primary"
+                    style={StylingUtility.redButton}
+                    on:click={() => {
+                        if ($selectedPipeline) {
+                            handleDeletePipeline($selectedPipeline.id);
+                        }
+                    }}><Icon name="trash" /></Button
+                >
+            {/if}
+        </div>
+    </div>
 </div>
 
-<style>
-    .pipelines-page {
+<style lang="scss">
+    .select-pipeline-page {
         display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+        flex-direction: column;
+        justify-content: start;
+        overflow: hidden;
+        height: 100%;
+        color: #ffffff;
+
+        &__header {
+            color: #ffffff;
+            border-bottom: 1px solid #ffffff;
+            padding: 20px;
+            padding-left: 64px;
+            h1 {
+                font-size: 50px;
+                font-weight: 500;
+                margin: 0;
+            }
+        }
+
+        &__top {
+            display: flex;
+            justify-content: space-between;
+            height: 75%;
+            max-width: 1500px;
+            margin: 64px auto;
+        }
+
+        &__bottom {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #ffffff;
+            padding: 32px 64px;
+            height: 35%;
+        }
+
+        &__bottom-left {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 65%;
+        }
+
+        &__bottom-right {
+            display: flex;
+            gap: 10px;
+            max-width: 60%;
+            height: 38px;
+        }
+
+        &__bottom-left-pipeline-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            h2 {
+                font-size: 24px;
+                font-weight: 600;
+                margin: 0;
+            }
+        }
+
+        &__top-left {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 30%;
+
+            p {
+                color: #ffffff;
+            }
+        }
+
+        &__bottom-left-empty {
+            color: #c2c2c2;
+        }
+
+        &__top-right {
+            width: 700px;
+        }
+
+        &__create-new-pipeline-actions-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        &__create-new-pipeline-actions {
+            display: flex;
+            gap: 10px;
+        }
+    }
+
+    .no-pipeline-found {
+        color: #c2c2c2;
+    }
+
+    .name-input {
+        width: 20%;
+    }
+
+    .description-input {
+        width: 80%;
     }
 </style>

@@ -11,9 +11,14 @@
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import Icon from '$lib/components/Icon/Icon.svelte';
     import { IconNameEnum } from '$lib/components/Icon/types/icon-name.enum';
+    import { BackendApi } from '$lib/utilities/api.utilities';
+    import type { DnDContext } from '$lib/utilities/DnDUtils';
+    import type { Layer } from '$lib/types/layer';
+    import { NodeTypeEnum } from '$lib/types/node-type.enum';
 
     let nodes: Writable<Node[]>;
     let edges: Writable<Edge[]>;
+    let availableLayers: Writable<DnDContext[]> = writable([]);
 
     $: id = page.params.id;
     let isEditingTitle: Writable<boolean> = writable(false);
@@ -35,6 +40,11 @@
     });
 
     onMount(async () => {
+        availableLayers.set(
+            (await BackendApi.getAvailableLayers()).map(
+                (layer: Layer<any>) => ({ type: NodeTypeEnum.Layer, nodeBlueprint: layer }) as DnDContext,
+            ),
+        );
         await architectureStore.loadArchitectureById(id);
     });
 
@@ -81,6 +91,7 @@
                     onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
                     {nodes}
                     {edges}
+                    nodeblueprints={$availableLayers}
                 />
             {:else}
                 <div class="spinner-container">

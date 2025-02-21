@@ -2,7 +2,7 @@
     import { type Writable, writable } from 'svelte/store';
     import { Handle, Position, type NodeProps } from '@xyflow/svelte';
     import NodeField from './NodeParameter.svelte';
-    import type { Parameter, ParameterValue } from '$lib/types/layer';
+    import type { Parameter, ParameterValue } from '$lib/types/parameter';
     import Icon from '$lib/components/Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
 

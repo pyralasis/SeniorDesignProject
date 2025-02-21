@@ -2,10 +2,12 @@ import { type ArchitectureStore, type ArchitectureStoreProps } from "./types/arc
 import { BACKEND_API_BASE_URL } from "$lib/utilities/api.constants";
 import { BackendApi } from "$lib/utilities/api.utilities";
 import { get, writable, type Writable } from "svelte/store";
-import type { NetworkArchitectureDescription, ArchitectureId, NetworkLayoutDescription, ArchitectureDataDescription, ArchitectureMetaDescription, ArchitectureInfoDescription, ArchitectureVersion } from "$lib/types/architecture";
+import type { NetworkArchitectureDescription, ArchitectureId, ArchitectureDataDescription, ArchitectureMetaDescription, ArchitectureInfoDescription } from "$lib/types/architecture";
+import type { NetworkLayoutDescription } from "$lib/types/layout";
 import type { Node, Edge } from "@xyflow/svelte";
-import type { Parameter, ParameterValue } from "$lib/types/layer";
-import type { AvailableArchitecturesResponse, LoadArchitectureResponse, } from "./types/architecture-store.interface";
+import type { Parameter, ParameterValue } from "$lib/types/parameter";
+import type { AvailableArchitecture, AvailableArchitecturesResponse, LoadArchitectureResponse, } from "./types/architecture-store.interface";
+import type { Version } from "$lib/types/info";
 
 function getLayerParametersByLayerId(layerId: string): Promise<any> {
     return BackendApi.getLayerById(layerId.toLowerCase()).then((layer) => {
@@ -73,17 +75,17 @@ const createArchitectureStore = (): ArchitectureStore => {
                 update((store) => {
                     store.availableArchitectures = response.available.map((arch) => {
                         return {
-                            id: arch.id,
+                            id: arch.id as ArchitectureId,
                             meta: {
                                 name: arch.meta.name,
                                 description: arch.meta.description,
-                                lastModified: arch.meta.last_modified,
-                                createdAt: arch.meta.created_at,
-                            },
+                                last_modified: arch.meta.last_modified,
+                                created_at: arch.meta.created_at,
+                            } as ArchitectureMetaDescription,
                             info: {
                                 version: arch.info.version,
-                            }
-                        };
+                            } as ArchitectureInfoDescription
+                        } as AvailableArchitecture;
                     });
                     return store;
 
@@ -201,7 +203,7 @@ const createArchitectureStore = (): ArchitectureStore => {
 
             },
             info: {
-                version: aStore.activeArchitecture?.meta.version ?? 0 as ArchitectureVersion, //TODO
+                version: aStore.activeArchitecture?.meta.version ?? 0 as Version, //TODO
             } as ArchitectureInfoDescription,
 
         };
