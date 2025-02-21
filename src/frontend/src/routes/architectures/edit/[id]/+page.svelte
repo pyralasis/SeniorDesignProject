@@ -1,4 +1,5 @@
 <script lang="ts">
+
     import { SvelteFlowProvider, type Edge, type Node } from '@xyflow/svelte';
     import DnDProvider from '$lib/components/DnDProvider.svelte';
     import NodeEditor from '$lib/components/NodeEditor/NodeEditor.svelte';
@@ -15,6 +16,7 @@
     import type { DnDContext } from '$lib/utilities/DnDUtils';
     import type { Layer } from '$lib/types/layer';
     import { NodeTypeEnum } from '$lib/types/node-type.enum';
+    import { saveStatus, isArchitectureSaved } from '$lib/stores/savedStore';
 
     let nodes: Writable<Node[]>;
     let edges: Writable<Edge[]>;
@@ -23,6 +25,8 @@
     $: id = page.params.id;
     let isEditingTitle: Writable<boolean> = writable(false);
 
+   
+    
     architectureStore.subscribe((store) => {
         if (!store.activeArchitecture) {
             return;
@@ -30,15 +34,40 @@
         nodes = store?.activeArchitecture?.nodes;
         edges = store?.activeArchitecture?.edges;
     });
-
+    
     function onSave() {
-        architectureStore.saveActiveArchitecture();
+        saveStatus.set('Saving...');
+        
+        architectureStore.saveActiveArchitecture().then(() => {
+            setTimeout(() => {
+            saveStatus.set('Architecture is up to Date'); 
+            isArchitectureSaved.set(true);
+        }, 500);
+        }).catch(() => {
+            saveStatus.set('Failed to Save. Save Again');
+        });
     }
+
+    function handleKeydown(event: KeyboardEvent) {
+        if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
+            event.preventDefault();
+            onSave();
+        }
+    }
+    onMount(() => {
+        window.addEventListener('keydown', handleKeydown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeydown);
+        };
+    });
 
     onDestroy(() => {
         architectureStore.clearActiveArchitecture();
     });
 
+ 
+    
     onMount(async () => {
         availableLayers.set(
             (await BackendApi.getAvailableLayers()).map(
@@ -46,6 +75,7 @@
             ),
         );
         await architectureStore.loadArchitectureById(id);
+        
     });
 
     function onTitleChange(event: CustomEvent) {
@@ -53,7 +83,7 @@
             return;
         }
         $architectureStore.activeArchitecture.meta.name = event.detail.value;
-    }
+    } 
 </script>
 
 <div class="edit-architectures-page">
@@ -76,7 +106,11 @@
                 >
             {/if}
         </div>
-        <Button type="primary" style={StylingUtility.defaultButton} on:click={onSave}><Icon name={IconNameEnum.save} /></Button>
+        <div class="save-status">
+            <span>{$saveStatus}</span>
+            <Button type="primary" style={StylingUtility.defaultButton} on:click={onSave}><Icon name={IconNameEnum.save} /></Button>
+        </div>
+        
     </div>
     <SvelteFlowProvider>
         <DnDProvider>
@@ -125,6 +159,18 @@
             margin: 0;
             color: #ffffff;
         }
+    }
+    .save-status {
+        display: flex;
+        align-items: center;  /* Vertically align the text and button */
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        margin-left: auto;
+        margin-right: 0;
+    }
+    .save-status span {
+        margin-right: 10px;  /* Adds space between the span and the button */
     }
     .spinner-container {
         display: flex;
