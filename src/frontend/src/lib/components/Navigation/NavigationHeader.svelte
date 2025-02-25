@@ -14,8 +14,8 @@
         href: string;
     }[] = [
         { name: 'Architectures', href: '/architectures' },
-        { name: 'Models', href: '/models' },
         { name: 'Pipelines', href: '/pipelines' },
+        { name: 'Models', href: '/models' },
         { name: 'Training', href: '/training' },
     ];
 

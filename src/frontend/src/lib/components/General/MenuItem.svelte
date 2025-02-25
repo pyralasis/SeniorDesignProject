@@ -82,7 +82,6 @@
 
         &.selected {
             font-weight: 600;
-            transition: all 0.2s ease-in-out;
             z-index: 1;
             color: #fe2e00;
 

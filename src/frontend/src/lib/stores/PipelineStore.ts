@@ -42,6 +42,7 @@ async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout:
             data: {
                 color: writable<string>(layout.nodes[element.instance_id]?.metadata.color ?? '#FFFFFF'),
                 title: writable<string>(layout.nodes[element.instance_id]?.metadata.title ?? 'Untitled Layer'),
+                name: writable<string>(layout.nodes[element.instance_id]?.metadata.name ?? ''),
                 ...(element.type === 'source' ? { src_id: element.src_id } : { transform_id: element.transform_id }),
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
                     Object.entries(element.param_values).map(([key, value]) => {
@@ -185,6 +186,7 @@ const createPipelineStore = (): PipelineStore => {
                                 metadata: {
                                     color: get(node.data.color as Writable<string>),
                                     title: get(node.data.title as Writable<string>),
+                                    name: get(node.data.name as Writable<string>),
                                 }
                             }
                         ])

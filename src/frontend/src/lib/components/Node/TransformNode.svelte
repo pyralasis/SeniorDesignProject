@@ -15,6 +15,7 @@
 
     const color: Writable<string> = data?.color as Writable<string>;
     const title: Writable<string> = data?.title as Writable<string>;
+    const name: Writable<string> = data?.name as Writable<string>;
     const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
         { parameter: Parameter<any>; value: ParameterValue<any> }[]
     >;
@@ -46,7 +47,7 @@
             <Icon name={IconNameEnum.chevron_right} />
         </div>
         <div style="display: flex; flex-direction: row; gap: 10px;">
-            <div class="node__title">{$title ? $title : 'Untitled Layer'} - Source</div>
+            <div class="node__title">Transform( {$name} )</div>
         </div>
     </div>
     {#if $expanded}

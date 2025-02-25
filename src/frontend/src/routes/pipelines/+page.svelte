@@ -4,7 +4,7 @@
     import Icon from '$lib/components/Icon/Icon.svelte';
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
     import { pipelineStore } from '$lib/stores/PipelineStore';
-    import type { AvailablePipeline } from '$lib/stores/types/pipeline-store.interface copy';
+    import type { AvailablePipeline } from '$lib/stores/types/pipeline-store.interface';
     import type { PipelineId } from '$lib/types/pipeline';
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import { Button, TextInput } from 'kiwi-nl';
@@ -58,6 +58,10 @@
                 {:else if $pipelineStore.availablePipelines.length === 0}
                     <p class="no-pipelines-found">No pipelines found</p>
                 {:else}
+                    <div class="select-pipeline-page__items-header">
+                        <p>Name</p>
+                        <p>Last Modified</p>
+                    </div>
                     {#each $pipelineStore.availablePipelines as p, i}
                         <MenuItem item={p}></MenuItem>
                     {/each}
@@ -203,6 +207,18 @@
         &__create-new-pipeline-actions {
             display: flex;
             gap: 10px;
+        }
+
+        &__items-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ffffff;
+            margin: 0 8px 10px 8px;
+
+            p {
+                font-weight: 600;
+                margin: 2px 0px;
+            }
         }
     }
 

@@ -71,6 +71,7 @@
             data: {
                 color: writable<string>($xColor),
                 title: writable<string>('Untitled Node'),
+                name: writable<string>($dndContext.nodeBlueprint.name),
                 layer_id: writable<string>($dndContext.nodeBlueprint.id),
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
                     $dndContext.nodeBlueprint.parameters.map(getParameterDefaultValue),
