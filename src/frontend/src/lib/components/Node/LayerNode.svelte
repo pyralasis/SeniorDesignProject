@@ -31,7 +31,7 @@
     type="target"
     position={Position.Left}
     style="
-        background: {$color}
+        background: {$color};
         border-radius: 0;
         height: 10px;
         width: 2px;
@@ -73,7 +73,7 @@
     type="source"
     position={Position.Right}
     style="
-        background-color: {$color}
+        background-color: {$color};
         border-radius: 4px;
         height: 10px;
         width: 2px;
