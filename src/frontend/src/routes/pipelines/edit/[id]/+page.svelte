@@ -62,12 +62,12 @@
     }
 </script>
 
-<div class="edit-architectures-page">
-    <div class="edit-architectures-page__header">
-        <div class="edit-architectures-page__header-left">
+<div class="edit-pipelines-page">
+    <div class="edit-pipelines-page__header">
+        <div class="edit-pipelines-page__header-left">
             {#if $isEditingTitle}
                 <TextInput
-                    label="Architecture Name"
+                    label="Pipeline Name"
                     on:change={onTitleChange}
                     value={$pipelineStore.activePipeline?.meta.name}
                     style={StylingUtility.textInput}
@@ -98,6 +98,7 @@
                     {nodes}
                     {edges}
                     nodeblueprints={[...$availableSources, ...$availableTransforms]}
+                    nodeNameEditor={false}
                 />
             {:else}
                 <div class="spinner-container">
@@ -109,7 +110,7 @@
 </div>
 
 <style lang="scss">
-    .edit-architectures-page {
+    .edit-pipelines-page {
         width: 100%;
         height: 100%;
 

@@ -8,6 +8,7 @@
 
     export let selectedNodeTitle: Writable<string> | undefined;
     export let selectedNodeColor: Writable<string> | undefined;
+    export let nodeNameEditor: boolean = true;
     export let onDelete: () => void;
     export let onClearNodes: () => void;
 
@@ -43,7 +44,7 @@
                 <Icon name={IconNameEnum.chevron_right} />
             </div>
         </Button>
-        {#if $selectedNodeTitle !== undefined}
+        {#if $selectedNodeTitle !== undefined && nodeNameEditor}
             <div class="node-editor-actions__input">
                 <TextInput style={StylingUtility.textInput} label="Node Title" on:change={onTitleChange} value={$selectedNodeTitle}
                 ></TextInput>
@@ -106,6 +107,7 @@
         height: 34px;
         padding: 0;
         background: none;
+        border-radius: 10%;
     }
 
     input[type='color']::-webkit-color-swatch-wrapper {

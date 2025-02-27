@@ -1,6 +1,6 @@
 <script lang="ts">
     import { type Writable, writable } from 'svelte/store';
-    import { Handle, Position, type NodeProps } from '@xyflow/svelte';
+    import { Handle, Position, type Edge, type NodeProps } from '@xyflow/svelte';
     import NodeField from './NodeParameter.svelte';
     import type { Parameter, ParameterValue } from '$lib/types/parameter';
     import Icon from '$lib/components/Icon/Icon.svelte';
@@ -19,11 +19,27 @@
         { parameter: Parameter<any>; value: ParameterValue<any> }[]
     >;
     const expanded: Writable<boolean> = data?.expanded as Writable<boolean>;
+    const leftConnected: Writable<boolean> = data?.leftConnected as Writable<boolean>;
+    const rightConnected: Writable<boolean> = data?.rightConnected as Writable<boolean>;
     const rotationDegrees = writable(0);
 
     function handleToggleExpanded() {
         expanded.update((value) => !value);
         rotationDegrees.update((value) => (value === 0 ? 90 : 0));
+    }
+
+    function toggleConnection(side: 'left' | 'right', connected: boolean) {
+        console.log(side, connected);
+        if (side === 'left') {
+            $leftConnected = connected;
+        } else {
+            $rightConnected = connected;
+        }
+    }
+
+    function isValidConnection(connection: any) {
+        console.log(connection);
+        return true;
     }
 </script>
 
@@ -31,11 +47,27 @@
     type="target"
     position={Position.Left}
     style="
-        background: {$color}
+        background-color: {$leftConnected ? '#FFF' : '#000'};
+        border-color: {$color + (selected ? 'bb' : '34')};
         border-radius: 0;
-        height: 10px;
-        width: 2px;
+        height: 8px;
+        width: 6px;
     "
+    onconnect={() => toggleConnection('left', true)}
+    ondisconnect={() => toggleConnection('left', false)}
+/>
+<Handle
+    type="source"
+    position={Position.Right}
+    style="
+    background-color: {$rightConnected ? '#FFF' : '#000'};
+        border-color: {$color + (selected ? 'bb' : '34')};
+        border-radius: 4px;
+        height: 8px;
+        width: 6px;
+    "
+    onconnect={() => toggleConnection('right', true)}
+    ondisconnect={() => toggleConnection('right', false)}
 />
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -68,17 +100,6 @@
         </div>
     {/if}
 </div>
-
-<Handle
-    type="source"
-    position={Position.Right}
-    style="
-        background-color: {$color}
-        border-radius: 4px;
-        height: 10px;
-        width: 2px;
-    "
-/>
 
 <style lang="scss">
     .node {

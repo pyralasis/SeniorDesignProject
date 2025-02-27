@@ -1,12 +1,7 @@
 <script lang="ts">
-    import type { Layer } from '$lib/types/layer';
     import { useDnD, type DnDContext, type NodeBlueprint } from '../../utilities/DnDUtils';
     import SidebarLayer from './SidebarNode.svelte';
-    import { onMount } from 'svelte';
-    import { BackendApi } from '$lib/utilities/api.utilities';
-    import { NodeTypeEnum, type NodeType } from '$lib/types/node-type.enum';
-    import type { Source } from '$lib/types/source';
-    import type { Transform } from '$lib/types/transform';
+    import { type NodeType } from '$lib/types/node-type.enum';
 
     const dndContext = useDnD();
 
@@ -25,11 +20,19 @@
 </script>
 
 <div class="sidebar" style="width: {expanded ? 'fit-content' : '0px'}; opacity: {expanded ? 1 : 0};">
-    <h3 class="sidebar__header">Available Layers</h3>
-    <p class="sidebar__subheader">Drag and drop to add a layer to the architecture</p>
+    <!-- <p class="sidebar__subheader">Drag and drop to add a node</p> -->
     <div class="sidebar__nodes-container">
-        {#each nodes as node}
-            <SidebarLayer {node} {onDragStart} />
+        {#each Object.entries(nodes.reduce((acc, node) => {
+                    if (!acc[node.type]) acc[node.type] = [];
+                    acc[node.type].push(node);
+                    return acc;
+                }, {} as Record<string, DnDContext[]>)) as [type, typeNodes]}
+            <div class="sidebar__type-section">
+                <h4 class="sidebar__type-header">{type.charAt(0).toUpperCase() + type.slice(1)}s</h4>
+                {#each typeNodes as node}
+                    <SidebarLayer {node} {onDragStart} />
+                {/each}
+            </div>
         {/each}
     </div>
 </div>
@@ -53,20 +56,29 @@
             flex-direction: column;
             align-items: center;
             padding-top: 20px;
+            overflow-y: auto;
+            max-height: 100%;
         }
 
-        &__header {
-            font-size: 24px;
-            font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 0;
-        }
+        // &__header {
+        //     font-size: 24px;
+        //     font-weight: 600;
+        //     color: #ffffff;
+        //     margin-bottom: 0;
+        // }
 
-        &__subheader {
-            font-size: 10px;
-            font-weight: 400;
+        // &__subheader {
+        //     font-size: 14px;
+        //     font-weight: 600;
+        //     color: #ffffff;
+        // }
+
+        &__type-header {
             color: #ffffff;
-            text-align: center;
+            font-size: 16px;
+            margin: 0 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #ffffff;
         }
     }
 </style>

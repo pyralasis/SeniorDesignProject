@@ -8,7 +8,7 @@ import type { Node, Edge } from "@xyflow/svelte";
 import type { Parameter, ParameterValue } from "$lib/types/parameter";
 import type { AvailableArchitecture, AvailableArchitecturesResponse, LoadArchitectureResponse, } from "./types/architecture-store.interface";
 import type { Version } from "$lib/types/info";
-import {saveStatus, isArchitectureSaved} from "$lib/stores/savedStore";
+import { saveStatus, isArchitectureSaved } from "$lib/stores/savedStore";
 
 function getLayerParametersByLayerId(layerId: string): Promise<any> {
     return BackendApi.getLayerById(layerId.toLowerCase()).then((layer) => {
@@ -64,13 +64,12 @@ const createArchitectureStore = (): ArchitectureStore => {
 
 
     const getAvailableArchitectures = async (): Promise<void> => {
-        await new Promise(resolve => setTimeout(resolve, 2000));
         await fetch(`${BACKEND_API_BASE_URL}/architecture/available`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             }
-        }) 
+        })
             .then(response => response.json())
             .then(data => {
                 let response = data as AvailableArchitecturesResponse;
@@ -251,11 +250,11 @@ const createArchitectureStore = (): ArchitectureStore => {
     }
 
     const addNodeToActiveArchitecture = (node: Node): void => {
-        if(isArchitectureSaved){
+        if (isArchitectureSaved) {
             saveStatus.set('Architecture not up to date');
             isArchitectureSaved.set(false);
         }
-            
+
         console.log('Goes into addArch');
         update((store) => {
             store.activeArchitecture?.nodes.update((nodes) => {
@@ -267,12 +266,12 @@ const createArchitectureStore = (): ArchitectureStore => {
     }
 
     const deleteNodeFromActiveArchitecture = (id: string): void => {
-        
-        if(isArchitectureSaved){
+
+        if (isArchitectureSaved) {
             saveStatus.set('Architecture not up to date');
             isArchitectureSaved.set(false);
         }
-        update((store) => { 
+        update((store) => {
             store.activeArchitecture?.nodes.update((nodes) => {
                 nodes = nodes.filter((node) => node.id !== id);
                 return nodes;

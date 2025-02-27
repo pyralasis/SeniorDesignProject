@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { type Layer } from '$lib/types/layer';
     import { NodeTypeEnum, type NodeType } from '$lib/types/node-type.enum';
     import { getContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
@@ -13,6 +12,7 @@
 
     let xColor: Writable<string> = getContext('xColor');
     let hovered: Writable<boolean> = writable(false);
+    let showParameterCount: boolean = node.type === NodeTypeEnum.Layer;
 
     function handleMouseEnter() {
         hovered.update((value) => (value = true));
@@ -44,9 +44,11 @@
         <Icon name={IconNameEnum.plus} />
         {node.nodeBlueprint.name}
     </div>
-    <div class="node__params">
-        {node.nodeBlueprint.parameters.length} parameters
-    </div>
+    {#if showParameterCount}
+        <div class="node__params">
+            {node.nodeBlueprint.parameters.length} parameters
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">

@@ -1,5 +1,4 @@
 <script lang="ts">
-
     import { SvelteFlowProvider, type Edge, type Node } from '@xyflow/svelte';
     import DnDProvider from '$lib/components/DnDProvider.svelte';
     import NodeEditor from '$lib/components/NodeEditor/NodeEditor.svelte';
@@ -25,8 +24,6 @@
     $: id = page.params.id;
     let isEditingTitle: Writable<boolean> = writable(false);
 
-   
-    
     architectureStore.subscribe((store) => {
         if (!store.activeArchitecture) {
             return;
@@ -34,18 +31,21 @@
         nodes = store?.activeArchitecture?.nodes;
         edges = store?.activeArchitecture?.edges;
     });
-    
+
     function onSave() {
         saveStatus.set('Saving...');
-        
-        architectureStore.saveActiveArchitecture().then(() => {
-            setTimeout(() => {
-            saveStatus.set('Architecture is up to Date'); 
-            isArchitectureSaved.set(true);
-        }, 500);
-        }).catch(() => {
-            saveStatus.set('Failed to Save. Save Again');
-        });
+
+        architectureStore
+            .saveActiveArchitecture()
+            .then(() => {
+                setTimeout(() => {
+                    saveStatus.set('Architecture is up to Date');
+                    isArchitectureSaved.set(true);
+                }, 500);
+            })
+            .catch(() => {
+                saveStatus.set('Failed to Save. Save Again');
+            });
     }
 
     function handleKeydown(event: KeyboardEvent) {
@@ -66,8 +66,6 @@
         architectureStore.clearActiveArchitecture();
     });
 
- 
-    
     onMount(async () => {
         availableLayers.set(
             (await BackendApi.getAvailableLayers()).map(
@@ -75,7 +73,6 @@
             ),
         );
         await architectureStore.loadArchitectureById(id);
-        
     });
 
     function onTitleChange(event: CustomEvent) {
@@ -83,7 +80,7 @@
             return;
         }
         $architectureStore.activeArchitecture.meta.name = event.detail.value;
-    } 
+    }
 </script>
 
 <div class="edit-architectures-page">
@@ -110,7 +107,6 @@
             <span>{$saveStatus}</span>
             <Button type="primary" style={StylingUtility.defaultButton} on:click={onSave}><Icon name={IconNameEnum.save} /></Button>
         </div>
-        
     </div>
     <SvelteFlowProvider>
         <DnDProvider>
@@ -162,7 +158,7 @@
     }
     .save-status {
         display: flex;
-        align-items: center;  /* Vertically align the text and button */
+        align-items: center; /* Vertically align the text and button */
         color: white;
         font-size: 14px;
         font-weight: bold;
@@ -170,7 +166,7 @@
         margin-right: 0;
     }
     .save-status span {
-        margin-right: 10px;  /* Adds space between the span and the button */
+        margin-right: 10px; /* Adds space between the span and the button */
     }
     .spinner-container {
         display: flex;

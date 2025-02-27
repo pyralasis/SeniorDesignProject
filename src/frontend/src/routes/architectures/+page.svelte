@@ -7,13 +7,14 @@
     import type { AvailableArchitecture } from '$lib/stores/types/architecture-store.interface';
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import { Button, TextInput } from 'kiwi-nl';
-    import { setContext } from 'svelte';
+    import { onMount, setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
 
     architectureStore.getAvailableArchitectures();
 
     let selectedArchitecture: Writable<AvailableArchitecture | undefined> = writable(undefined);
     let creatingNewArchitecture: Writable<boolean> = writable(false);
+    let validatingDelete: Writable<boolean> = writable(false);
     let newArchitectureName: string = '';
     let newArchitectureDescription: string = '';
 
@@ -25,8 +26,12 @@
     }
 
     function handleDeleteArchitecture(id: string): void {
-        architectureStore.deleteArchitecture(id);
-        selectedArchitecture.set(undefined);
+        if ($validatingDelete) {
+            architectureStore.deleteArchitecture(id);
+            selectedArchitecture.set(undefined);
+        } else {
+            validatingDelete.set(true);
+        }
     }
 
     function handleCreateNewArchitectureInitialisation(): void {
@@ -35,6 +40,17 @@
         newArchitectureDescription = '';
         creatingNewArchitecture.set(true);
     }
+
+    onMount(() => {
+        window.addEventListener('click', (event) => {
+            if (!event.target) {
+                return;
+            }
+            if ($validatingDelete && !(event.target as Element)?.closest('.select-architecture-page__bottom-right')) {
+                validatingDelete.set(false);
+            }
+        });
+    });
 </script>
 
 <div class="select-architecture-page">
@@ -59,6 +75,10 @@
                 {:else if $architectureStore.availableArchitectures.length === 0}
                     <p class="no-architectures-found">No architectures found</p>
                 {:else}
+                    <div class="select-architecture-page__items-header">
+                        <p>Name</p>
+                        <p>Last Modified</p>
+                    </div>
                     {#each $architectureStore.availableArchitectures as a, i}
                         <MenuItem item={a}></MenuItem>
                     {/each}
@@ -111,8 +131,14 @@
                         if ($selectedArchitecture) {
                             handleDeleteArchitecture($selectedArchitecture.id);
                         }
-                    }}><Icon name="trash" /></Button
+                    }}
                 >
+                    {#if $validatingDelete}
+                        Click Again To Confirm
+                    {:else}
+                        <Icon name="trash" />
+                    {/if}
+                </Button>
             {/if}
         </div>
     </div>
@@ -209,6 +235,18 @@
             display: flex;
             gap: 10px;
         }
+
+        &__items-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ffffff;
+            margin: 0 8px 10px 8px;
+
+            p {
+                font-weight: 600;
+                margin: 2px 0px;
+            }
+        }
     }
 
     .no-architectures-found {
@@ -221,5 +259,12 @@
 
     .description-input {
         width: 80%;
+    }
+
+    .spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
     }
 </style>
