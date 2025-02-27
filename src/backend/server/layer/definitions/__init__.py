@@ -7,7 +7,12 @@ from . import pooling
 
 default_layers = [
     activation.relu_layer,
+    
     convolution.conv2d_layer,
+
     linear.linear_layer,
+    linear.bilinear_layer,
+    linear.lazylinear_layer,
+
     pooling.max_pool2d_layer
 ]
