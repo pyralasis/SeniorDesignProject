@@ -12,7 +12,6 @@ default_layers = [
 
     linear.linear_layer,
     linear.bilinear_layer,
-    linear.lazylinear_layer,
 
     pooling.max_pool2d_layer
 ]

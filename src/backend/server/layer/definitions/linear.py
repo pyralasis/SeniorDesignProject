@@ -41,18 +41,3 @@ bilinear_layer = LayerDefinition(
     lambda in_sizes, out_features, bias, **_: torch.nn.Bilinear(in_sizes[0][-1], in_sizes[1][-1], out_features, bias),
     bilinear_size_transformation
 )
-
-def lazylinear_size_transformation(out_features: int, **_) -> TensorSize:
-    return TensorSize((out_features,))
-
-lazylinear_layer = LayerDefinition(
-    "lazylinear",
-    "LazyLinear",
-    (),
-    (
-        IntParameter("out_features", "Output Features", 1, constraint=WithRange(1)),
-        BoolParameter("bias", "Bias", True),
-    ),
-    lambda out_features, bias, **_: torch.nn.LazyLinear(out_features, bias),
-    lazylinear_size_transformation
-)
