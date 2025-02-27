@@ -20,6 +20,7 @@
     export let nodes: Writable<Node[]>;
     export let edges: Writable<Edge[]>;
     export let nodeblueprints: DnDContext[];
+    export let nodeNameEditor: boolean = true;
 
     export let onDeleteNode: (nodeId: string) => void;
     export let onCreateNode: (node: Node) => void;
@@ -77,6 +78,8 @@
                     $dndContext.nodeBlueprint.parameters.map(getParameterDefaultValue),
                 ),
                 expanded: writable<boolean>(false),
+                leftConnected: writable<boolean>(false),
+                rightConnected: writable<boolean>(false),
             },
             dragHandle: '.node__header',
             position: { x: position.x, y: position.y },
@@ -105,7 +108,7 @@
 </script>
 
 <div class="node-editor">
-    <NodeEditorActions {selectedNodeTitle} {selectedNodeColor} {onDelete} {onClearNodes} />
+    <NodeEditorActions {selectedNodeTitle} {selectedNodeColor} {onDelete} {onClearNodes} {nodeNameEditor} />
     <div class="node-editor__content">
         <div class="node-editor__sidebar">
             <Sidebar nodes={nodeblueprints} expanded={$sidebarExpanded} />
@@ -124,7 +127,8 @@
         flex-direction: column;
         overflow: hidden;
         background-color: #111111;
-        height: 100%;
+        height: 94%;
+        border-bottom: 1px solid #ffffff;
 
         &__content {
             display: flex;

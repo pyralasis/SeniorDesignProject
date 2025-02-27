@@ -8,13 +8,14 @@
     import type { PipelineId } from '$lib/types/pipeline';
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import { Button, TextInput } from 'kiwi-nl';
-    import { setContext } from 'svelte';
+    import { onMount, setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
 
     pipelineStore.getAvailablePipelines();
 
     let selectedPipeline: Writable<AvailablePipeline | undefined> = writable(undefined);
     let creatingNewPipeline: Writable<boolean> = writable(false);
+    let validatingDelete: Writable<boolean> = writable(false);
     let newPipelineName: string = '';
     let newPipelineDescription: string = '';
 
@@ -26,8 +27,12 @@
     }
 
     function handleDeletePipeline(id: PipelineId): void {
-        pipelineStore.deletePipeline(id);
-        selectedPipeline.set(undefined);
+        if ($validatingDelete) {
+            pipelineStore.deletePipeline(id);
+            selectedPipeline.set(undefined);
+        } else {
+            validatingDelete.set(true);
+        }
     }
 
     function handleCreateNewPipelineInitialisation(): void {
@@ -36,6 +41,17 @@
         newPipelineDescription = '';
         creatingNewPipeline.set(true);
     }
+
+    onMount(() => {
+        window.addEventListener('click', (event) => {
+            if (!event.target) {
+                return;
+            }
+            if ($validatingDelete && !(event.target as Element)?.closest('.select-pipeline-page__bottom-right')) {
+                validatingDelete.set(false);
+            }
+        });
+    });
 </script>
 
 <div class="select-pipeline-page">
@@ -44,7 +60,7 @@
     </div>
     <div class="select-pipeline-page__top">
         <div class="select-pipeline-page__top-left">
-            <p>Select the pipeline you would like to edit, delete, or convert to a model or start from scratch with a new pipeline</p>
+            <p>Select the pipeline you would like to edit, delete or start from scratch with a new pipeline</p>
             <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={handleCreateNewPipelineInitialisation}
                 >Create New Pipeline</Button
             >
@@ -110,8 +126,14 @@
                         if ($selectedPipeline) {
                             handleDeletePipeline($selectedPipeline.id);
                         }
-                    }}><Icon name="trash" /></Button
+                    }}
                 >
+                    {#if $validatingDelete}
+                        Click Again To Confirm
+                    {:else}
+                        <Icon name="trash" />
+                    {/if}
+                </Button>
             {/if}
         </div>
     </div>
@@ -232,5 +254,12 @@
 
     .description-input {
         width: 80%;
+    }
+
+    .spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
     }
 </style>

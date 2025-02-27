@@ -72,7 +72,6 @@ const createPipelineStore = (): PipelineStore => {
     });
 
     const getAvailablePipelines = async (): Promise<void> => {
-        await new Promise(resolve => setTimeout(resolve, 2000));
         await fetch(`${BACKEND_API_BASE_URL}/pipeline/available`, {
             method: 'GET',
             headers: {

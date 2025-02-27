@@ -14,19 +14,32 @@
 
     const color: Writable<string> = data?.color as Writable<string>;
     const title: Writable<string> = data?.title as Writable<string>;
+    const name: Writable<string> = data?.name as Writable<string>;
     const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
         { parameter: Parameter<any>; value: ParameterValue<any> }[]
     >;
-    const expanded: Writable<boolean> = data?.expanded as Writable<boolean>;
-    const rotationDegrees = writable(0);
-
-    function handleToggleExpanded() {
-        expanded.update((value) => !value);
-        rotationDegrees.update((value) => (value === 0 ? 90 : 0));
-    }
 </script>
 
-<Handle type="target" position={Position.Left} />
+<Handle
+    type="target"
+    position={Position.Left}
+    style="
+        border-color: {$color + (selected ? 'bb' : '34')};
+        border-radius: 0;
+        height: 8px;
+        width: 6px;
+    "
+/>
+<Handle
+    type="source"
+    position={Position.Right}
+    style="
+        border-color: {$color + (selected ? 'bb' : '34')};
+        border-radius: 4px;
+        height: 8px;
+        width: 6px;
+    "
+/>
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
@@ -39,27 +52,19 @@
 >
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="node__header" on:click={handleToggleExpanded}>
-        <div class="node__header-chevron" style="transform: rotate({$rotationDegrees}deg); transition: transform 0.2s;">
-            <Icon name={IconNameEnum.chevron_right} />
-        </div>
-        <div style="display: flex; flex-direction: row; gap: 10px;">
-            <div class="node__title">{$title ? $title : 'Untitled Layer'} - Source</div>
-        </div>
+    <div class="node__header">
+        <div class="node__title">Source</div>
+        <div class="node__sub-title">{$name ? $name : 'Untitled Layer'}</div>
     </div>
-    {#if $expanded}
-        <div class="node__content" style="visibility: {$expanded ? 'visible' : 'hidden'}; transition: visibility 0.2s;">
-            {#each $parameters as parameter}
-                <NodeField parameter={parameter.parameter} value={parameter.value} />
-            {/each}
-            {#if $parameters.length === 0}
-                <div class="node__content-empty">No parameters for this source</div>
-            {/if}
-        </div>
-    {/if}
+    <div class="node__content">
+        {#each $parameters as parameter}
+            <NodeField parameter={parameter.parameter} value={parameter.value} />
+        {/each}
+        {#if $parameters.length === 0}
+            <div class="node__content-empty">No parameters for this source</div>
+        {/if}
+    </div>
 </div>
-
-<Handle type="source" position={Position.Right} />
 
 <style lang="scss">
     .node {
@@ -73,36 +78,30 @@
         transition: height 0.2s;
 
         &__header {
-            padding: 4px;
             display: flex;
+            flex-direction: column;
+            gap: 4px;
             align-items: center;
-            cursor: pointer;
+            justify-content: center;
+            cursor: grab;
             color: #ffffff;
             background: #070707;
-        }
+            height: 45px;
 
-        &__header-chevron {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        &__header-actions {
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-            margin-left: auto;
-            margin-right: 10px;
+            &:active {
+                cursor: grabbing;
+            }
         }
 
         &__content {
-            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            align-items: center;
+            justify-content: center;
             cursor: default;
             border-top: 1px solid #ffffff;
             background-color: #070707;
+            height: 45px;
         }
 
         &__title {
