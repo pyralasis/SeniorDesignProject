@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import final, override
+from typing import final
 
 from server.data.sources.base import DS_ROOT, DataSourceDefinition
 from server.data.sources.pytorch_base import TorchDatasetSource
