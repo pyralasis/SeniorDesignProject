@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import ArchitectureMenuItem from '$lib/components/General/ArchitectureMenuItem.svelte';
+    import MenuItem from '$lib/components/General/MenuItem.svelte';
     import Icon from '$lib/components/Icon/Icon.svelte';
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
     import { architectureStore } from '$lib/stores/ArchitectureStore';
@@ -30,7 +30,6 @@
     }
 
     function handleCreateNewArchitectureInitialisation(): void {
-        console.log($creatingNewArchitecture);
         selectedArchitecture.set(undefined);
         newArchitectureName = '';
         newArchitectureDescription = '';
@@ -61,7 +60,7 @@
                     <p class="no-architectures-found">No architectures found</p>
                 {:else}
                     {#each $architectureStore.availableArchitectures as a, i}
-                        <ArchitectureMenuItem item={a}></ArchitectureMenuItem>
+                        <MenuItem item={a}></MenuItem>
                     {/each}
                 {/if}
             </div>

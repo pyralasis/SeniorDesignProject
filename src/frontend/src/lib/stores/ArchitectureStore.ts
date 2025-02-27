@@ -2,10 +2,13 @@ import { type ArchitectureStore, type ArchitectureStoreProps } from "./types/arc
 import { BACKEND_API_BASE_URL } from "$lib/utilities/api.constants";
 import { BackendApi } from "$lib/utilities/api.utilities";
 import { get, writable, type Writable } from "svelte/store";
-import type { NetworkArchitectureDescription, ArchitectureId, NetworkLayoutDescription, ArchitectureDataDescription, ArchitectureMetaDescription, ArchitectureInfoDescription, ArchitectureVersion } from "$lib/types/architecture";
+import type { NetworkArchitectureDescription, ArchitectureId, ArchitectureDataDescription, ArchitectureMetaDescription, ArchitectureInfoDescription } from "$lib/types/architecture";
+import type { NetworkLayoutDescription } from "$lib/types/layout";
 import type { Node, Edge } from "@xyflow/svelte";
-import type { Parameter, ParameterValue } from "$lib/types/layer";
-import type { AvailableArchitecturesResponse, LoadArchitectureResponse, } from "./types/architecture-store.interface";
+import type { Parameter, ParameterValue } from "$lib/types/parameter";
+import type { AvailableArchitecture, AvailableArchitecturesResponse, LoadArchitectureResponse, } from "./types/architecture-store.interface";
+import type { Version } from "$lib/types/info";
+import {saveStatus, isArchitectureSaved} from "$lib/stores/savedStore";
 
 function getLayerParametersByLayerId(layerId: string): Promise<any> {
     return BackendApi.getLayerById(layerId.toLowerCase()).then((layer) => {
@@ -59,6 +62,7 @@ const createArchitectureStore = (): ArchitectureStore => {
         activeArchitecture: undefined
     });
 
+
     const getAvailableArchitectures = async (): Promise<void> => {
         await new Promise(resolve => setTimeout(resolve, 2000));
         await fetch(`${BACKEND_API_BASE_URL}/architecture/available`, {
@@ -66,24 +70,24 @@ const createArchitectureStore = (): ArchitectureStore => {
             headers: {
                 'Content-Type': 'application/json',
             }
-        })
+        }) 
             .then(response => response.json())
             .then(data => {
                 let response = data as AvailableArchitecturesResponse;
                 update((store) => {
                     store.availableArchitectures = response.available.map((arch) => {
                         return {
-                            id: arch.id,
+                            id: arch.id as ArchitectureId,
                             meta: {
                                 name: arch.meta.name,
                                 description: arch.meta.description,
-                                lastModified: arch.meta.last_modified,
-                                createdAt: arch.meta.created_at,
-                            },
+                                last_modified: arch.meta.last_modified,
+                                created_at: arch.meta.created_at,
+                            } as ArchitectureMetaDescription,
                             info: {
                                 version: arch.info.version,
-                            }
-                        };
+                            } as ArchitectureInfoDescription
+                        } as AvailableArchitecture;
                     });
                     return store;
 
@@ -201,7 +205,7 @@ const createArchitectureStore = (): ArchitectureStore => {
 
             },
             info: {
-                version: aStore.activeArchitecture?.meta.version ?? 0 as ArchitectureVersion, //TODO
+                version: aStore.activeArchitecture?.meta.version ?? 0 as Version, //TODO
             } as ArchitectureInfoDescription,
 
         };
@@ -226,6 +230,8 @@ const createArchitectureStore = (): ArchitectureStore => {
 
 
     const createNewArchitecture = async (name: string, description?: string): Promise<void> => {
+        saveStatus.set('Architecture up to date');
+        isArchitectureSaved.set(true);
         update((store) => {
             store.activeArchitecture = {
                 meta: {
@@ -245,6 +251,12 @@ const createArchitectureStore = (): ArchitectureStore => {
     }
 
     const addNodeToActiveArchitecture = (node: Node): void => {
+        if(isArchitectureSaved){
+            saveStatus.set('Architecture not up to date');
+            isArchitectureSaved.set(false);
+        }
+            
+        console.log('Goes into addArch');
         update((store) => {
             store.activeArchitecture?.nodes.update((nodes) => {
                 nodes.push(node);
@@ -255,7 +267,12 @@ const createArchitectureStore = (): ArchitectureStore => {
     }
 
     const deleteNodeFromActiveArchitecture = (id: string): void => {
-        update((store) => {
+        
+        if(isArchitectureSaved){
+            saveStatus.set('Architecture not up to date');
+            isArchitectureSaved.set(false);
+        }
+        update((store) => { 
             store.activeArchitecture?.nodes.update((nodes) => {
                 nodes = nodes.filter((node) => node.id !== id);
                 return nodes;

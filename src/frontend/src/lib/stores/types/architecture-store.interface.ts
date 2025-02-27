@@ -1,35 +1,14 @@
 import { type Writable } from 'svelte/store';
-import { type NetworkArchitectureDescription, type ArchitectureId, type NetworkLayerDescription, type ArchitectureVersion } from '$lib/types/architecture';
-import { type Node, type Edge } from '@xyflow/svelte';
-import type { InputDefinition, Layer } from '$lib/types/layer';
+import type { NetworkArchitectureDescription, ArchitectureId, ArchitectureMetaDescription, ArchitectureInfoDescription } from '$lib/types/architecture';
+import { type Node } from '@xyflow/svelte';
+import type { NodeArchitecture } from './node-architecture.interface';
 
-export interface NodeArchitecture {
-    id?: string;
-    meta: {
-        name: string;
-        description?: string;
-        last_modified?: string;
-        created_at?: string;
-        version?: number;
-    }
-    nodes: Writable<Node[]>;
-    edges: Writable<Edge[]>;
-    loading: boolean;
-}
 
 export interface AvailableArchitecture {
     id: ArchitectureId;
-    meta: {
-        name: string;
-        description?: string;
-        lastModified?: string;
-        createdAt?: string;
-    },
-    info: {
-        version: ArchitectureVersion;
-    }
+    meta: ArchitectureMetaDescription;
+    info: ArchitectureInfoDescription
 }
-
 
 export interface ArchitectureStoreProps {
     availableArchitectures: AvailableArchitecture[] | undefined;
@@ -48,18 +27,7 @@ export interface ArchitectureStore extends Writable<ArchitectureStoreProps> {
 }
 
 export type AvailableArchitecturesResponse = {
-    available: {
-        id: ArchitectureId;
-        meta: {
-            name: string;
-            description?: string;
-            last_modified?: string;
-            created_at?: string;
-        }
-        info: {
-            version: ArchitectureVersion;
-        }
-    }[],
+    available: AvailableArchitecture[],
     success: boolean
 }
 

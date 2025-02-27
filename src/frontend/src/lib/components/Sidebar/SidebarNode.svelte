@@ -6,14 +6,10 @@
     import Icon from '../Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
     import { SoundUtility } from '$lib/utilities/sound.utility';
+    import type { DnDContext, NodeBlueprint } from '$lib/utilities/DnDUtils';
 
-    export let layer: Layer<any> = {
-        id: '',
-        inputs: [],
-        name: 'Node Name',
-        parameters: [],
-    };
-    export let onDragStart: (event: DragEvent, nodeType: NodeType, layerBlueprint: Layer<any>) => void = () => {};
+    export let node: DnDContext;
+    export let onDragStart: (event: DragEvent, nodeType: NodeType, nodeBlueprint: NodeBlueprint) => void = () => {};
 
     let xColor: Writable<string> = getContext('xColor');
     let hovered: Writable<boolean> = writable(false);
@@ -34,7 +30,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-    on:dragstart={(e) => onDragStart(e, NodeTypeEnum.Layer, layer)}
+    on:dragstart={(e) => onDragStart(e, node.type, node.nodeBlueprint)}
     on:mouseenter={handleMouseEnter}
     on:mouseleave={handleMouseLeave}
     on:mousedown={handleClick}
@@ -46,10 +42,10 @@
 >
     <div class="node__title">
         <Icon name={IconNameEnum.plus} />
-        {layer.name}
+        {node.nodeBlueprint.name}
     </div>
     <div class="node__params">
-        {layer.parameters.length} parameters
+        {node.nodeBlueprint.parameters.length} parameters
     </div>
 </div>
 

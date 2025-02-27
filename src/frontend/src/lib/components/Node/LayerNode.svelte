@@ -2,7 +2,7 @@
     import { type Writable, writable } from 'svelte/store';
     import { Handle, Position, type NodeProps } from '@xyflow/svelte';
     import NodeField from './NodeParameter.svelte';
-    import type { Parameter, ParameterValue } from '$lib/types/layer';
+    import type { Parameter, ParameterValue } from '$lib/types/parameter';
     import Icon from '$lib/components/Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
 
@@ -27,7 +27,16 @@
     }
 </script>
 
-<Handle type="target" position={Position.Left} />
+<Handle
+    type="target"
+    position={Position.Left}
+    style="
+        background: {$color}
+        border-radius: 0;
+        height: 10px;
+        width: 2px;
+    "
+/>
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
@@ -60,7 +69,16 @@
     {/if}
 </div>
 
-<Handle type="source" position={Position.Right} />
+<Handle
+    type="source"
+    position={Position.Right}
+    style="
+        background-color: {$color}
+        border-radius: 4px;
+        height: 10px;
+        width: 2px;
+    "
+/>
 
 <style lang="scss">
     .node {
@@ -117,5 +135,11 @@
             width: 100%;
             text-align: center;
         }
+    }
+
+    .target-handle {
+        border-radius: 0;
+        height: 10px;
+        width: 4px;
     }
 </style>

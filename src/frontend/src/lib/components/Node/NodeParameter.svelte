@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type Parameter, type ParameterType, ParameterTypeEnum, type ParameterValue } from '$lib/types/layer';
+    import { type Parameter, type ParameterType, ParameterTypeEnum, type ParameterValue } from '$lib/types/parameter';
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import { Checkbox, TextInput, InputSeries } from 'kiwi-nl';
 
