@@ -9,6 +9,7 @@
     import { Button, TextInput } from 'kiwi-nl';
     import { onMount, setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
+    import { modelStore } from '$lib/stores/ModelStore';
 
     architectureStore.getAvailableArchitectures();
 
@@ -123,7 +124,7 @@
                 <Button type="primary" style={StylingUtility.whiteBorderButton} href="/architectures/edit/{$selectedArchitecture?.id}"
                     >Open In Node Editor</Button
                 >
-                <Button type="primary" style={StylingUtility.whiteBorderButton}>Convert to Model</Button>
+                <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={() => {modelStore.createModel($selectedArchitecture.id, $selectedArchitecture.meta)}}>Convert to Model</Button>
                 <Button
                     type="primary"
                     style={StylingUtility.redButton}

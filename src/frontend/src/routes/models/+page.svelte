@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 // @ts-nocheck
 
     import { StylingUtility } from "$lib/utilities/styling.utility";
@@ -6,9 +6,16 @@
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
     import { Button } from "kiwi-nl";
     import { modelStore } from "$lib/stores/ModelStore";
+    import { onMount } from 'svelte';
+    import { writable, type Writable } from 'svelte/store';
+    import type { AvailableModel } from "$lib/stores/types/models-store.interface";
 
-    modelStore.getAvailableModels();
+    let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
 
+    
+    onMount(() => {
+        modelStore.getAvailableModels();
+    });
 </script>
 
 <div class="model-page">
@@ -18,83 +25,60 @@
     <div class="model-page__top">
         <div class="model-page__top-left">
             <p>
-                Select the model you would like to train...
+                Create a model from an existing architecture on the Architectures Page! (FIND A BETTER SPOT FOR THIS MESSAGE)
             </p>
-            <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={() => {}}
-                >Create New Model</Button
-            >
+            <p>
+                Select the model you would like to...
+            </p>
+
         </div>
         <div class="model-page__top-right">
             <div class="model-model-items">
-                <div class="spinner">
-                    <Spinner></Spinner>
-                </div>
-                <!-- {#if $modelStore.availableModels === undefined}
+                {#if $modelStore.availableModels === undefined}
                     <div class="spinner">
                         <Spinner></Spinner>
                     </div>
-                {:else if $pipelineStore.availablePipelines.length === 0}
-                    <p class="no-pipelines-found">No pipelines found</p>
+                {:else if $modelStore.availableModels.length === 0}
+                    <p class="no-pipelines-found">No models found</p>
                 {:else}
                     <div class="select-pipeline-page__items-header">
                         <p>Name</p>
                         <p>Last Modified</p>
                     </div>
-                    {#each $pipelineStore.availablePipelines as p, i}
+                    {#each $modelStore.availableModels as p, i}
                         <MenuItem item={p}></MenuItem>
                     {/each}
-                {/if} -->
+                {/if}
             </div>
         </div>
     </div>
 
     <div class="model-page__bottom">
         <div class="model-page__bottom-left">
-            <!-- {#if $selectedPipeline}
+            {#if $selectedModel}
                 <div class="select-pipeline-page__bottom-left-pipeline-info">
-                    <h2>{$selectedPipeline.meta.name}</h2>
-                    <p>{$selectedPipeline.meta.description}</p>
-                </div>
-            {:else if $creatingNewPipeline}
-                <div class="select-pipeline-page__create-new-pipeline-actions">
-                    <div class="name-input">
-                        <TextInput label="Name" style={StylingUtility.textInput} bind:value={newPipelineName}></TextInput>
-                    </div>
-                    <div class="description-input">
-                        <TextInput label="Description" style={StylingUtility.textInput} bind:value={newPipelineDescription}></TextInput>
-                    </div>
-                </div>
-                <div class="select-pipeline-page__create-new-pipeline-actions-buttons">
-                    <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={async () => await handleCreateNewPipeline()}
-                        >Create</Button
-                    >
-                    <Button type="primary" style={StylingUtility.redButton} on:click={() => creatingNewPipeline.set(false)}>Cancel</Button>
+                    <h2>{$selectedModel.meta.name}</h2>
+                    <p>{$selectedModel.meta.description}</p>
                 </div>
             {:else}
                 <div class="select-pipeline-page__bottom-left-empty">
-                    <p>No pipeline selected</p>
+                    <p>No model selected</p>
                 </div>
-            {/if} -->
-            <div class="select-pipeline-page__bottom-left-empty">
-                <p>No model selected</p>
-            </div>
+            {/if}
+
         </div>
         <div class="model-page__bottom-right">
-            <!-- {#if $selectedPipeline}
-                <Button type="primary" style={StylingUtility.whiteBorderButton} href="/pipelines/edit/{$selectedPipeline?.id}"
-                    >Open In Node Editor</Button
-                >
-                <Button type="primary" style={StylingUtility.whiteBorderButton}>Convert to Model</Button>
+            {#if $selectedModel}
                 <Button
                     type="primary"
                     style={StylingUtility.redButton}
                     on:click={() => {
-                        if ($selectedPipeline) {
-                            handleDeletePipeline($selectedPipeline.id);
+                        if ($selectedModel) {
+                            console.log("hello")
                         }
                     }}><Icon name="trash" /></Button
                 >
-            {/if} -->
+            {/if}
         </div>
     </div>
 </div>

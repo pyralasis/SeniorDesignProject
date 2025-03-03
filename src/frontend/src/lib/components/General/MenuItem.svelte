@@ -1,13 +1,14 @@
 <script lang="ts">
     import type { AvailableArchitecture } from '$lib/stores/types/architecture-store.interface';
     import type { AvailablePipeline } from '$lib/stores/types/pipeline-store.interface';
+    import type { AvailableModel } from "$lib/stores/types/models-store.interface";
     import { SoundUtility } from '$lib/utilities/sound.utility';
     import { getContext } from 'svelte';
     import type { Writable } from 'svelte/store';
 
     export let item: AvailableArchitecture | AvailablePipeline;
 
-    const selectedItem = getContext<Writable<AvailableArchitecture | AvailablePipeline | undefined>>('selected-item');
+    const selectedItem = getContext<Writable<AvailableArchitecture | AvailablePipeline | AvailableModel | undefined>>('selected-item');
 
     let isSelected = false;
     let titleElement: HTMLElement;

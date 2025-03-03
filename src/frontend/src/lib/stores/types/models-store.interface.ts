@@ -1,21 +1,21 @@
+import type { ArchitectureId } from '$lib/types/architecture';
 import type { MetaData } from '$lib/types/metadata';
 import { type Writable } from 'svelte/store';
 
-export interface availableModel{}
 export interface activeModel{}
 
 
-export interface AvalableModel{
+export interface AvailableModel{
 
 }
 
 export interface ModelStoreProps{
-    availableModels: availableModel[] | undefined;
+    availableModels: AvailableModel[] | undefined;
     activeModel: activeModel | undefined;
 }
 
 export interface ModelStore extends Writable<ModelStoreProps> {
-    createModel: () => void;
+    createModel: (architecture_id: ArchitectureId, metadata: MetaData) => void;
     getAvailableModels: () => void;
     loadModelById: () => void;
 }
