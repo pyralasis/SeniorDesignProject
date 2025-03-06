@@ -11,7 +11,6 @@
     import { onMount, setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
 
-    pipelineStore.getAvailablePipelines();
 
     let selectedPipeline: Writable<AvailablePipeline | undefined> = writable(undefined);
     let creatingNewPipeline: Writable<boolean> = writable(false);
@@ -43,6 +42,8 @@
     }
 
     onMount(() => {
+        pipelineStore.getAvailablePipelines();
+
         window.addEventListener('click', (event) => {
             if (!event.target) {
                 return;
