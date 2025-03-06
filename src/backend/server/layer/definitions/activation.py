@@ -45,7 +45,7 @@ softmin_layer = LayerDefinition(
     "Softmin",
     (InputDefinition(None, 1, None),),
     (
-        IntParameter("dim", "Dim", 1)
+        IntParameter("dim", "Dim", 1),
     ),
     lambda in_sizes, dim, **_: torch.nn.Softmin(dim),
     lambda in_sizes, **_: in_sizes[0],
@@ -56,7 +56,7 @@ softmax_layer = LayerDefinition(
     "Softmax",
     (InputDefinition(None, 1, None),),
     (
-        IntParameter("dim", "Dim", 1)
+        IntParameter("dim", "Dim", 1),
     ),
     lambda in_sizes, dim, **_: torch.nn.Softmax(dim),
     lambda in_sizes, **_: in_sizes[0],
