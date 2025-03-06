@@ -5,12 +5,14 @@
     import Icon from '../Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
     import { StylingUtility } from '$lib/utilities/styling.utility';
-
+    import { architectureStore } from '$lib/stores/ArchitectureStore';
+    
     export let selectedNodeTitle: Writable<string> | undefined;
     export let selectedNodeColor: Writable<string> | undefined;
     export let nodeNameEditor: boolean = true;
     export let onDelete: () => void;
     export let onClearNodes: () => void;
+    export let onChange: () => void;
 
     let xColor: Writable<string> = getContext('xColor');
     let sidebarExpanded: Writable<boolean> = getContext('sidebarExpanded');
@@ -26,6 +28,7 @@
             return;
         }
         selectedNodeTitle.update((title) => (title = event.detail.value));
+        onChange();
     }
 
     function onColorChange(event: Event) {
@@ -34,6 +37,7 @@
             return;
         }
         selectedNodeColor.update((color) => (color = `${(event.target as HTMLInputElement).value ?? '#fff'}`));
+        onChange();
     }
 </script>
 
@@ -56,6 +60,8 @@
     </div>
 
     <div class="node-editor-actions__delete">
+        <Button type="primary" style={StylingUtility.defaultButton} on:click={() => architectureStore.updateArchitectureSaveStatus()}> <Icon name={IconNameEnum.save} /></Button>
+        <div class="vertical-line"> </div>
         <Button type={ButtonTypeEnum.primary} on:click={onDelete} style={StylingUtility.redButton}>Delete</Button>
         <Button type={ButtonTypeEnum.primary} on:click={onClearNodes} style={StylingUtility.whiteBorderButton}>Clear</Button>
     </div>
@@ -96,7 +102,16 @@
             padding-right: 10px;
             display: flex;
             gap: 10px;
+            .vertical-line {
+                width: 2px;          
+                height: max;            
+                background-color: #ffffff;   
+                margin: 0 10px;         
+                display: flex;    
+
+            }
         }
+        
     }
 
     input[type='color'] {
@@ -118,4 +133,6 @@
     input[type='color']::-webkit-color-swatch {
         border: 0px solid #ffffff;
     }
+  
+
 </style>
