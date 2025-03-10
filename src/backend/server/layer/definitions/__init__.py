@@ -1,6 +1,6 @@
 __all__ = ["default_layers"]
 
-from . import activation, convolution, dropout, linear, pooling
+from . import activation, convolution, dropout, linear, padding, pooling
 
 default_layers = [
     activation.elu_layer,
@@ -21,6 +21,10 @@ default_layers = [
 
     linear.linear_layer,
     # linear.bilinear_layer,
+
+    padding.constantpadding1d_layer,
+    padding.constantpadding2d_layer,
+    padding.constantpadding3d_layer,
 
     pooling.max_pool2d_layer,
     pooling.avgpool2d_layer,
