@@ -2,7 +2,7 @@
     import { SvelteFlowProvider, type Connection, type Edge, type Node } from '@xyflow/svelte';
     import DnDProvider from '$lib/components/DnDProvider.svelte';
     import NodeEditor from '$lib/components/NodeEditor/NodeEditor.svelte';
-    import { get, writable, type Writable } from 'svelte/store';
+    import { writable, type Writable, get } from 'svelte/store';
     import { architectureStore } from '$lib/stores/ArchitectureStore';
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
     import { onDestroy, onMount } from 'svelte';
@@ -15,7 +15,7 @@
     import type { DnDContext } from '$lib/utilities/DnDUtils';
     import type { LayerBlueprint, LayerInput, TensorSize } from '$lib/types/layer';
     import { NodeTypeEnum } from '$lib/types/node-type.enum';
-    import { saveStatus, isArchitectureSaved } from '$lib/stores/savedStore';
+    import { SaveStatusEnum } from '$lib/stores/types/architecture-store.interface';
     import type { Parameter, ParameterValue } from '$lib/types/parameter';
     import { HandleStatusEnum, type HandleStatus } from '$lib/components/Node/handle-status.enum';
 
@@ -71,8 +71,14 @@
     function handleKeydown(event: KeyboardEvent) {
         if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
             event.preventDefault();
-            onSave();
+            architectureStore.updateArchitectureSaveStatus();
         }
+    }
+    function onChange() {
+        if ($architectureStore.saveStatus === SaveStatusEnum.NotSaved) {
+            return;
+        }
+        architectureStore.updateSaveStatus(false, SaveStatusEnum.NotSaved);
     }
     onMount(() => {
         window.addEventListener('keydown', handleKeydown);
@@ -217,8 +223,7 @@
             {/if}
         </div>
         <div class="save-status">
-            <span>{$saveStatus}</span>
-            <Button type="primary" style={StylingUtility.defaultButton} on:click={onSave}><Icon name={IconNameEnum.save} /></Button>
+            <span>{$architectureStore.saveStatus}</span>
         </div>
     </div>
     <SvelteFlowProvider>
@@ -229,7 +234,8 @@
                 </div>
             {:else if !$architectureStore.activeArchitecture?.loading && nodes && edges}
                 <NodeEditor
-                    {onSave}
+                    onSave={() => architectureStore.updateArchitectureSaveStatus()}
+                    {onChange}
                     onCreateNode={architectureStore.addNodeToActiveArchitecture}
                     onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
                     {onConnect}
@@ -273,7 +279,7 @@
     }
     .save-status {
         display: flex;
-        align-items: center; /* Vertically align the text and button */
+        align-items: center;
         color: white;
         font-size: 14px;
         font-weight: bold;
@@ -281,7 +287,7 @@
         margin-right: 0;
     }
     .save-status span {
-        margin-right: 10px; /* Adds space between the span and the button */
+        margin-right: 10px;
     }
     .spinner-container {
         display: flex;

@@ -1,20 +1,17 @@
-<script module>
-</script>
-
 <script lang="ts">
-    import { writable, type Writable } from 'svelte/store';
+    import { writable, get, type Writable } from 'svelte/store';
     import { type Node, SvelteFlow, Background, useSvelteFlow, type NodeTypes, type Edge, type Connection } from '@xyflow/svelte';
     import { useDnD, type DnDContext } from '$lib/utilities/DnDUtils';
-
     import LayerNode from '../Node/LayerNode.svelte';
     import Sidebar from '$lib/components/Sidebar/Sidebar.svelte';
     import '@xyflow/svelte/dist/style.css';
     import { type Parameter, type ParameterValue } from '$lib/types/parameter';
     import NodeEditorActions from './NodeEditorActions.svelte';
-    import { setContext } from 'svelte';
+    import { setContext, onMount, onDestroy } from 'svelte';
     import { SoundUtility } from '$lib/utilities/sound.utility';
     import SourceNode from '../Node/SourceNode.svelte';
     import TransformNode from '../Node/TransformNode.svelte';
+
     import InputNode from '../Node/InputNode.svelte';
     import OutputNode from '../Node/OutputNode.svelte';
     import { type LayerInput, type LayerBlueprint, type TensorSize } from '$lib/types/layer';
@@ -27,6 +24,7 @@
 
     export let onDeleteNode: (nodeId: string) => void;
     export let onCreateNode: (node: Node) => void;
+    export let onChange: () => void;
     export let onSave: () => void;
     export let onConnect: (connection: Connection) => void = () => {};
     export let onNodeOrEdgeDelete: () => void = () => {};
@@ -181,7 +179,7 @@
 </script>
 
 <div class="node-editor">
-    <NodeEditorActions {selectedNodeTitle} {selectedNodeColor} {onDelete} {onClearNodes} {nodeNameEditor} />
+    <NodeEditorActions {selectedNodeTitle} {selectedNodeColor} {onDelete} {onClearNodes} {onChange} {nodeNameEditor} />
     <div class="node-editor__content">
         <div class="node-editor__sidebar">
             <Sidebar nodes={nodeblueprints} expanded={$sidebarExpanded} />
@@ -193,6 +191,7 @@
                 {nodeTypes}
                 on:dragover={onDragOver}
                 on:drop={onDrop}
+                on:nodedragstart={onChange}
                 onconnect={onConnect}
                 ondelete={onNodeOrEdgeDelete}
             >

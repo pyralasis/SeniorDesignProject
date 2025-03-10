@@ -84,30 +84,30 @@ def fold_size_transformation(
         return (input_dim[0], C, output_size[0], output_size[1])
 
 
-# fold_layer = LayerDefinition(
-#     "fold",
-#     "Fold",
-#     (InputDefinition(None, 2, 3))
-#     # TODO: These parameters can be ints or tuples. Leaving as just Ints for now
-#     # See https://pytorch.org/docs/stable/generated/torch.nn.Fold.html#torch.nn.Fold
-#     (
-#         Size2DParameter("output_size", "Output Size", (5,5)), # Really should fix this one at least
-#         IntParameter("kernel_size", "Kernel", 5),
-#         IntParameter("dilation", "Dilation", 1),
-#         IntParameter("padding", "Padding", 0),
-#         IntParameter("stride", "Stride", 1),
-#     ),
-#     lambda output_size, kernel_size, dilation, padding, stride, **_ : (
-#         torch.nn.Fold(
-#             output_size,
-#             kernel_size,
-#             dilation,
-#             padding,
-#             stride
-#         )
-#     ),
-#     fold_size_transformation
-# )
+fold_layer = LayerDefinition(
+    "fold",
+    "Fold",
+    (InputDefinition(None, 2, 3)),
+    # TODO: These parameters can be ints or tuples. Leaving as just Ints for now
+    # See https://pytorch.org/docs/stable/generated/torch.nn.Fold.html#torch.nn.Fold
+    (
+        Size2DParameter("output_size", "Output Size", (5,5)), # Really should fix this one at least
+        IntParameter("kernel_size", "Kernel", 5),
+        IntParameter("dilation", "Dilation", 1),
+        IntParameter("padding", "Padding", 0),
+        IntParameter("stride", "Stride", 1),
+    ),
+    lambda output_size, kernel_size, dilation, padding, stride, **_ : (
+        torch.nn.Fold(
+            output_size,
+            kernel_size,
+            dilation,
+            padding,
+            stride
+        )
+    ),
+    fold_size_transformation
+)
 
 
 # def unfold_size_transformation(
@@ -127,25 +127,25 @@ def fold_size_transformation(
 #     num_spatial_dims = len(size) - 2
 #     return (size[0], size[1] * kernel_size**num_spatial_dims, L) # Size tuple
 
-# unfold_layer = LayerDefinition(
-#     "unfold",
-#     "Unfold",
-#     (InputDefinition(None, 2, None), )
-#     # TODO: These parameters can be ints or tuples. Leaving as just Ints for now
-#     # See https://pytorch.org/docs/stable/generated/torch.nn.Unfold.html#torch.nn.Unfold
-#     (
-#         IntParameter("kernel_size", "Kernel", 5),
-#         IntParameter("dilation", "Dilation", 1),
-#         IntParameter("padding", "Padding", 0),
-#         IntParameter("stride", "Stride", 1),
-#     ),
-#     lambda kernel_size, dilation, padding, stride, **_ : (
-#         torch.nn.Unfold(
-#             kernel_size,
-#             dilation,
-#             padding,
-#             stride
-#         )
-#     ),
-#     unfold_size_transformation
-# )
+unfold_layer = LayerDefinition(
+    "unfold",
+    "Unfold",
+    (InputDefinition(None, 2, None), ),
+    # TODO: These parameters can be ints or tuples. Leaving as just Ints for now
+    # See https://pytorch.org/docs/stable/generated/torch.nn.Unfold.html#torch.nn.Unfold
+    (
+        IntParameter("kernel_size", "Kernel", 5),
+        IntParameter("dilation", "Dilation", 1),
+        IntParameter("padding", "Padding", 0),
+        IntParameter("stride", "Stride", 1),
+    ),
+    lambda kernel_size, dilation, padding, stride, **_ : (
+        torch.nn.Unfold(
+            kernel_size,
+            dilation,
+            padding,
+            stride
+        )
+    ),
+    unfold_size_transformation
+)

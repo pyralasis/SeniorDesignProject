@@ -11,7 +11,6 @@
     import { writable, type Writable } from 'svelte/store';
     import { modelStore } from '$lib/stores/ModelStore';
 
-    architectureStore.getAvailableArchitectures();
 
     let selectedArchitecture: Writable<AvailableArchitecture | undefined> = writable(undefined);
     let creatingNewArchitecture: Writable<boolean> = writable(false);
@@ -43,6 +42,8 @@
     }
 
     onMount(() => {
+        architectureStore.getAvailableArchitectures();
+
         window.addEventListener('click', (event) => {
             if (!event.target) {
                 return;

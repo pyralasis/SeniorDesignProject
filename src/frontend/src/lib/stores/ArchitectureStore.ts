@@ -2,11 +2,22 @@ import { type ArchitectureStore, type ArchitectureStoreProps } from "./types/arc
 import { BACKEND_API_BASE_URL } from "$lib/utilities/api.constants";
 import { BackendApi } from "$lib/utilities/api.utilities";
 import { get, writable, type Writable } from "svelte/store";
-import type { NetworkArchitectureDescription, ArchitectureId, ArchitectureDataDescription, ArchitectureMetaDescription, ArchitectureInfoDescription, InputLayerDescription } from "$lib/types/architecture";
+import type {
+    NetworkArchitectureDescription,
+    ArchitectureId,
+    ArchitectureDataDescription,
+    ArchitectureMetaDescription,
+    ArchitectureInfoDescription, InputLayerDescription,
+} from "$lib/types/architecture";
 import type { NetworkLayoutDescription } from "$lib/types/layout";
 import type { Node, Edge } from "@xyflow/svelte";
 import type { Parameter, ParameterValue } from "$lib/types/parameter";
-import type { AvailableArchitecture, AvailableArchitecturesResponse, LoadArchitectureResponse, } from "./types/architecture-store.interface";
+import {
+    SaveStatusEnum,
+    type AvailableArchitecture,
+    type AvailableArchitecturesResponse,
+    type LoadArchitectureResponse,
+} from "./types/architecture-store.interface";
 import type { Version } from "$lib/types/info";
 import { saveStatus, isArchitectureSaved } from "$lib/stores/savedStore";
 import type { LayerInput, LayerInstanceId, TensorSize } from "$lib/types/layer";
@@ -98,19 +109,31 @@ async function parseLayersIntoNodesAndEdges(layers: any[], layout: any, inputs: 
 const createArchitectureStore = (): ArchitectureStore => {
     const { subscribe, set, update } = writable<ArchitectureStoreProps>({
         availableArchitectures: undefined,
-        activeArchitecture: undefined
+        activeArchitecture: undefined,
+        isSaved: true,
+        saveStatus: SaveStatusEnum.Success,
     });
 
+    const updateSaveStatus = (saved: boolean, status: SaveStatusEnum): void => {
+        update((state) => {
+            if (state.isSaved === saved && state.saveStatus === status) return state;
+            return {
+                ...state,
+                isSaved: saved,
+                saveStatus: status,
+            };
+        });
+    };
 
     const getAvailableArchitectures = async (): Promise<void> => {
         await fetch(`${BACKEND_API_BASE_URL}/architecture/available`, {
-            method: 'GET',
+            method: "GET",
             headers: {
-                'Content-Type': 'application/json',
-            }
+                "Content-Type": "application/json",
+            },
         })
-            .then(response => response.json())
-            .then(data => {
+            .then((response) => response.json())
+            .then((data) => {
                 let response = data as AvailableArchitecturesResponse;
                 update((store) => {
                     store.availableArchitectures = response.available.map((arch) => {
@@ -124,21 +147,20 @@ const createArchitectureStore = (): ArchitectureStore => {
                             } as ArchitectureMetaDescription,
                             info: {
                                 version: arch.info.version,
-                            } as ArchitectureInfoDescription
+                            } as ArchitectureInfoDescription,
                         } as AvailableArchitecture;
                     });
                     return store;
-
                 });
             });
-    }
+    };
 
     const loadArchitectureById = async (id: ArchitectureId): Promise<void> => {
         try {
-            update(store => ({ ...store, activeArchitecture: undefined, loading: true }));
-
+            update((store) => ({ ...store, activeArchitecture: undefined, loading: true }));
+            updateSaveStatus(true, SaveStatusEnum.Success);
             const response = await fetch(`${BACKEND_API_BASE_URL}/architecture/load?${new URLSearchParams({ id }).toString()}`);
-            const data = (await response.json() as LoadArchitectureResponse).object;
+            const data = ((await response.json()) as LoadArchitectureResponse).object;
             const archData = data.data.data;
             const layoutData = data.data.layout;
 
@@ -161,51 +183,53 @@ const createArchitectureStore = (): ArchitectureStore => {
                     },
                     nodes: writable<Node[]>(nodes),
                     edges: writable<Edge[]>(edges),
-                    loading: false
-
-                }
-
+                    loading: false,
+                },
             }));
         } catch (error) {
-            console.error('Error loading architecture:', error);
-            update(store => ({
+            console.error("Error loading architecture:", error);
+            update((store) => ({
                 ...store,
                 activeArchitecture: undefined,
-                loading: false
+                loading: false,
             }));
         }
-    }
+    };
 
     const clearActiveArchitecture = (): void => {
+        updateSaveStatus(false, SaveStatusEnum.NotSaved);
+        console.log("In clear Function");
         update((store) => {
-            store.activeArchitecture = undefined
+            store.activeArchitecture = undefined;
+
             return store;
         });
-    }
+    };
 
     const deleteArchitecture = async (id: ArchitectureId): Promise<void> => {
         await fetch(`${BACKEND_API_BASE_URL}/architecture/delete`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify({ id: id })
-        })
+            body: JSON.stringify({ id: id }),
+        });
         getAvailableArchitectures();
-    }
+    };
 
-    const saveActiveArchitecture = async (isNew: boolean = false): Promise<void> => {
+    const saveActiveArchitecture = async (isNew: boolean = false): Promise<boolean> => {
         const aStore = get(architectureStore);
         if (!aStore.activeArchitecture) {
-            return;
+            return false;
         }
+
         const nodes = get(aStore.activeArchitecture.nodes);
         const edges = get(aStore.activeArchitecture.edges);
         const layerNodes = nodes.filter((node) => node.type === 'layer');
         const inputNodes = nodes.filter((node) => node.type === 'input');
         const outputNode = nodes.filter((node) => node.id === '69')[0];
         const architecture: NetworkArchitectureDescription = {
-            id: aStore.activeArchitecture.id as ArchitectureId ?? '',
+            id: (aStore.activeArchitecture.id as ArchitectureId) ?? "",
             data: {
                 data: {
                     inputs: inputNodes.map((node) => {
@@ -251,7 +275,7 @@ const createArchitectureStore = (): ArchitectureStore => {
                             ];
                         })
                     ),
-                    edges
+                    edges,
                 } as NetworkLayoutDescription,
                 meta: {
                     name: aStore.activeArchitecture.meta.name,
@@ -259,36 +283,39 @@ const createArchitectureStore = (): ArchitectureStore => {
                     created_at: aStore.activeArchitecture.meta.created_at,
                     last_modified: new Date().toISOString(),
                 } as ArchitectureMetaDescription,
-
             },
             info: {
-                version: aStore.activeArchitecture?.meta.version ?? 0 as Version, //TODO
+                version: aStore.activeArchitecture?.meta.version ?? (0 as Version),
             } as ArchitectureInfoDescription,
-
         };
 
-        await fetch(`${BACKEND_API_BASE_URL}/architecture/${isNew ? 'create' : 'update'}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(
-                isNew
-                    ? { meta: architecture.data.meta, data: architecture.data.data, layout: architecture.data.layout }
-                    : { id: aStore.activeArchitecture.id, object: architecture.data }
+        try {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/architecture/${isNew ? "create" : "update"}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(
+                    isNew
+                        ? { meta: architecture.data.meta, data: architecture.data.data, layout: architecture.data.layout }
+                        : { id: aStore.activeArchitecture.id, object: architecture.data }
+                ),
+            });
 
-            )
-        }).then((response) => response.json()).then((data: { id: string }) => {
+            if (!response.ok) throw new Error(`Server Error: ${response.status}`);
+
+            const data: { id: string } = await response.json();
+
             if (isNew) {
                 getAvailableArchitectures();
             }
-        });
-    }
-
+            return true;
+        } catch (error) {
+            console.error("Save failed:", error);
+            return false;
+        }
+    };
 
     const createNewArchitecture = async (name: string, description?: string): Promise<void> => {
-        saveStatus.set('Architecture up to date');
-        isArchitectureSaved.set(true);
+        updateSaveStatus(true, SaveStatusEnum.Success);
         update((store) => {
             store.activeArchitecture = {
                 meta: {
@@ -296,48 +323,87 @@ const createArchitectureStore = (): ArchitectureStore => {
                     description: description,
                     created_at: new Date().toISOString(),
                     last_modified: new Date().toISOString(),
-                    version: 0
+                    version: 0,
                 },
                 nodes: writable<Node[]>([]),
                 edges: writable<Edge[]>([]),
-                loading: false
-            }
+                loading: false,
+            };
             return store;
         });
         saveActiveArchitecture(true);
-    }
+    };
 
     const addNodeToActiveArchitecture = (node: Node): void => {
-        if (isArchitectureSaved) {
-            saveStatus.set('Architecture not up to date');
-            isArchitectureSaved.set(false);
-        }
-
-        console.log('Goes into addArch');
         update((store) => {
-            store.activeArchitecture?.nodes.update((nodes) => {
+            if (!store.activeArchitecture) {
+                return store;
+            }
+            store.activeArchitecture.nodes.update((nodes) => {
                 nodes.push(node);
                 return nodes;
             });
+
             return store;
         });
-    }
-
-    const deleteNodeFromActiveArchitecture = (id: string): void => {
-
-        if (isArchitectureSaved) {
-            saveStatus.set('Architecture not up to date');
-            isArchitectureSaved.set(false);
-        }
+        console.log("autosave happening...");
+        updateArchitectureSaveStatus();
+    };
+    //Changing it so there has to be a node selected
+    const deleteNodeFromActiveArchitecture = (id: string | null): void => {
         update((store) => {
-            store.activeArchitecture?.nodes.update((nodes) => {
-                nodes = nodes.filter((node) => node.id !== id);
-                return nodes;
+            if (!store.activeArchitecture || !store.activeArchitecture.nodes) {
+                console.log("No active architecture or nodes - Deletion blocked");
+                return store;
+            }
+
+            let currentNodes = get(store.activeArchitecture.nodes);
+
+            if (!id) {
+                console.log("No node selected for deletion");
+                return store;
+            }
+
+            if (!currentNodes.some((node) => node.id === id)) {
+                console.log(`Node with id ${id} does not exist - No changes made`);
+                return store;
+            }
+
+            console.log("Node found, deleting...");
+
+            store.activeArchitecture.nodes.update((nodes) => {
+                return nodes.filter((node) => node.id !== id);
             });
             return store;
         });
-    }
+        updateArchitectureSaveStatus();
+    };
+    ///Checks saveActiveArchitecture and updates the UI
+    //Also is used as an autosave since we call it on node insertion/deletion
+    const updateArchitectureSaveStatus = async (): Promise<void> => {
+        try {
+            console.log("updateArchitectureSaveStatus called");
 
+            // Update UI state first
+            updateSaveStatus(false, SaveStatusEnum.Saving);
+            console.log("Status set to Saving...");
+
+            const success = await saveActiveArchitecture();
+
+            if (success) {
+                setTimeout(() => {
+                    console.log("Save successful - updating UI state");
+                    updateSaveStatus(true, SaveStatusEnum.Success);
+                }, 500);
+            } else {
+                console.log("Save failed - updating UI state");
+                updateSaveStatus(false, SaveStatusEnum.Failed);
+            }
+        } catch (error) {
+            console.error("Save error:", error);
+            updateSaveStatus(false, SaveStatusEnum.Failed);
+        }
+    };
 
     return {
         set,
@@ -350,8 +416,10 @@ const createArchitectureStore = (): ArchitectureStore => {
         saveActiveArchitecture,
         createNewArchitecture,
         addNodeToActiveArchitecture,
-        deleteNodeFromActiveArchitecture
+        deleteNodeFromActiveArchitecture,
+        updateArchitectureSaveStatus,
+        updateSaveStatus,
     };
-}
+};
 
 export const architectureStore = createArchitectureStore();
