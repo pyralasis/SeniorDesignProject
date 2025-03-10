@@ -12,7 +12,7 @@ default_layers = [
     activation.tanh_layer,
     activation.softmin_layer,
     activation.softmax_layer,
-    
+
     convolution.conv2d_layer,
     convolution.fold_layer,
     convolution.unfold_layer,
@@ -23,4 +23,6 @@ default_layers = [
     # linear.bilinear_layer,
 
     pooling.max_pool2d_layer,
+    pooling.avgpool2d_layer,
+    pooling.lpool2d_layer,
 ]
