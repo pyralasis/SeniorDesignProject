@@ -1,15 +1,14 @@
+from dataclasses import asdict, dataclass
 from typing import Any, Literal
 
 from pydantic import TypeAdapter, ValidationError
+from quart import Blueprint, ResponseReturnValue, request
 from quart.views import MethodView
 from server.layer import LayerDescription, LayerID
-from dataclasses import asdict, dataclass
 from server.layer.service import LayerService
 from server.layer.size import TensorSize
 from server.params import AnyParameterValue
-
-
-from quart import Blueprint, ResponseReturnValue, request
+from server.util.params import get_params_dict
 
 
 def create_layer_blueprint(layer_service: LayerService) -> Blueprint:
@@ -81,20 +80,20 @@ class LayerOutputSizeView(MethodView):
         self.adapter = TypeAdapter(LayerOutputSizeRequestBody)
 
     async def post(self) -> ResponseReturnValue:
-        req = self.adapter.validate_python(await request.json)
+        try:
+            req = self.adapter.validate_python(await request.json)
 
-        if not self.service.layers.contains(req.layer_id):
-            return asdict(InvalidLayerErrResponse(f"No layer found with id '{req.layer_id}'"))
+            if not self.service.layers.contains(req.layer_id):
+                return asdict(InvalidLayerErrResponse(f"No layer found with id '{req.layer_id}'"))
 
-        layer = self.service.layers.get(req.layer_id)
-        size_arguments: list[Any] = [req.input_size]
+            layer = self.service.layers.get(req.layer_id)
 
-        for param in layer.parameters:
-            size_arguments.append(req.parameters[param.id].val if param.id in req.parameters else param.default)
+            out_size = layer.size((req.input_size,), **get_params_dict(req.parameters))
 
-        out_size = layer.size(*size_arguments)
+            return asdict(SuccessfulLayerOutputSizeResponse(out_size))
 
-        return asdict(SuccessfulLayerOutputSizeResponse(out_size))
+        except ValidationError as err:
+            return asdict(InvalidRequestErrResponse(str(err))), 400
 
 
 ###

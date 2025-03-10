@@ -3,7 +3,8 @@ from typing import Any, TypeAlias
 
 from server.layer import LayerID
 from server.layer.size import TensorSize
-from server.params import ParameterValue
+from server.params import AnyParameterValue, ParameterValue
+from server.util.params import get_params_dict
 
 # This can be any number as long as all layer instance ids within an architecture are unique.
 LayerInstanceID: TypeAlias = int
@@ -25,10 +26,10 @@ class NetworkLayerConfig:
     layer_id: LayerID  # The ID of the layer type
     input: list[LayerInstanceID]  # The layer or input that feeds into this network.
 
-    param_values: dict[str, ParameterValue]  # the values for each parameter in the layer
+    param_values: dict[str, AnyParameterValue]  # the values for each parameter in the layer
 
     def get_params(self) -> dict[str, Any]:
-        return {key: param.val for key, param in self.param_values.items()}
+        return get_params_dict(self.param_values)
 
 
 @dataclass
