@@ -18,6 +18,30 @@ elu_layer = LayerDefinition(
     lambda in_sizes, **_: in_sizes[0],
 )
 
+leakyrelu_layer = LayerDefinition(
+    "leakyrelu",
+    "LeakyReLU",
+    (InputDefinition(None, 1, None),),
+    (
+        FloatParameter(id="negative_slope", name="Negative Slope", default=1.0),
+        BoolParameter("inplace", "Inplace", False),
+    ),
+    lambda in_sizes, negative_slope, inplace, **_: torch.nn.LeakyReLU(negative_slope, inplace),
+    lambda in_sizes, **_: in_sizes[0],
+)
+
+prelu_layer = LayerDefinition(
+    "prelu",
+    "PReLU",
+    (InputDefinition(None, 1, None),),
+    (
+        IntParameter("num_parameters", "Num Parameters", 1),
+        FloatParameter(id="alpha", name="Alpha", default=1.0),
+    ),
+    lambda in_sizes, num_parameters, alpha, **_: torch.nn.PReLU(num_parameters, alpha),
+    lambda in_sizes, **_: in_sizes[0],
+)
+
 relu_layer = LayerDefinition(
     "relu",
     "ReLU",
@@ -29,6 +53,15 @@ relu_layer = LayerDefinition(
     lambda in_sizes, **_: in_sizes[0],
 )
 
+logsigmoid_layer = LayerDefinition(
+    "logsigmoid",
+    "LogSigmoid",
+    (InputDefinition(None, 1, None),),
+    (),
+    lambda in_sizes, **_: torch.nn.LogSigmoid(),
+    lambda in_sizes, **_: in_sizes[0],
+)
+
 sigmoid_layer = LayerDefinition(
     "sigmoid",
     "Sigmoid",
@@ -37,6 +70,17 @@ sigmoid_layer = LayerDefinition(
     lambda in_sizes, **_: torch.nn.Sigmoid(),
     lambda in_sizes, **_: in_sizes[0],
 )
+
+tanh_layer = LayerDefinition(
+    "tanh",
+    "TanH",
+    (InputDefinition(None, 1, None),),
+    (),
+    lambda in_sizes, **_: torch.nn.Tanh(),
+    lambda in_sizes, **_: in_sizes[0],
+)
+
+
 
 # Found here: https://pytorch.org/docs/stable/nn.html#non-linear-activations-other
 
