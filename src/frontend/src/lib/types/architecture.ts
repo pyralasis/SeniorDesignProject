@@ -1,11 +1,11 @@
-import type { LayerId, LayerInstanceId, TensorSize, InputDefinition } from '$lib/types/layer';
+import type { LayerId, LayerInstanceId, TensorSize } from '$lib/types/layer';
 import type { Info } from './info';
 import type { NetworkLayoutDescription } from './layout';
 import type { MetaData } from './metadata';
 import type { ParameterValue } from './parameter';
 
 export type InputLayerDescription = {
-    id: LayerInstanceId
+    instance_id: LayerInstanceId
     size: TensorSize
 };
 
@@ -19,7 +19,7 @@ export type NetworkLayerDescription = {
 export type ArchitectureId = string;
 
 export type ArchitectureDataDescription = {
-    inputs: InputDefinition[],
+    inputs: InputLayerDescription[],
     layers: NetworkLayerDescription[],
     output: LayerInstanceId
 }

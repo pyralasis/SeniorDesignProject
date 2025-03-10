@@ -1,21 +1,21 @@
-import { type EnumOf } from '$lib/utilities/enum-of';
 import type { Parameter } from './parameter';
 
-export type InputDefinition = {
-    name: string | undefined,
-    maxDimensions: number,
-    minDimensions: number | undefined,
-}
-
+export type LayerInstanceId = number;
 export type LayerId = string;
 export type LayerName = string;
 
-export type Layer<T> = {
+export type LayerInput = {
+    max_dimensions: number | null,
+    min_dimensions: number | null,
+    name: string | null,
+}
+
+export type LayerBlueprint<T> = {
     id: LayerId,
     name: LayerName,
-    inputs: InputDefinition[],
+    inputs: LayerInput[],
     parameters: Parameter<T>[],
 }
 
-export type LayerInstanceId = number;
+
 export type TensorSize = number[];

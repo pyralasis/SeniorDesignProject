@@ -1,10 +1,12 @@
 <script lang="ts">
-    import { type Writable, writable } from 'svelte/store';
+    import { get, type Writable, writable } from 'svelte/store';
     import { Handle, Position, type Edge, type NodeProps } from '@xyflow/svelte';
     import NodeField from './NodeParameter.svelte';
     import type { Parameter, ParameterValue } from '$lib/types/parameter';
     import Icon from '$lib/components/Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
+    import type { LayerInput, TensorSize } from '$lib/types/layer';
+    import { HandleStatusEnum, type HandleStatus } from './handle-status.enum';
 
     type $$Props = NodeProps;
 
@@ -14,13 +16,18 @@
 
     const color: Writable<string> = data?.color as Writable<string>;
     const title: Writable<string> = data?.title as Writable<string>;
-    const layerType: Writable<string> = data?.layer_id as Writable<string>;
+    const layerType: string = data?.layer_id as string;
     const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
         { parameter: Parameter<any>; value: ParameterValue<any> }[]
     >;
+    let parametersTwo = $parameters;
     const expanded: Writable<boolean> = data?.expanded as Writable<boolean>;
     const leftConnected: Writable<boolean> = data?.leftConnected as Writable<boolean>;
     const rightConnected: Writable<boolean> = data?.rightConnected as Writable<boolean>;
+    const leftStatus: Writable<HandleStatus> = data?.leftStatus as Writable<HandleStatus>;
+    const rightStatus: Writable<HandleStatus> = data?.rightStatus as Writable<HandleStatus>;
+    const inputs: Writable<LayerInput[]> = data?.inputs as Writable<LayerInput[]>;
+    const outputSize: Writable<TensorSize> = data?.outputSize as Writable<TensorSize>;
     const rotationDegrees = writable(0);
 
     function handleToggleExpanded() {
@@ -29,17 +36,34 @@
     }
 
     function toggleConnection(side: 'left' | 'right', connected: boolean) {
-        console.log(side, connected);
         if (side === 'left') {
             $leftConnected = connected;
         } else {
             $rightConnected = connected;
         }
+        if (!connected) {
+            if (side === 'left') {
+                leftStatus.update((value) => HandleStatusEnum.default);
+                outputSize.update((value) => []);
+            } else {
+                rightStatus.update((value) => HandleStatusEnum.default);
+            }
+        }
     }
 
-    function isValidConnection(connection: any) {
-        console.log(connection);
-        return true;
+    function getBackgroundColor(connected: boolean, status: HandleStatus) {
+        if (!connected) {
+            return '#333';
+        } else {
+            switch (status) {
+                case HandleStatusEnum.default:
+                    return '#FFF';
+                case HandleStatusEnum.error:
+                    return 'red';
+                case HandleStatusEnum.success:
+                    return 'green';
+            }
+        }
     }
 </script>
 
@@ -47,20 +71,22 @@
     type="target"
     position={Position.Left}
     style="
-        background-color: {$leftConnected ? '#FFF' : '#000'};
-        border-color: {$color + (selected ? 'bb' : '34')};
-        border-radius: 0;
-        height: 8px;
-        width: 6px;
-    "
+            background-color: {getBackgroundColor($leftConnected, $leftStatus)};
+            border-color: {$color + (selected ? 'bb' : '34')};
+            border-radius: 0;
+            height: 8px;
+            width: 6px;
+        "
     onconnect={() => toggleConnection('left', true)}
     ondisconnect={() => toggleConnection('left', false)}
+    isConnectable={!$leftConnected}
 />
+
 <Handle
     type="source"
     position={Position.Right}
     style="
-    background-color: {$rightConnected ? '#FFF' : '#000'};
+    background-color: {getBackgroundColor($rightConnected, $rightStatus)};
         border-color: {$color + (selected ? 'bb' : '34')};
         border-radius: 4px;
         height: 8px;
@@ -68,6 +94,7 @@
     "
     onconnect={() => toggleConnection('right', true)}
     ondisconnect={() => toggleConnection('right', false)}
+    isConnectable={!$rightConnected}
 />
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -86,12 +113,14 @@
             <Icon name={IconNameEnum.chevron_right} />
         </div>
         <div style="display: flex; flex-direction: row; gap: 10px;">
-            <div class="node__title">{$title ? $title : 'Untitled Layer'} - {$layerType}</div>
+            <div class="node__title">
+                {$title ? $title : 'Untitled Layer'} - {layerType} - {$inputs[0]?.min_dimensions} - {$inputs[0]?.max_dimensions} - {$outputSize[0]}
+            </div>
         </div>
     </div>
     {#if $expanded}
         <div class="node__content" style="visibility: {$expanded ? 'visible' : 'hidden'}; transition: visibility 0.2s;">
-            {#each $parameters as parameter}
+            {#each parametersTwo as parameter}
                 <NodeField parameter={parameter.parameter} value={parameter.value} />
             {/each}
             {#if $parameters.length === 0}

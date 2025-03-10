@@ -3,7 +3,7 @@
 
 <script lang="ts">
     import { writable, type Writable } from 'svelte/store';
-    import { type Node, SvelteFlow, Controls, Background, MiniMap, useSvelteFlow, type NodeTypes, type Edge } from '@xyflow/svelte';
+    import { type Node, SvelteFlow, Background, useSvelteFlow, type NodeTypes, type Edge, type Connection } from '@xyflow/svelte';
     import { useDnD, type DnDContext } from '$lib/utilities/DnDUtils';
 
     import LayerNode from '../Node/LayerNode.svelte';
@@ -15,7 +15,10 @@
     import { SoundUtility } from '$lib/utilities/sound.utility';
     import SourceNode from '../Node/SourceNode.svelte';
     import TransformNode from '../Node/TransformNode.svelte';
-    const { fitView } = useSvelteFlow();
+    import InputNode from '../Node/InputNode.svelte';
+    import OutputNode from '../Node/OutputNode.svelte';
+    import { type LayerInput, type LayerBlueprint, type TensorSize } from '$lib/types/layer';
+    import { type HandleStatus, HandleStatusEnum } from '../Node/handle-status.enum';
 
     export let nodes: Writable<Node[]>;
     export let edges: Writable<Edge[]>;
@@ -25,6 +28,9 @@
     export let onDeleteNode: (nodeId: string) => void;
     export let onCreateNode: (node: Node) => void;
     export let onSave: () => void;
+    export let onConnect: (connection: Connection) => void = () => {};
+    export let onNodeOrEdgeDelete: () => void = () => {};
+    export let runConnectionValidation: () => void = () => {};
 
     const { screenToFlowPosition } = useSvelteFlow();
     const dndContext = useDnD();
@@ -66,24 +72,89 @@
             y: event.clientY,
         });
 
-        const newNode = {
-            id: `${Math.floor(Math.random() * 1000000)}`,
-            type: $dndContext?.type,
-            data: {
-                color: writable<string>($xColor),
-                title: writable<string>('Untitled Node'),
-                name: writable<string>($dndContext.nodeBlueprint.name),
-                layer_id: writable<string>($dndContext.nodeBlueprint.id),
-                parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
-                    $dndContext.nodeBlueprint.parameters.map(getParameterDefaultValue),
-                ),
-                expanded: writable<boolean>(false),
-                leftConnected: writable<boolean>(false),
-                rightConnected: writable<boolean>(false),
-            },
-            dragHandle: '.node__header',
-            position: { x: position.x, y: position.y },
-        } satisfies Node;
+        let newNode: Node;
+
+        if ($dndContext?.type === 'layer') {
+            newNode = {
+                id: `${Math.floor(Math.random() * 1000000)}`,
+                type: $dndContext?.type,
+                data: {
+                    color: writable<string>($xColor),
+                    title: writable<string>('Untitled Node'),
+                    name: writable<string>($dndContext.nodeBlueprint.name),
+                    layer_id: $dndContext.nodeBlueprint.id,
+                    parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
+                        $dndContext.nodeBlueprint.parameters.map(getParameterDefaultValue),
+                    ),
+                    expanded: writable<boolean>(false),
+                    leftConnected: writable<boolean>(false),
+                    rightConnected: writable<boolean>(false),
+                    leftStatus: writable<HandleStatus>(HandleStatusEnum.default),
+                    rightStatus: writable<HandleStatus>(HandleStatusEnum.default),
+                    inputs: writable<LayerInput[]>(($dndContext.nodeBlueprint as LayerBlueprint<any>).inputs),
+                    outputSize: writable<TensorSize>([]),
+                },
+                dragHandle: '.node__header',
+                position: { x: position.x, y: position.y },
+            } satisfies Node;
+        } else if ($dndContext?.type === 'source' || $dndContext?.type === 'transform') {
+            newNode = {
+                id: `${Math.floor(Math.random() * 1000000)}`,
+                type: $dndContext?.type,
+                data: {
+                    color: writable<string>($xColor),
+                    title: writable<string>('Untitled Node'),
+                    name: writable<string>($dndContext.nodeBlueprint.name),
+                    ...($dndContext?.type === 'source' ? { src_id: $dndContext.nodeBlueprint.id } : {}),
+                    ...($dndContext?.type === 'transform' ? { transform_id: $dndContext.nodeBlueprint.id } : {}),
+                    parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
+                        $dndContext.nodeBlueprint.parameters.map(getParameterDefaultValue),
+                    ),
+                    expanded: writable<boolean>(false),
+                    leftConnected: writable<boolean>(false),
+                    rightConnected: writable<boolean>(false),
+                },
+                dragHandle: '.node__header',
+                position: { x: position.x, y: position.y },
+            } satisfies Node;
+        } else if ($dndContext?.type === 'input') {
+            if ($nodes.some((node) => node.type === 'input')) {
+                alert('Only one input node is allowed.');
+                return;
+            }
+            newNode = {
+                id: `${Math.floor(Math.random() * 1000000)}`,
+                type: 'input',
+                data: {
+                    color: writable<string>($xColor),
+                    expanded: writable<boolean>(false),
+                    rightConnected: writable<boolean>(false),
+                    rightStatus: writable<HandleStatus>(HandleStatusEnum.default),
+                    outputSize: writable<TensorSize>([0, 0]),
+                },
+                dragHandle: '.node__header',
+                position: { x: position.x, y: position.y },
+            } satisfies Node;
+        } else if ($dndContext?.type === 'output') {
+            if ($nodes.some((node) => node.type === 'output')) {
+                alert('Only one output node is allowed.');
+                return;
+            }
+            newNode = {
+                id: `69`,
+                type: 'output',
+                data: {
+                    color: writable<string>($xColor),
+                    expanded: writable<boolean>(false),
+                    leftConnected: writable<boolean>(false),
+                    leftStatus: writable<HandleStatus>(HandleStatusEnum.default),
+                },
+                dragHandle: '.node__header',
+                position: { x: position.x, y: position.y },
+            } satisfies Node;
+        } else {
+            return;
+        }
 
         onCreateNode(newNode);
     };
@@ -92,6 +163,8 @@
         layer: LayerNode,
         source: SourceNode,
         transform: TransformNode,
+        input: InputNode,
+        output: OutputNode,
     };
 
     function onDelete() {
@@ -114,7 +187,15 @@
             <Sidebar nodes={nodeblueprints} expanded={$sidebarExpanded} />
         </div>
         <div class="node-editor__flow">
-            <SvelteFlow {nodes} {edges} {nodeTypes} on:dragover={onDragOver} on:drop={onDrop}>
+            <SvelteFlow
+                {nodes}
+                {edges}
+                {nodeTypes}
+                on:dragover={onDragOver}
+                on:drop={onDrop}
+                onconnect={onConnect}
+                ondelete={onNodeOrEdgeDelete}
+            >
                 <Background bgColor="#111111" patternColor="#FFFFFF" />
             </SvelteFlow>
         </div>
@@ -144,5 +225,10 @@
         &__sidebar {
             width: fit-content;
         }
+    }
+
+    :global(.svelte-flow__node) {
+        width: fit-content;
+        padding: 0;
     }
 </style>

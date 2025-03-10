@@ -2,13 +2,16 @@ import { type ArchitectureStore, type ArchitectureStoreProps } from "./types/arc
 import { BACKEND_API_BASE_URL } from "$lib/utilities/api.constants";
 import { BackendApi } from "$lib/utilities/api.utilities";
 import { get, writable, type Writable } from "svelte/store";
-import type { NetworkArchitectureDescription, ArchitectureId, ArchitectureDataDescription, ArchitectureMetaDescription, ArchitectureInfoDescription } from "$lib/types/architecture";
+import type { NetworkArchitectureDescription, ArchitectureId, ArchitectureDataDescription, ArchitectureMetaDescription, ArchitectureInfoDescription, InputLayerDescription } from "$lib/types/architecture";
 import type { NetworkLayoutDescription } from "$lib/types/layout";
 import type { Node, Edge } from "@xyflow/svelte";
 import type { Parameter, ParameterValue } from "$lib/types/parameter";
 import type { AvailableArchitecture, AvailableArchitecturesResponse, LoadArchitectureResponse, } from "./types/architecture-store.interface";
 import type { Version } from "$lib/types/info";
 import { saveStatus, isArchitectureSaved } from "$lib/stores/savedStore";
+import type { LayerInput, LayerInstanceId, TensorSize } from "$lib/types/layer";
+import { HandleStatusEnum } from "$lib/components/Node/handle-status.enum";
+
 
 function getLayerParametersByLayerId(layerId: string): Promise<any> {
     return BackendApi.getLayerById(layerId.toLowerCase()).then((layer) => {
@@ -20,9 +23,29 @@ function findParameterById(parameters: any[], id: string): Parameter<any> {
     return parameters.find((parameter) => parameter.id === id);
 }
 
-async function parseLayersIntoNodesAndEdges(layers: any[], layout: any): Promise<{ nodes: Node[], edges: Edge[] }> {
+function getLayerInputs(id: string, edges: Edge[]): LayerInstanceId | LayerInstanceId[] {
+    return edges.filter((edge) => edge.target === id).map((edge) => parseInt(edge.source));
+}
+
+async function parseLayersIntoNodesAndEdges(layers: any[], layout: any, inputs: InputLayerDescription[], output: number): Promise<{ nodes: Node[], edges: Edge[] }> {
     let nodes: Node[] = [];
     let edges: Edge[] = layout.edges.map((edge: any) => edge as Edge);
+
+    await Promise.all(inputs.map(async (input: any) => {
+        nodes.push({
+            id: input.instance_id.toString(),
+            type: 'input',
+            data: {
+                color: writable<string>(layout.nodes[input.instance_id]?.metadata.color ?? '#FFFFFF'),
+                outputSize: writable<TensorSize>(input.size.map((value: number) => value.toString())),
+                rightConnected: writable<boolean>(layout.nodes[input.instance_id]?.metadata.rightConnected ?? false),
+                rightStatus: writable<string>(layout.nodes[input.instance_id]?.metadata.rightStatus ?? HandleStatusEnum.default),
+            },
+            position: { x: layout.nodes[input.instance_id]?.x ?? 0, y: layout.nodes[input.instance_id]?.y ?? 0 },
+            dragHandle: '.node__header',
+        } satisfies Node);
+    }));
+
 
     await Promise.all(layers.map(async (layer: any) => {
         const layerParameters = await getLayerParametersByLayerId(layer.layer_id);
@@ -32,9 +55,15 @@ async function parseLayersIntoNodesAndEdges(layers: any[], layout: any): Promise
             data: {
                 color: writable<string>(layout.nodes[layer.instance_id]?.metadata.color ?? '#FFFFFF'),
                 title: writable<string>(layout.nodes[layer.instance_id]?.metadata.title ?? 'Untitled Layer'),
-                layer_id: writable<string>(layer.layer_id),
+                expanded: writable<boolean>(layout.nodes[layer.instance_id]?.metadata.expanded ?? false),
+                leftConnected: writable<boolean>(layout.nodes[layer.instance_id]?.metadata.leftConnected ?? false),
+                rightConnected: writable<boolean>(layout.nodes[layer.instance_id]?.metadata.rightConnected ?? false),
+                leftStatus: writable<string>(layout.nodes[layer.instance_id]?.metadata.leftStatus ?? HandleStatusEnum.default),
+                rightStatus: writable<string>(layout.nodes[layer.instance_id]?.metadata.rightStatus ?? HandleStatusEnum.default),
+                inputs: writable<LayerInput[]>(layout.nodes[layer.instance_id]?.metadata?.inputs ?? []),
+                outputSize: writable<TensorSize>(layout.nodes[layer.instance_id]?.metadata.outputSize ?? ['0']),
+                layer_id: layer.layer_id,
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
-
 
                     Object.entries(layer.param_values).map(([key, value]) => {
                         let parameterTemplate = findParameterById(layerParameters, key);
@@ -44,14 +73,24 @@ async function parseLayersIntoNodesAndEdges(layers: any[], layout: any): Promise
                         });
                     })
                 ),
-                expanded: writable<boolean>(false),
+
             },
             position: { x: layout.nodes[layer.instance_id]?.x ?? 0, y: layout.nodes[layer.instance_id]?.y ?? 0 },
             dragHandle: '.node__header',
         } satisfies Node);
-
+        if (output > 0) {
+            nodes.push({
+                id: '69',
+                type: 'output',
+                data: {
+                    leftConnected: writable<boolean>(layout.nodes['69']?.metadata.leftConnected ?? false),
+                    leftStatus: writable<string>(layout.nodes['69']?.metadata.leftStatus ?? HandleStatusEnum.default),
+                },
+                position: { x: layout.nodes['69']?.x ?? 0, y: layout.nodes['69']?.y ?? 0 },
+                dragHandle: '.node__header',
+            } satisfies Node);
+        }
     }));
-
 
     return { nodes, edges };
 }
@@ -105,7 +144,9 @@ const createArchitectureStore = (): ArchitectureStore => {
 
             const { nodes, edges } = await parseLayersIntoNodesAndEdges(
                 archData.layers,
-                layoutData
+                layoutData,
+                archData.inputs,
+                archData.output
             );
             update(store => ({
                 ...store,
@@ -160,38 +201,55 @@ const createArchitectureStore = (): ArchitectureStore => {
         }
         const nodes = get(aStore.activeArchitecture.nodes);
         const edges = get(aStore.activeArchitecture.edges);
+        const layerNodes = nodes.filter((node) => node.type === 'layer');
+        const inputNodes = nodes.filter((node) => node.type === 'input');
+        const outputNode = nodes.filter((node) => node.id === '69')[0];
         const architecture: NetworkArchitectureDescription = {
             id: aStore.activeArchitecture.id as ArchitectureId ?? '',
             data: {
                 data: {
-                    inputs: [], //TODO
-                    layers: nodes.map((node) => {
+                    inputs: inputNodes.map((node) => {
+                        let outputSize = get(node.data.outputSize as Writable<TensorSize>);
+                        return {
+                            instance_id: parseInt(node.id, 10),
+                            size: outputSize.map((value: number) => value) as TensorSize,
+                        } as InputLayerDescription
+                    }),
+                    layers: layerNodes.map((node) => {
                         const parameters = get(node.data.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any>; }[]>);
                         return {
-
                             instance_id: parseInt(node.id, 10),
-                            layer_id: get(node.data.layer_id as Writable<string>),
-                            input: [],
+                            layer_id: node.data.layer_id,
+                            input: getLayerInputs(node.id, edges),
                             param_values: Object.fromEntries(
                                 parameters.map(({ parameter, value }) => [parameter.id, value])
                             )
                         };
                     }),
-                    output: 0, //TODO
+                    output: outputNode ? parseInt(edges.filter((edge) => edge.target === outputNode.id)[0]?.source ?? 0) as LayerInstanceId : -1,
                 } as ArchitectureDataDescription,
                 layout: {
                     nodes: Object.fromEntries(
-                        nodes.map(node => [
-                            node.id,
-                            {
-                                x: node.position.x,
-                                y: node.position.y,
-                                metadata: {
-                                    color: get(node.data.color as Writable<string>),
-                                    title: get(node.data.title as Writable<string>),
+                        nodes.map(node => {
+                            return [
+                                node.id,
+                                {
+                                    x: node.position.x,
+                                    y: node.position.y,
+                                    metadata: {
+                                        color: get(node.data?.color as Writable<string>),
+                                        title: get(node.data?.title as Writable<string>),
+                                        expanded: get(node.data?.expanded as Writable<boolean>),
+                                        leftConnected: get(node.data?.leftConnected as Writable<boolean>),
+                                        rightConnected: get(node.data?.rightConnected as Writable<boolean>),
+                                        leftStatus: get(node.data?.leftStatus as Writable<string>),
+                                        rightStatus: get(node.data?.rightStatus as Writable<string>),
+                                        inputs: get(node.data?.inputs as Writable<LayerInput[]>),
+                                        outputSize: get(node.data?.outputSize as Writable<TensorSize>),
+                                    }
                                 }
-                            }
-                        ])
+                            ];
+                        })
                     ),
                     edges
                 } as NetworkLayoutDescription,

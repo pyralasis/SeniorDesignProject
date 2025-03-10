@@ -1,11 +1,16 @@
-import type { Layer } from '$lib/types/layer';
+import type { LayerBlueprint } from '$lib/types/layer';
 import type { NodeType } from '$lib/types/node-type.enum';
 import type { SourceBlueprint } from '$lib/types/source';
 import type { TransformBlueprint } from '$lib/types/transform';
 import { getContext } from 'svelte';
 import type { Writable } from 'svelte/store';
 
-export type NodeBlueprint = Layer<any> | SourceBlueprint<any> | TransformBlueprint<any>;
+type BasicBlueprint<T> = {
+    id: string,
+    name: string,
+    parameters: T[],
+}
+export type NodeBlueprint = LayerBlueprint<any> | SourceBlueprint<any> | TransformBlueprint<any> | BasicBlueprint<any>;
 
 export type DnDContext = {
     type: NodeType,

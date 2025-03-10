@@ -1,4 +1,5 @@
-import { type Layer, type LayerId } from '$lib/types/layer';
+import { type LayerBlueprint, type LayerId, type TensorSize } from '$lib/types/layer';
+import type { ParameterValue } from '$lib/types/parameter';
 import type { SourceBlueprint, SourceId } from '$lib/types/source';
 import type { TransformBlueprint, TransformId } from '$lib/types/transform';
 import { BACKEND_API_BASE_URL } from './api.constants';
@@ -14,7 +15,7 @@ export const BackendApiRequestsEnum = {
 } as const;
 
 export class BackendApi {
-    static async getAvailableLayers(): Promise<Layer<any>[]> {
+    static async getAvailableLayers(): Promise<LayerBlueprint<any>[]> {
         return fetch(BackendApiRequestsEnum.getAvailableLayers, {
             method: 'GET',
             headers: {
@@ -23,20 +24,20 @@ export class BackendApi {
         })
             .then(response => response.json())
             .then(data => {
-                let layers: Layer<any>[] = [];
+                let layers: LayerBlueprint<any>[] = [];
                 data.map((l: any) => {
                     layers.push({
                         id: l.id,
                         name: l.name,
                         inputs: l.inputs,
-                        parameters: l.parameters
-                    } as Layer<any>);
+                        parameters: l.parameters,
+                    } as LayerBlueprint<any>);
                 })
                 return layers;
             });
     }
 
-    static async getLayerById(id: LayerId): Promise<Layer<any>> {
+    static async getLayerById(id: LayerId): Promise<LayerBlueprint<any>> {
         return fetch(`${BackendApiRequestsEnum.getLayerById}?id=${id}`, {
             method: 'GET',
             headers: {
@@ -51,7 +52,7 @@ export class BackendApi {
                     name: layer.name,
                     inputs: layer.inputs,
                     parameters: layer.parameters
-                } as Layer<any>
+                } as LayerBlueprint<any>
             });
     }
 
@@ -133,5 +134,22 @@ export class BackendApi {
                 } as TransformBlueprint<any>
             });
     }
-}
 
+    static getLayerOutputSize(id: LayerId, inputSize: TensorSize, parameters: Record<string, ParameterValue<any>>): Promise<TensorSize> {
+        console.log('getLayerOutputSize', id, inputSize, parameters);
+        return new Promise<TensorSize>((resolve) => resolve([3, 5] as TensorSize))
+        // return fetch(BackendApiRequestsEnum.postLayerOutputSize, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //         id,
+        //         input_size: inputSize,
+        //         parameters
+        //     })
+        // })
+        //     .then(response => response.json())
+        //     .then(data => data.output_size);
+    }
+}

@@ -8,9 +8,11 @@
     export let onChange: (value: ParameterValue<any>) => void = () => {};
 
     function updateValue(event: CustomEvent, type: ParameterType) {
+        console.log(event.detail);
         value.type = type;
-        onChange(value);
+        value.val = event.detail.value;
     }
+    const initialValue = value.val;
 </script>
 
 <div class="node-field">
@@ -45,9 +47,10 @@
         <InputSeries
             style={StylingUtility.inputSeries}
             label={parameter.name}
+            maxlength={2}
             inputamount={2}
+            value={value.val}
             on:change={(event) => updateValue(event, ParameterTypeEnum.Size2D)}
-            bind:value={value.val}
         />
     {/if}
 </div>
