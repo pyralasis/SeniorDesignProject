@@ -109,23 +109,22 @@ fold_layer = LayerDefinition(
     fold_size_transformation
 )
 
-
-# def unfold_size_transformation(
-#     d: tuple[TensorSize, ...],
-#     padding,
-#     dilation,
-#     kernel_size,
-#     stride,
-#     **_
-# ):
-#     size = d[0]
+def unfold_size_transformation(
+    d: tuple[TensorSize, ...],
+    padding,
+    dilation,
+    kernel_size,
+    stride,
+    **_
+):
+    size = d[0]
     
-#     L = 1
-#     for i in range(2, len(size)):
-#         L *= floor(((size[i] + 2 * padding - dilation * (kernel_size - 1) - 1) / stride) + 1)
+    L = 1
+    for i in range(2, len(size)):
+        L *= floor(((size[i] + 2 * padding - dilation * (kernel_size - 1) - 1) / stride) + 1)
 
-#     num_spatial_dims = len(size) - 2
-#     return (size[0], size[1] * kernel_size**num_spatial_dims, L) # Size tuple
+    num_spatial_dims = len(size) - 2
+    return (size[0], size[1] * kernel_size**num_spatial_dims, L) # Size tuple
 
 unfold_layer = LayerDefinition(
     "unfold",

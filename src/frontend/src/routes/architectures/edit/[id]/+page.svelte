@@ -52,22 +52,6 @@
         edges = store?.activeArchitecture?.edges;
     });
 
-    function onSave() {
-        saveStatus.set('Saving...');
-        architectureStore
-            .saveActiveArchitecture()
-            .then(() => {
-                setTimeout(() => {
-                    saveStatus.set('Architecture is up to Date');
-                    isArchitectureSaved.set(true);
-                }, 500);
-            })
-            .catch((w) => {
-                saveStatus.set('Failed to Save. Save Again');
-                console.error(w);
-            });
-    }
-
     function handleKeydown(event: KeyboardEvent) {
         if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
             event.preventDefault();

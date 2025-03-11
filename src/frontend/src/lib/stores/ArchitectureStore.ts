@@ -19,7 +19,6 @@ import {
     type LoadArchitectureResponse,
 } from "./types/architecture-store.interface";
 import type { Version } from "$lib/types/info";
-import { saveStatus, isArchitectureSaved } from "$lib/stores/savedStore";
 import type { LayerInput, LayerInstanceId, TensorSize } from "$lib/types/layer";
 import { HandleStatusEnum } from "$lib/components/Node/handle-status.enum";
 
