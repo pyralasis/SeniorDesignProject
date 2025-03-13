@@ -1,16 +1,22 @@
 import type { ArchitectureId } from '$lib/types/architecture';
+import type { Info } from '$lib/types/info';
 import type { MetaData } from '$lib/types/metadata';
 import { type Writable } from 'svelte/store';
 
 export interface activeModel{}
 
+export type ModelId = string;
+export type ModelInfoDescription = Info & {}
+export type ModelMetaDescription = MetaData & {}
 
 export interface AvailableModel{
-
+    id: ModelId;
+    meta: ModelInfoDescription;
+    info: ModelMetaDescription;
 }
 
 export interface ModelStoreProps{
-    availableModels: AvailableModel[] | undefined;
+    availableModels: AvailableModel[] | undefined | any;
     activeModel: activeModel | undefined;
 }
 
@@ -26,6 +32,6 @@ export type CreateModelRequestBody = {
 }
 
 export type AvailableModelsResponse = {
-    available: AvalableModel[],
+    available: AvailableModel[],
     sucess: boolean
 }

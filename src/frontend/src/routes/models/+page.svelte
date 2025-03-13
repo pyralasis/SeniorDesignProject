@@ -4,14 +4,32 @@
     import { StylingUtility } from "$lib/utilities/styling.utility";
 
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { Button } from "kiwi-nl";
+    import { Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput } from "kiwi-nl";
     import { modelStore } from "$lib/stores/ModelStore";
-    import { onMount } from 'svelte';
+    import { onMount, setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
     import type { AvailableModel } from "$lib/stores/types/models-store.interface";
+    import MenuItem from '$lib/components/General/MenuItem.svelte';
+    import Icon from '$lib/components/Icon/Icon.svelte';
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
 
+    setContext('selected-item', selectedModel);
+
+
+    let optimizerItems: PopoverItem[] = [
+        { label: 'Optimizers', value: 'item1' },
+    ];
+
+    let lossItems: PopoverItem[] = [
+        { label: 'Losses', value: 'item1' },
+    ];
+
+    let popoverItems: PopoverItem[] = [];
+
+    function handlePopoverItemsChanged(event: CustomEvent): void {
+        popoverItems = event.detail.selectedItems;
+    }
     
     onMount(() => {
         modelStore.getAvailableModels();
@@ -69,6 +87,17 @@
         </div>
         <div class="model-page__bottom-right">
             {#if $selectedModel}
+                <TextInput label="Training Epochs" />
+                <div class="popovers">
+                    <Popover on:popoverItemsChanged={handlePopoverItemsChanged} items={optimizerItems}>
+                        <PopoverChipTrigger slot="trigger" label="Optimizers" />
+                        <PopoverSingleSelectContent slot="content" />
+                    </Popover>
+                    <Popover on:popoverItemsChanged={handlePopoverItemsChanged} items={lossItems}>
+                        <PopoverChipTrigger slot="trigger" label="Loss Functions" />
+                        <PopoverSingleSelectContent slot="content" />
+                    </Popover>
+                </div>
                 <Button
                     type="primary"
                     style={StylingUtility.redButton}

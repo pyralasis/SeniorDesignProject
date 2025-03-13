@@ -8,7 +8,7 @@ from server.params import (
 )
 from server.layer.size import TensorSize
 
-# found here: https://pytorch.org/docs/stable/nn.html#convolution-layers
+# found here: https://pytorch.org/docs/stable/nn.html#pooling-layers
 
 
 # TODO: Write tests for this?
