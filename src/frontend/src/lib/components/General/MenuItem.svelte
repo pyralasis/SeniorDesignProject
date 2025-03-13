@@ -6,7 +6,7 @@
     import { getContext } from 'svelte';
     import type { Writable } from 'svelte/store';
 
-    export let item: AvailableArchitecture | AvailablePipeline;
+    export let item: AvailableArchitecture | AvailablePipeline | AvailableModel;
 
     const selectedItem = getContext<Writable<AvailableArchitecture | AvailablePipeline | AvailableModel | undefined>>('selected-item');
 
