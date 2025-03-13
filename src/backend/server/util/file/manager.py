@@ -61,6 +61,9 @@ class IFileManager(ABC, Generic[T]):
     @abstractmethod
     def exists(self, id: FileId) -> bool: ...
 
+    def is_networkable(self) -> bool:
+        return False
+
 
 class INetworkFileManager(IFileManager[T], ABC, Generic[T]):
     @abstractmethod
@@ -72,6 +75,10 @@ class INetworkFileManager(IFileManager[T], ABC, Generic[T]):
         Returns the name of the api endpoint prefix used by this file manager.
         """
         ...
+
+    @override
+    def is_networkable(self) -> bool:
+        return True
 
 
 class BaseFileManager(IFileManager, ABC, Generic[T]):

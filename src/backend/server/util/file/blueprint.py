@@ -46,26 +46,31 @@ class IOErrResponse:
 ###
 
 
-def create_object_blueprint(file_coordinator: FileCoordinator) -> Blueprint:
+def create_object_blueprint(file_coordinator: FileCoordinator, network_data: bool = True) -> Blueprint:
     obj_api_name = file_coordinator.api_name
     bp = Blueprint(f"files", __name__)
 
     bp.add_url_rule("/available", view_func=AvailableObjectsView.as_view(f"available", file_coordinator))
     bp.add_url_rule("/delete", view_func=DeleteObjectView.as_view(f"delete", file_coordinator))
-    bp.add_url_rule("/load", view_func=LoadObjectView.as_view(f"load", file_coordinator))
-    bp.add_url_rule("/create", view_func=CreateObjectView.as_view(f"create", file_coordinator))
-    bp.add_url_rule("/update", view_func=UpdateObjectView.as_view(f"update", file_coordinator))
 
     bp.register_blueprint(
         create_file_blueprint(file_coordinator.meta_files, file_coordinator),
         url_prefix=f"/{file_coordinator.meta_files.api_name()}",
     )
 
-    # This will not work if the data FileManager is not a INetworkFileManager (e.g. you can't use this with pytorch weights)
-    bp.register_blueprint(
-        create_file_blueprint(file_coordinator.data_files, file_coordinator),  # type: ignore
-        url_prefix=f"/{file_coordinator.data_files.api_name()}",  # type: ignore
-    )
+    if network_data:
+        assert (  # This will not work if the data FileManager is not a INetworkFileManager (e.g. you can't use this with pytorch weights)
+            file_coordinator.data_files.is_networkable()
+        )
+
+        bp.add_url_rule("/create", view_func=CreateObjectView.as_view(f"create", file_coordinator))
+        bp.add_url_rule("/update", view_func=UpdateObjectView.as_view(f"update", file_coordinator))
+        bp.add_url_rule("/load", view_func=LoadObjectView.as_view(f"load", file_coordinator))
+
+        bp.register_blueprint(
+            create_file_blueprint(file_coordinator.data_files, file_coordinator),  # type: ignore
+            url_prefix=f"/{file_coordinator.data_files.api_name()}",  # type: ignore
+        )
 
     for file_manager in file_coordinator.extra_files:
         bp.register_blueprint(
