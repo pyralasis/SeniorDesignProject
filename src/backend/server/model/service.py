@@ -19,6 +19,7 @@ from server.layer.size import TensorSize
 from server.model.model import ArchitectureModel
 from server.util.file import Loadable, MetaData, TorchWeightsFileManager
 from server.util.file.coordinator import FileCoordinator
+from server.util.file.file import FileId
 
 """
 Sample model architecture:
@@ -56,16 +57,7 @@ class ModelService:
             save_path,
         )
 
-    def create_model(self, architecture: ArchitectureConfig, meta_data: MetaData) -> str:
-        # now we have the created layers organized by instance id
-        # we can now create the model
+    def create_model(self, architecture: ArchitectureConfig, meta_data: MetaData) -> FileId:
         model = ArchitectureModel.create_from_architecture(architecture, self.layer_service)
-
-        # make the model id
-        model_id = str(uuid.uuid1())
-
-        # save the model to the file system
-        self.models.create(ModelObject(meta_data, model.state_dict()))
-
-        # return the model id
+        model_id = self.models.create(ModelObject(meta_data, model.state_dict()))  # save the model to the file system
         return model_id

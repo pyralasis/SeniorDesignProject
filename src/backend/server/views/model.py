@@ -40,7 +40,7 @@ class CreateModelRequestBody:
 
 @dataclass
 class SuccessfulResponse:
-    model_id: str
+    model_id: FileId
     success: Literal[True] = True
 
 
