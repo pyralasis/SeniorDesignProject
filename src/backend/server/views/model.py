@@ -17,7 +17,8 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
 
     bp.add_url_rule("/create", view_func=CreateModelView.as_view("create", model_service, architecture_service))
 
-    create_object_blueprint(model_service.models, False)
+    # Adds available and delete endpoints
+    bp.register_blueprint(create_object_blueprint(model_service.models, False))
 
     # Allows for editing meta data
     bp.register_blueprint(
