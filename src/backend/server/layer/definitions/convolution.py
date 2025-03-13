@@ -109,7 +109,6 @@ fold_layer = LayerDefinition(
     fold_size_transformation
 )
 
-
 def unfold_size_transformation(
     d: tuple[TensorSize, ...],
     padding,

@@ -15,6 +15,9 @@
 
     const color: Writable<string> = data?.color as Writable<string>;
     const name: Writable<string> = data?.name as Writable<string>;
+    const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
+        { parameter: Parameter<any>; value: ParameterValue<any> }[]
+    >;
 </script>
 
 <Handle
@@ -40,7 +43,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-    class="transform-node node__header"
+    class="transform-node"
     style="
         outline: {selected ? '1.5' : '1'}px solid {$color + (selected ? 'bb' : '34')};
         cursor: pointer;
@@ -49,10 +52,17 @@
 >
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="transform-node__header">
+    <div class="transform-node__header node__header">
         <div class="transform-node__title">Transform</div>
         <div class="transform-node__sub-title">{$name}</div>
     </div>
+    {#if $parameters.length !== 0}
+        <div class="transform-node__content">
+            {#each $parameters as parameter}
+                <NodeField parameter={parameter.parameter} value={parameter.value} />
+            {/each}
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">
@@ -78,6 +88,22 @@
             &:active {
                 cursor: grabbing;
             }
+        }
+
+        &__content {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            cursor: default;
+            background-color: #070707;
+        }
+
+        &__content-empty {
+            font-size: 12px;
+            color: #9f9f9f;
+            width: 100%;
+            text-align: center;
         }
 
         &__title {

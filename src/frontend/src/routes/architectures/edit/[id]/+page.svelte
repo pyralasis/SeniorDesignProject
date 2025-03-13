@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { SvelteFlowProvider, type Edge, type Node } from '@xyflow/svelte';
+    import { SvelteFlowProvider, type Connection, type Edge, type Node } from '@xyflow/svelte';
     import DnDProvider from '$lib/components/DnDProvider.svelte';
     import NodeEditor from '$lib/components/NodeEditor/NodeEditor.svelte';
     import { writable, type Writable, get } from 'svelte/store';
@@ -13,9 +13,11 @@
     import { IconNameEnum } from '$lib/components/Icon/types/icon-name.enum';
     import { BackendApi } from '$lib/utilities/api.utilities';
     import type { DnDContext } from '$lib/utilities/DnDUtils';
-    import type { Layer } from '$lib/types/layer';
+    import type { LayerBlueprint, LayerInput, TensorSize } from '$lib/types/layer';
     import { NodeTypeEnum } from '$lib/types/node-type.enum';
-    import { SaveStatusEnum} from '$lib/stores/types/architecture-store.interface';
+    import { SaveStatusEnum } from '$lib/stores/types/architecture-store.interface';
+    import type { Parameter, ParameterValue } from '$lib/types/parameter';
+    import { HandleStatusEnum, type HandleStatus } from '$lib/components/Node/handle-status.enum';
 
     let nodes: Writable<Node[]>;
     let edges: Writable<Edge[]>;
@@ -23,9 +25,25 @@
 
     $: id = page.params.id;
     let isEditingTitle: Writable<boolean> = writable(false);
+    const inputNodeBluePrints: Writable<DnDContext[]> = writable([
+        {
+            type: NodeTypeEnum.Input,
+            nodeBlueprint: {
+                id: 'input',
+                name: 'Input Node',
+                parameters: [
+                    {
+                        parameter: { id: 'tensor_size', name: 'Tensor Size', type: 'size2d' },
+                        value: { type: 'size2d', val: [0, 0] },
+                    },
+                ],
+            },
+        },
+    ] as DnDContext[]);
+    const outputNodeBluePrints: Writable<DnDContext[]> = writable([
+        { type: NodeTypeEnum.Output, nodeBlueprint: { id: 'output', name: 'Output Node', parameters: [] } },
+    ] as DnDContext[]);
 
-   
-    
     architectureStore.subscribe((store) => {
         if (!store.activeArchitecture) {
             return;
@@ -33,8 +51,6 @@
         nodes = store?.activeArchitecture?.nodes;
         edges = store?.activeArchitecture?.edges;
     });
-    
-
 
     function handleKeydown(event: KeyboardEvent) {
         if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
@@ -42,12 +58,12 @@
             architectureStore.updateArchitectureSaveStatus();
         }
     }
-    function onChange(){
-       if ($architectureStore.saveStatus === SaveStatusEnum.NotSaved) {
+    function onChange() {
+        if ($architectureStore.saveStatus === SaveStatusEnum.NotSaved) {
             return;
-       }
-       architectureStore.updateSaveStatus(false, SaveStatusEnum.NotSaved)
-    };
+        }
+        architectureStore.updateSaveStatus(false, SaveStatusEnum.NotSaved);
+    }
     onMount(() => {
         window.addEventListener('keydown', handleKeydown);
 
@@ -63,7 +79,7 @@
     onMount(async () => {
         availableLayers.set(
             (await BackendApi.getAvailableLayers()).map(
-                (layer: Layer<any>) => ({ type: NodeTypeEnum.Layer, nodeBlueprint: layer }) as DnDContext,
+                (layer: LayerBlueprint<any>) => ({ type: NodeTypeEnum.Layer, nodeBlueprint: layer }) as DnDContext,
             ),
         );
         await architectureStore.loadArchitectureById(id);
@@ -74,6 +90,99 @@
             return;
         }
         $architectureStore.activeArchitecture.meta.name = event.detail.value;
+    }
+
+    function deconstructParameters(parameters: { parameter: Parameter<any>; value: ParameterValue<any> }[]): Record<string, any> {
+        const result: Record<string, any> = {};
+        if (!parameters) {
+            return result;
+        }
+        parameters.forEach((parameter) => {
+            result[parameter.parameter.id] = parameter.value.val;
+        });
+        return result;
+    }
+
+    function constructIdChain(currentNodeId: string, idChain: string[]): string[] {
+        const currentEdge = $edges.find((edge) => edge.source === currentNodeId);
+        if (!currentEdge) {
+            return idChain;
+        }
+        const targetNodeId = currentEdge?.target;
+        idChain.push(targetNodeId);
+        return constructIdChain(targetNodeId, idChain);
+    }
+
+    function constructNodeChain(): Node[] {
+        const inputNode = $nodes.find((node) => node.type === NodeTypeEnum.Input);
+        // Reset the status of all nodes
+        $nodes.forEach((node) => {
+            if (node.data?.leftStatus) {
+                (node.data.leftStatus as Writable<HandleStatus>).set(HandleStatusEnum.default);
+            }
+            if (node.data?.rightStatus) {
+                (node.data.rightStatus as Writable<HandleStatus>).set(HandleStatusEnum.default);
+            }
+        });
+        if (!inputNode) {
+            return [];
+        }
+        const nodeIdChain: string[] = constructIdChain(inputNode.id, [inputNode.id]);
+        const nodeChain: Node[] = nodeIdChain.map((nodeId) => $nodes.find((node) => node.id === nodeId) as Node);
+        return nodeChain;
+    }
+
+    function validateNodes(nodeChain: Node[]): void {
+        let currentNode: Node = nodeChain[0];
+        let previousNode: Node;
+
+        for (let i = 1; i < nodeChain.length; i++) {
+            previousNode = currentNode;
+            currentNode = nodeChain[i];
+            if (currentNode.id === '69') {
+                return;
+            }
+            let previousNodeOutputSize: TensorSize = get(previousNode.data?.outputSize as Writable<TensorSize>);
+            let currentNodeMaxDimension: number = get(currentNode.data?.inputs as Writable<LayerInput[]>)[0]?.max_dimensions as number;
+            let currentNodeMinDimension: number = get(currentNode.data?.inputs as Writable<LayerInput[]>)[0]?.min_dimensions as number;
+            console.log(previousNodeOutputSize, currentNodeMinDimension, currentNodeMaxDimension);
+            if (
+                (previousNodeOutputSize.length >= currentNodeMinDimension || currentNodeMinDimension === null) &&
+                (previousNodeOutputSize.length <= currentNodeMaxDimension || currentNodeMaxDimension === null)
+            ) {
+                (previousNode.data?.rightStatus as Writable<HandleStatus>).set(HandleStatusEnum.success);
+                (currentNode.data?.leftStatus as Writable<HandleStatus>).set(HandleStatusEnum.success);
+            } else {
+                (previousNode.data?.rightStatus as Writable<HandleStatus>).set(HandleStatusEnum.error);
+                (currentNode.data?.leftStatus as Writable<HandleStatus>).set(HandleStatusEnum.error);
+            }
+        }
+    }
+
+    async function onConnect(connection: Connection) {
+        const sourceNode = $nodes.find((node) => node.id === connection.source);
+        const targetNode = $nodes.find((node) => node.id === connection.target);
+        if (!sourceNode || !targetNode) {
+            return;
+        }
+        const targetNodeOutputSize: TensorSize = await BackendApi.getLayerOutputSize(
+            targetNode.data.layer_id as string,
+            get(sourceNode.data.outputSize as Writable<TensorSize>),
+            deconstructParameters(get(targetNode.data.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>)),
+        );
+
+        if (targetNode.id != '69') {
+            (targetNode.data.outputSize as Writable<TensorSize>).set(targetNodeOutputSize);
+        }
+
+        let nodeChain: Node[] = constructNodeChain();
+        validateNodes(nodeChain);
+    }
+
+    function onNodeOrEdgeDelete() {
+        let nodeChain: Node[] = constructNodeChain();
+        validateNodes(nodeChain);
+        console.log(nodeChain);
     }
 </script>
 
@@ -109,13 +218,15 @@
                 </div>
             {:else if !$architectureStore.activeArchitecture?.loading && nodes && edges}
                 <NodeEditor
-                    onSave={() => architectureStore.updateArchitectureSaveStatus()} 
-                    onChange={onChange}
+                    onSave={() => architectureStore.updateArchitectureSaveStatus()}
+                    {onChange}
                     onCreateNode={architectureStore.addNodeToActiveArchitecture}
                     onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
+                    {onConnect}
+                    {onNodeOrEdgeDelete}
                     {nodes}
                     {edges}
-                    nodeblueprints={$availableLayers}
+                    nodeblueprints={[...$inputNodeBluePrints, ...$outputNodeBluePrints, ...$availableLayers]}
                 />
             {:else}
                 <div class="spinner-container">
@@ -152,7 +263,7 @@
     }
     .save-status {
         display: flex;
-        align-items: center; 
+        align-items: center;
         color: white;
         font-size: 14px;
         font-weight: bold;
@@ -160,7 +271,7 @@
         margin-right: 0;
     }
     .save-status span {
-        margin-right: 10px; 
+        margin-right: 10px;
     }
     .spinner-container {
         display: flex;

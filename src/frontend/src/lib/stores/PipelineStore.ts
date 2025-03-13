@@ -6,23 +6,51 @@ import type { Node, Edge } from "@xyflow/svelte";
 import type { Parameter, ParameterValue } from "$lib/types/parameter";
 import type { AvailablePipelinesResponse, LoadPipelineResponse, PipelineStore, PipelineStoreProps } from "./types/pipeline-store.interface";
 import type { PipelineId, NetworkPipelineDescription, PipelineConfig, PipelineMetaDescription, PipelineVersion, PipelineInfoDescription, PipelineElement, InstanceId } from "$lib/types/pipeline";
-import type { TransformId } from "$lib/types/transform";
-import type { SourceId } from "$lib/types/source";
+import type { TransformConfig, TransformId } from "$lib/types/transform";
+import type { SourceConfig, SourceId } from "$lib/types/source";
+import { NodeTypeEnum } from "$lib/types/node-type.enum";
 
 function getTransformParametersByTransformId(transformId: TransformId): Promise<Parameter<any>[]> {
-    return BackendApi.getTransformById(transformId).then((layer) => {
-        return layer.parameters;
+    return BackendApi.getAvailableTransforms().then((transforms) => {
+        const transform = transforms.find((t) => t.id === transformId);
+        return transform?.parameters || [];
     });
 }
 
-function getSourceParametersBySourceId(sourceId: SourceId): Promise<Parameter<any>[]> {
-    return BackendApi.getSourceById(sourceId).then((source) => {
-        return source.parameters;
+async function getSourceParametersBySourceId(sourceId: SourceId): Promise<Parameter<any>[]> {
+    return BackendApi.getAvailableSources().then((sources) => {
+        const source = sources.find((s) => s.id === sourceId);
+        return source?.parameters || [];
     });
 }
 
 function findParameterById(parameters: any[], id: string): Parameter<any> {
     return parameters.find((parameter) => parameter.id === id);
+}
+
+function parseElements(nodes: Node[]): PipelineElement[] {
+    return nodes.map((node) => {
+        const parameters = get(node.data.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any>; }[]>);
+        if (node.type === 'source') {
+            return {
+                type: NodeTypeEnum.Source,
+                src_id: node.data.src_id,
+                instance_id: parseInt(node.id),
+                param_values: Object.fromEntries(
+                    parameters.map(({ parameter, value }) => [parameter.id, value])
+                )
+            } as SourceConfig;
+        } else {
+            return {
+                type: NodeTypeEnum.Transform,
+                transform_id: node.data.transform_id,
+                instance_id: parseInt(node.id),
+                param_values: Object.fromEntries(
+                    parameters.map(({ parameter, value }) => [parameter.id, value])
+                )
+            } as TransformConfig;
+        }
+    });
 }
 
 async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout: any): Promise<{ nodes: Node[], edges: Edge[] }> {
@@ -36,6 +64,7 @@ async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout:
         } else {
             elementParameters = await getTransformParametersByTransformId(element.transform_id);
         }
+
         nodes.push({
             id: element.instance_id.toString(),
             type: element.type,
@@ -43,6 +72,10 @@ async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout:
                 color: writable<string>(layout.nodes[element.instance_id]?.metadata.color ?? '#FFFFFF'),
                 title: writable<string>(layout.nodes[element.instance_id]?.metadata.title ?? 'Untitled Layer'),
                 name: writable<string>(layout.nodes[element.instance_id]?.metadata.name ?? ''),
+                leftConnected: writable<boolean>(layout.nodes[element.instance_id]?.metadata.leftConnected ?? false),
+                rightConnected: writable<boolean>(layout.nodes[element.instance_id]?.metadata.rightConnected ?? false),
+                maxInputSize: writable<number>(layout.nodes[element.instance_id]?.metatdata?.maxInputSize ?? 0),
+                minInputSize: writable<number>(layout.nodes[element.instance_id]?.metadata?.minInputSize ?? 0),
                 ...(element.type === 'source' ? { src_id: element.src_id } : { transform_id: element.transform_id }),
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
                     Object.entries(element.param_values).map(([key, value]) => {
@@ -60,7 +93,6 @@ async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout:
         } satisfies Node);
 
     }));
-
 
     return { nodes, edges };
 }
@@ -109,7 +141,6 @@ const createPipelineStore = (): PipelineStore => {
             const data = (await response.json() as LoadPipelineResponse).object;
             const pipData = data.data.data;
             const layoutData = data.data.layout;
-
             const { nodes, edges } = await parseLayersIntoNodesAndEdges(
                 pipData.elements,
                 layoutData
@@ -166,12 +197,13 @@ const createPipelineStore = (): PipelineStore => {
             return;
         }
         const nodes = get(pStore.activePipeline.nodes);
+
         const edges = get(pStore.activePipeline.edges);
         const pipeline: NetworkPipelineDescription = {
             id: pStore.activePipeline.id as PipelineId ?? -1,
             data: {
                 data: {
-                    elements: [],
+                    elements: parseElements(nodes),
                     value_output: -1,
                     label_output: -1,
                 } as PipelineConfig,
@@ -186,6 +218,11 @@ const createPipelineStore = (): PipelineStore => {
                                     color: get(node.data.color as Writable<string>),
                                     title: get(node.data.title as Writable<string>),
                                     name: get(node.data.name as Writable<string>),
+                                    expanded: get(node.data.expanded as Writable<boolean>),
+                                    leftConnected: get(node.data.leftConnected as Writable<boolean>),
+                                    rightConnected: get(node.data.rightConnected as Writable<boolean>),
+                                    maxInputSize: get(node.data.maxInputSize as Writable<number>),
+                                    minInputSize: get(node.data.minInputSize as Writable<number>),
                                 }
                             }
                         ])
@@ -203,7 +240,6 @@ const createPipelineStore = (): PipelineStore => {
             info: {
                 version: pStore.activePipeline?.meta.version ?? 0 as PipelineVersion, //TODO
             } as PipelineInfoDescription,
-
         };
 
         await fetch(`${BACKEND_API_BASE_URL}/pipeline/${isNew ? 'create' : 'update'}`, {
