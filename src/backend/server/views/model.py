@@ -8,7 +8,7 @@ from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
 from server.model.service import ModelService
 from server.util.file import FileId
-from server.util.file.blueprint import AvailableFilesView, create_file_blueprint
+from server.util.file.blueprint import AvailableObjectsView, create_file_blueprint
 from server.util.file.meta import MetaData
 
 
@@ -16,7 +16,7 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
     bp = Blueprint("model", __name__)
 
     bp.add_url_rule("/create", view_func=CreateModelView.as_view("create", model_service, architecture_service))
-    bp.add_url_rule("/available", view_func=AvailableFilesView.as_view("available", model_service.models.data_files))
+    bp.add_url_rule("/available", view_func=AvailableObjectsView.as_view("available", model_service.models))
 
     # Allows for editing meta data
     bp.register_blueprint(
