@@ -8,7 +8,7 @@ from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
 from server.model.service import ModelService
 from server.util.file import FileId
-from server.util.file.blueprint import create_file_blueprint, create_object_blueprint
+from server.util.file.blueprint import create_object_blueprint
 from server.util.file.meta import MetaData
 
 
@@ -17,7 +17,7 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
 
     bp.add_url_rule("/create", view_func=CreateModelView.as_view("create", model_service, architecture_service))
 
-    # Adds available and delete endpoints
+    # Adds available and delete endpoints, as well as metadata endpoints
     bp.register_blueprint(create_object_blueprint(model_service.models, False))
 
     return bp
