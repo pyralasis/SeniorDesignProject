@@ -29,31 +29,6 @@
 
 <div class="sidebar" style="width: {expanded ? 'fit-content' : '0px'}; opacity: {expanded ? 1 : 0};">
     <div class="sidebar__nodes-container">
-        <div class="sidebar__section">
-            <h4 class="sidebar__section-header">Editor Tools</h4>
-            <div class="sidebar__button-group">
-                <button type="button"
-                    class="sidebar__button"
-                    on:click={() => switchTool("drag")}
-                    class:active={$activeTool === "drag"}
-                >
-                    <MousePointer size={24} />
-                    <!-- <span>Drag Tool</span> -->
-                </button>
-
-                <button type="button"
-                    class="sidebar__button"
-                    on:click={() => switchTool("scan")}
-                    class:active={$activeTool === "scan"}
-                >
-                    <Scan size={24} />
-                    <!-- <span>Scan/Delete</span> -->
-                </button>
-            </div>
-        </div>
-    </div>
-    <!-- 🔹 Nodes Section (Same Styling as Toolbox) -->
-    <div class="sidebar__nodes-container">
         {#each Object.entries(nodes.reduce((acc, node) => {
                     if (!acc[node.type]) acc[node.type] = [];
                     acc[node.type].push(node);
@@ -71,7 +46,7 @@
 
 <style lang="scss">
 
-.sidebar {
+.sidebar {    
     width: fit-content;
     font-size: 12px;
     display: flex;

@@ -373,9 +373,10 @@ const createArchitectureStore = (): ArchitectureStore => {
             store.activeArchitecture.nodes.update((nodes) => {
                 return nodes.filter((node) => node.id !== id);
             });
+            console.log("Updates Save Status");
+            updateArchitectureSaveStatus();
             return store;
         });
-        updateArchitectureSaveStatus();
     };
     ///Checks saveActiveArchitecture and updates the UI
     //Also is used as an autosave since we call it on node insertion/deletion

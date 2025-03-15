@@ -4,11 +4,26 @@ import { get, writable, type Writable } from "svelte/store";
 import type { NetworkLayoutDescription } from "$lib/types/layout";
 import type { Node, Edge } from "@xyflow/svelte";
 import type { Parameter, ParameterValue } from "$lib/types/parameter";
-import type { AvailablePipelinesResponse, LoadPipelineResponse, PipelineStore, PipelineStoreProps } from "./types/pipeline-store.interface";
-import type { PipelineId, NetworkPipelineDescription, PipelineConfig, PipelineMetaDescription, PipelineVersion, PipelineInfoDescription, PipelineElement, InstanceId } from "$lib/types/pipeline";
+import type {
+    AvailablePipelinesResponse,
+    LoadPipelineResponse,
+    PipelineStore,
+    PipelineStoreProps,
+} from "./types/pipeline-store.interface";
+import type {
+    PipelineId,
+    NetworkPipelineDescription,
+    PipelineConfig,
+    PipelineMetaDescription,
+    PipelineVersion,
+    PipelineInfoDescription,
+    PipelineElement,
+    InstanceId,
+} from "$lib/types/pipeline";
 import type { TransformConfig, TransformId } from "$lib/types/transform";
 import type { SourceConfig, SourceId } from "$lib/types/source";
 import { NodeTypeEnum } from "$lib/types/node-type.enum";
+import { PipelineStatusEnum } from "$lib/stores/types/pipeline-store.interface";
 
 function getTransformParametersByTransformId(transformId: TransformId): Promise<Parameter<any>[]> {
     return BackendApi.getAvailableTransforms().then((transforms) => {
@@ -30,69 +45,66 @@ function findParameterById(parameters: any[], id: string): Parameter<any> {
 
 function parseElements(nodes: Node[]): PipelineElement[] {
     return nodes.map((node) => {
-        const parameters = get(node.data.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any>; }[]>);
-        if (node.type === 'source') {
+        const parameters = get(node.data.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>);
+        if (node.type === "source") {
             return {
                 type: NodeTypeEnum.Source,
                 src_id: node.data.src_id,
                 instance_id: parseInt(node.id),
-                param_values: Object.fromEntries(
-                    parameters.map(({ parameter, value }) => [parameter.id, value])
-                )
+                param_values: Object.fromEntries(parameters.map(({ parameter, value }) => [parameter.id, value])),
             } as SourceConfig;
         } else {
             return {
                 type: NodeTypeEnum.Transform,
                 transform_id: node.data.transform_id,
                 instance_id: parseInt(node.id),
-                param_values: Object.fromEntries(
-                    parameters.map(({ parameter, value }) => [parameter.id, value])
-                )
+                param_values: Object.fromEntries(parameters.map(({ parameter, value }) => [parameter.id, value])),
             } as TransformConfig;
         }
     });
 }
 
-async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout: any): Promise<{ nodes: Node[], edges: Edge[] }> {
+async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout: any): Promise<{ nodes: Node[]; edges: Edge[] }> {
     let nodes: Node[] = [];
     let edges: Edge[] = layout.edges.map((edge: any) => edge as Edge);
 
-    await Promise.all(elements.map(async (element: PipelineElement) => {
-        let elementParameters: Parameter<any>[] = [];
-        if (element.type === 'source') {
-            elementParameters = await getSourceParametersBySourceId(element.src_id);
-        } else {
-            elementParameters = await getTransformParametersByTransformId(element.transform_id);
-        }
+    await Promise.all(
+        elements.map(async (element: PipelineElement) => {
+            let elementParameters: Parameter<any>[] = [];
+            if (element.type === "source") {
+                elementParameters = await getSourceParametersBySourceId(element.src_id);
+            } else {
+                elementParameters = await getTransformParametersByTransformId(element.transform_id);
+            }
 
-        nodes.push({
-            id: element.instance_id.toString(),
-            type: element.type,
-            data: {
-                color: writable<string>(layout.nodes[element.instance_id]?.metadata.color ?? '#FFFFFF'),
-                title: writable<string>(layout.nodes[element.instance_id]?.metadata.title ?? 'Untitled Layer'),
-                name: writable<string>(layout.nodes[element.instance_id]?.metadata.name ?? ''),
-                leftConnected: writable<boolean>(layout.nodes[element.instance_id]?.metadata.leftConnected ?? false),
-                rightConnected: writable<boolean>(layout.nodes[element.instance_id]?.metadata.rightConnected ?? false),
-                maxInputSize: writable<number>(layout.nodes[element.instance_id]?.metatdata?.maxInputSize ?? 0),
-                minInputSize: writable<number>(layout.nodes[element.instance_id]?.metadata?.minInputSize ?? 0),
-                ...(element.type === 'source' ? { src_id: element.src_id } : { transform_id: element.transform_id }),
-                parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
-                    Object.entries(element.param_values).map(([key, value]) => {
-                        let parameterTemplate = findParameterById(elementParameters, key);
-                        return ({
-                            parameter: parameterTemplate,
-                            value: value as ParameterValue<any>
-                        });
-                    })
-                ),
-                expanded: writable<boolean>(false),
-            },
-            position: { x: layout.nodes[element.instance_id]?.x ?? 0, y: layout.nodes[element.instance_id]?.y ?? 0 },
-            dragHandle: '.node__header',
-        } satisfies Node);
-
-    }));
+            nodes.push({
+                id: element.instance_id.toString(),
+                type: element.type,
+                data: {
+                    color: writable<string>(layout.nodes[element.instance_id]?.metadata.color ?? "#FFFFFF"),
+                    title: writable<string>(layout.nodes[element.instance_id]?.metadata.title ?? "Untitled Layer"),
+                    name: writable<string>(layout.nodes[element.instance_id]?.metadata.name ?? ""),
+                    leftConnected: writable<boolean>(layout.nodes[element.instance_id]?.metadata.leftConnected ?? false),
+                    rightConnected: writable<boolean>(layout.nodes[element.instance_id]?.metadata.rightConnected ?? false),
+                    maxInputSize: writable<number>(layout.nodes[element.instance_id]?.metatdata?.maxInputSize ?? 0),
+                    minInputSize: writable<number>(layout.nodes[element.instance_id]?.metadata?.minInputSize ?? 0),
+                    ...(element.type === "source" ? { src_id: element.src_id } : { transform_id: element.transform_id }),
+                    parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
+                        Object.entries(element.param_values).map(([key, value]) => {
+                            let parameterTemplate = findParameterById(elementParameters, key);
+                            return {
+                                parameter: parameterTemplate,
+                                value: value as ParameterValue<any>,
+                            };
+                        })
+                    ),
+                    expanded: writable<boolean>(false),
+                },
+                position: { x: layout.nodes[element.instance_id]?.x ?? 0, y: layout.nodes[element.instance_id]?.y ?? 0 },
+                dragHandle: ".node__header",
+            } satisfies Node);
+        })
+    );
 
     return { nodes, edges };
 }
@@ -100,18 +112,30 @@ async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout:
 const createPipelineStore = (): PipelineStore => {
     const { subscribe, set, update } = writable<PipelineStoreProps>({
         availablePipelines: undefined,
-        activePipeline: undefined
+        activePipeline: undefined,
+        isSaved: true,
+        saveStatus: PipelineStatusEnum.Success,
     });
+    const updateSaveStatus = (saved: boolean, status: PipelineStatusEnum): void => {
+        update((state) => {
+            if (state.isSaved === saved && state.saveStatus === status) return state;
+            return {
+                ...state,
+                isSaved: saved,
+                saveStatus: status,
+            };
+        });
+    };
 
     const getAvailablePipelines = async (): Promise<void> => {
         await fetch(`${BACKEND_API_BASE_URL}/pipeline/available`, {
-            method: 'GET',
+            method: "GET",
             headers: {
-                'Content-Type': 'application/json',
-            }
+                "Content-Type": "application/json",
+            },
         })
-            .then(response => response.json())
-            .then(data => {
+            .then((response) => response.json())
+            .then((data) => {
                 let response = data as AvailablePipelinesResponse;
                 update((store) => {
                     store.availablePipelines = response.available.map((pip) => {
@@ -125,27 +149,26 @@ const createPipelineStore = (): PipelineStore => {
                             },
                             info: {
                                 version: pip.info.version,
-                            }
+                            },
                         };
                     });
                     return store;
                 });
             });
-    }
+    };
 
     const loadPipelineById = async (id: PipelineId): Promise<void> => {
         try {
-            update(store => ({ ...store, activePipeline: undefined, loading: true }));
+            update((store) => ({ ...store, activePipeline: undefined, loading: true }));
 
-            const response = await fetch(`${BACKEND_API_BASE_URL}/pipeline/load?${new URLSearchParams({ id: id.toString() }).toString()}`);
-            const data = (await response.json() as LoadPipelineResponse).object;
+            const response = await fetch(
+                `${BACKEND_API_BASE_URL}/pipeline/load?${new URLSearchParams({ id: id.toString() }).toString()}`
+            );
+            const data = ((await response.json()) as LoadPipelineResponse).object;
             const pipData = data.data.data;
             const layoutData = data.data.layout;
-            const { nodes, edges } = await parseLayersIntoNodesAndEdges(
-                pipData.elements,
-                layoutData
-            );
-            update(store => ({
+            const { nodes, edges } = await parseLayersIntoNodesAndEdges(pipData.elements, layoutData);
+            update((store) => ({
                 ...store,
                 activePipeline: {
                     id: data.id,
@@ -158,49 +181,50 @@ const createPipelineStore = (): PipelineStore => {
                     },
                     nodes: writable<Node[]>(nodes),
                     edges: writable<Edge[]>(edges),
-                    loading: false
-
-                }
-
+                    loading: false,
+                },
             }));
         } catch (error) {
-            console.error('Error loading pipeline:', error);
-            update(store => ({
+            console.error("Error loading pipeline:", error);
+            update((store) => ({
                 ...store,
                 activePipeline: undefined,
-                loading: false
+                loading: false,
             }));
         }
-    }
+    };
 
     const clearActivePipeline = (): void => {
         update((store) => {
-            store.activePipeline = undefined
+            store.activePipeline = undefined;
+            updatePipelineSaveStatus();
             return store;
         });
-    }
+    };
 
     const deletePipeline = async (id: PipelineId): Promise<void> => {
         await fetch(`${BACKEND_API_BASE_URL}/pipeline/delete`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify({ id: id })
-        })
+            body: JSON.stringify({ id: id }),
+        });
         getAvailablePipelines();
-    }
+    };
 
-    const saveActivePipeline = async (isNew: boolean = false): Promise<void> => {
+    const saveActivePipeline = async (isNew: boolean = false): Promise<boolean> => {
         const pStore = get(pipelineStore);
         if (!pStore.activePipeline) {
-            return;
+            return false; // Return false if no active pipeline exists
         }
+
         const nodes = get(pStore.activePipeline.nodes);
 
         const edges = get(pStore.activePipeline.edges);
+
         const pipeline: NetworkPipelineDescription = {
-            id: pStore.activePipeline.id as PipelineId ?? -1,
+            id: (pStore.activePipeline.id as PipelineId) ?? -1,
             data: {
                 data: {
                     elements: parseElements(nodes),
@@ -209,7 +233,7 @@ const createPipelineStore = (): PipelineStore => {
                 } as PipelineConfig,
                 layout: {
                     nodes: Object.fromEntries(
-                        nodes.map(node => [
+                        nodes.map((node) => [
                             node.id,
                             {
                                 x: node.position.x,
@@ -223,11 +247,11 @@ const createPipelineStore = (): PipelineStore => {
                                     rightConnected: get(node.data.rightConnected as Writable<boolean>),
                                     maxInputSize: get(node.data.maxInputSize as Writable<number>),
                                     minInputSize: get(node.data.minInputSize as Writable<number>),
-                                }
-                            }
+                                },
+                            },
                         ])
                     ),
-                    edges
+                    edges,
                 } as NetworkLayoutDescription,
                 meta: {
                     name: pStore.activePipeline.meta.name,
@@ -235,31 +259,37 @@ const createPipelineStore = (): PipelineStore => {
                     created_at: pStore.activePipeline.meta.created_at,
                     last_modified: new Date().toISOString(),
                 } as PipelineMetaDescription,
-
             },
             info: {
-                version: pStore.activePipeline?.meta.version ?? 0 as PipelineVersion, //TODO
+                version: pStore.activePipeline?.meta.version ?? (0 as PipelineVersion), // TODO: Handle versioning properly
             } as PipelineInfoDescription,
         };
 
-        await fetch(`${BACKEND_API_BASE_URL}/pipeline/${isNew ? 'create' : 'update'}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(
-                isNew
-                    ? { meta: pipeline.data.meta, data: pipeline.data.data, layout: pipeline.data.layout }
-                    : { id: pStore.activePipeline.id, object: pipeline.data }
+        try {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/pipeline/${isNew ? "create" : "update"}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(
+                    isNew
+                        ? { meta: pipeline.data.meta, data: pipeline.data.data, layout: pipeline.data.layout }
+                        : { id: pStore.activePipeline.id, object: pipeline.data }
+                ),
+            });
 
-            )
-        }).then((response) => response.json()).then((data: { id: string }) => {
+            if (!response.ok) throw new Error(`Server Error: ${response.status}`);
+
+            const data: { id: string } = await response.json();
+
             if (isNew) {
-                getAvailablePipelines();
+                getAvailablePipelines(); // Fetch latest pipelines if newly created
             }
-        });
-    }
 
+            return true;
+        } catch (error) {
+            console.error("Save failed:", error);
+            return false;
+        }
+    };
 
     const createNewPipeline = async (name: string, description?: string): Promise<void> => {
         update((store) => {
@@ -269,16 +299,16 @@ const createPipelineStore = (): PipelineStore => {
                     description: description,
                     created_at: new Date().toISOString(),
                     last_modified: new Date().toISOString(),
-                    version: 0
+                    version: 0,
                 },
                 nodes: writable<Node[]>([]),
                 edges: writable<Edge[]>([]),
-                loading: false
-            }
+                loading: false,
+            };
             return store;
         });
         saveActivePipeline(true);
-    }
+    };
 
     const addNodeToActivePipeline = (node: Node): void => {
         update((store) => {
@@ -286,21 +316,64 @@ const createPipelineStore = (): PipelineStore => {
                 nodes.push(node);
                 return nodes;
             });
+            updatePipelineSaveStatus();
             return store;
         });
-    }
+    };
 
-    const deleteNodeFromActivePipeline = (id: string): void => {
+    const deleteNodeFromActivePipeline = (id: string | null): void => {
         update((store) => {
-            store.activePipeline?.nodes.update((nodes) => {
-                nodes = nodes.filter((node) => node.id !== id);
-                return nodes;
+            if (!store.activePipeline || !store.activePipeline.nodes) {
+                console.log("No active pipeline or nodes - Deletion blocked");
+                return store;
+            }
+
+            let currentNodes = get(store.activePipeline.nodes);
+
+            if (!id) {
+                console.log("No node selected for deletion");
+                return store;
+            }
+
+            if (!currentNodes.some((node) => node.id === id)) {
+                console.log(`Node with id ${id} does not exist - No changes made`);
+                return store;
+            }
+
+            console.log("Node found, deleting...");
+            store.activePipeline.nodes.update((nodes) => {
+                return nodes.filter((node) => node.id !== id);
             });
+
+            console.log("Updates Save Status");
+            updatePipelineSaveStatus();
+
             return store;
         });
-    }
+    };
+    const updatePipelineSaveStatus = async (): Promise<void> => {
+        try {
+            console.log("updatePipelineSaveStatus called");
 
+            updateSaveStatus(false, PipelineStatusEnum.Saving);
+            console.log("Status set to Saving...");
 
+            const success = await saveActivePipeline();
+
+            if (success) {
+                setTimeout(() => {
+                    console.log("Save successful - updating UI state");
+                    updateSaveStatus(true, PipelineStatusEnum.Success);
+                }, 500);
+            } else {
+                console.log("Save failed - updating UI state");
+                updateSaveStatus(false, PipelineStatusEnum.Failed);
+            }
+        } catch (error) {
+            console.error("Save error:", error);
+            updateSaveStatus(false, PipelineStatusEnum.Failed);
+        }
+    };
     return {
         set,
         update,
@@ -312,8 +385,10 @@ const createPipelineStore = (): PipelineStore => {
         saveActivePipeline,
         createNewPipeline,
         addNodeToActivePipeline,
-        deleteNodeFromActivePipeline
+        deleteNodeFromActivePipeline,
+        updateSaveStatus,
+        updatePipelineSaveStatus,
     };
-}
+};
 
 export const pipelineStore = createPipelineStore();

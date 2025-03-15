@@ -15,14 +15,20 @@
     import { BackendApi } from '$lib/utilities/api.utilities';
     import type { SourceBlueprint } from '$lib/types/source';
     import { NodeTypeEnum } from '$lib/types/node-type.enum';
-
+    import { PipelineStatusEnum } from '$lib/stores/types/pipeline-store.interface';
+ 
+    
     let nodes: Writable<Node[]>;
     let edges: Writable<Edge[]>;
     let availableSources: Writable<DnDContext[]> = writable([]);
     let availableTransforms: Writable<DnDContext[]> = writable([]);
 
     $: id = parseInt(page.params.id);
+   
+
     let isEditingTitle: Writable<boolean> = writable(false);
+
+    
 
     pipelineStore.subscribe((store) => {
         if (!store.activePipeline) {
@@ -31,11 +37,25 @@
         nodes = store?.activePipeline?.nodes;
         edges = store?.activePipeline?.edges;
     });
-
-    function onSave() {
-        pipelineStore.saveActivePipeline();
+    function handleKeydown(event: KeyboardEvent) {
+        if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
+            event.preventDefault();
+            pipelineStore.updatePipelineSaveStatus();
+        }
     }
+    function onChange(){
+       if ($pipelineStore.saveStatus === PipelineStatusEnum.NotSaved) {
+            return;
+       }
+       pipelineStore.updateSaveStatus(false, PipelineStatusEnum.NotSaved)
+    };
+    onMount(() => {
+        window.addEventListener('keydown', handleKeydown);
 
+        return () => {
+            window.removeEventListener('keydown', handleKeydown);
+        };
+    });
     onDestroy(() => {
         pipelineStore.clearActivePipeline();
     });
@@ -82,7 +102,9 @@
                 >
             {/if}
         </div>
-        <Button type="primary" style={StylingUtility.defaultButton} on:click={onSave}><Icon name={IconNameEnum.save} /></Button>
+        <div class="save-status">
+            <span>{$pipelineStore.saveStatus}</span>
+        </div>
     </div>
     <SvelteFlowProvider>
         <DnDProvider>
@@ -92,7 +114,8 @@
                 </div>
             {:else if !$pipelineStore.activePipeline?.loading && nodes && edges}
                 <NodeEditor
-                    {onSave}
+                    onSave={() => pipelineStore.updatePipelineSaveStatus()}  
+                    onChange= {onChange}
                     onCreateNode={pipelineStore.addNodeToActivePipeline}
                     onDeleteNode={pipelineStore.deleteNodeFromActivePipeline}
                     {nodes}
@@ -132,6 +155,18 @@
             margin: 0;
             color: #ffffff;
         }
+    }
+    .save-status {
+        display: flex;
+        align-items: center; 
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        margin-left: auto;
+        margin-right: 0;
+    }
+    .save-status span {
+        margin-right: 10px; 
     }
     .spinner-container {
         display: flex;

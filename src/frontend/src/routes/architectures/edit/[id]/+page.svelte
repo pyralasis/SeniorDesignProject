@@ -44,6 +44,7 @@
         { type: NodeTypeEnum.Output, nodeBlueprint: { id: 'output', name: 'Output Node', parameters: [] } },
     ] as DnDContext[]);
 
+
     architectureStore.subscribe((store) => {
         if (!store.activeArchitecture) {
             return;
