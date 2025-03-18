@@ -8,7 +8,6 @@
     export let onChange: (value: ParameterValue<any>) => void = () => {};
 
     function updateValue(event: CustomEvent, type: ParameterType) {
-        console.log(event.detail);
         value.type = type;
         value.val = event.detail.value;
     }

@@ -166,15 +166,13 @@
     };
 
     function onDelete() {
-        onDeleteNode(selectedNode?.id ?? '');   
+        onDeleteNode(selectedNode?.id ?? '');
     }
 
     function onClearNodes() {
-        if (get(nodes).length === 0)
-        {
-            console.log('No nodes to clear');
+        if (get(nodes).length === 0) {
             return;
-        } 
+        }
         onSave();
         nodes.update((nodes) => (nodes = []));
     }
@@ -185,7 +183,7 @@
 </script>
 
 <div class="node-editor">
-    <NodeEditorActions {selectedNodeTitle} {selectedNodeColor} {onDelete} {onClearNodes} {onChange} {onSave} {nodeNameEditor}/>
+    <NodeEditorActions {selectedNodeTitle} {selectedNodeColor} {onDelete} {onClearNodes} {onChange} {onSave} {nodeNameEditor} />
     <div class="node-editor__content">
         <div class="node-editor__sidebar">
             <Sidebar nodes={nodeblueprints} expanded={$sidebarExpanded} />

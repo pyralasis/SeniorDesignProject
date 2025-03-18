@@ -9,11 +9,10 @@
     export let expanded: boolean = true;
     export let nodes: DnDContext[] = [];
 
-    const activeTool = writable<string>("drag");
+    const activeTool = writable<string>('drag');
 
     const switchTool = (tool: string) => {
         activeTool.set(tool);
-        console.log("Selected tool:", tool);
     };
 
     const onDragStart = (event: DragEvent, nodeType: NodeType, nodeBlueprint: NodeBlueprint) => {
@@ -45,86 +44,83 @@
 </div>
 
 <style lang="scss">
-
-.sidebar {    
-    width: fit-content;
-    font-size: 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: center;
-    height: 100%;
-    border-right: 1px solid #ffffff;
-    padding: 16px 8px 0 8px;
-    background-color: #111111;
-
-    &__nodes-container {
-        position: relative;
+    .sidebar {
+        width: fit-content;
+        font-size: 12px;
         display: flex;
         flex-direction: column;
+        justify-content: start;
         align-items: center;
-        padding-top: 10px;
-        overflow-y: auto;
-        max-height: 100%;
+        height: 100%;
+        border-right: 1px solid #ffffff;
+        padding: 16px 8px 0 8px;
+        background-color: #111111;
+
+        &__nodes-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+
+        &__section {
+            width: 220px;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        &__section-header {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            border-bottom: 1px solid white;
+            padding-bottom: 5px;
+        }
+
+        &__button-group {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+        }
+
+        &__button {
+            background-color: transparent;
+            border: 1px solid white;
+            padding: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            color: white;
+            gap: 8px;
+            width: 50px;
+            font-size: 3px;
+        }
+
+        &__button:hover {
+            background-color: #444;
+        }
+
+        &__button.active {
+            border: 2px solid #00b0ff;
+        }
+
+        .sidebar__button span {
+            opacity: 0;
+            visibility: hidden;
+            transition:
+                opacity 0.3s ease,
+                visibility 0.3s ease;
+        }
+
+        .sidebar__button:hover span {
+            opacity: 1;
+            visibility: visible;
+        }
     }
-
-
-    &__section {
-        width: 220px;
-        padding: 10px;
-        border-radius: 6px;
-        margin-bottom: 12px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    &__section-header {
-        font-size: 14px;
-        font-weight: bold;
-        color: white;
-        margin-bottom: 8px;
-        border-bottom: 1px solid white;
-        padding-bottom: 5px;
-    }
-
-
-    &__button-group {
-        display: flex;
-        flex-direction: row;
-        gap: 8px;
-    }
-
-    &__button {
-        background-color: transparent;
-        border: 1px solid white;
-        padding: 6px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-        color: white;
-        gap: 8px;
-        width: 50px;
-        font-size: 3px;
-    }
-
-    &__button:hover {
-        background-color: #444;
-        
-    }
-
-    &__button.active {
-        border: 2px solid #00b0ff;
-    }
-
-    .sidebar__button span {
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-
-
-    .sidebar__button:hover span {
-        opacity: 1;
-        visibility: visible;
-    }
-}
 </style>

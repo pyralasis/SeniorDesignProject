@@ -44,7 +44,6 @@
         { type: NodeTypeEnum.Output, nodeBlueprint: { id: 'output', name: 'Output Node', parameters: [] } },
     ] as DnDContext[]);
 
-
     architectureStore.subscribe((store) => {
         if (!store.activeArchitecture) {
             return;
@@ -99,7 +98,7 @@
             return result;
         }
         parameters.forEach((parameter) => {
-            result[parameter.parameter.id] = parameter.value.val;
+            result[parameter.parameter.id] = parameter.value;
         });
         return result;
     }
@@ -133,7 +132,7 @@
         return nodeChain;
     }
 
-    function validateNodes(nodeChain: Node[]): void {
+    async function validateNodes(nodeChain: Node[]): Promise<void> {
         let currentNode: Node = nodeChain[0];
         let previousNode: Node;
 
@@ -143,13 +142,23 @@
             if (currentNode.id === '69') {
                 return;
             }
+
             let previousNodeOutputSize: TensorSize = get(previousNode.data?.outputSize as Writable<TensorSize>);
+            let currentNodeOutputSize = await BackendApi.getLayerOutputSize(
+                currentNode.data.layer_id as string,
+                previousNodeOutputSize,
+                deconstructParameters(
+                    get(currentNode.data?.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>),
+                ),
+            );
+
+            (currentNode?.data.outputSize as Writable<TensorSize>).set(currentNodeOutputSize);
+
             let currentNodeMaxDimension: number = get(currentNode.data?.inputs as Writable<LayerInput[]>)[0]?.max_dimensions as number;
             let currentNodeMinDimension: number = get(currentNode.data?.inputs as Writable<LayerInput[]>)[0]?.min_dimensions as number;
-            console.log(previousNodeOutputSize, currentNodeMinDimension, currentNodeMaxDimension);
             if (
-                (previousNodeOutputSize.length >= currentNodeMinDimension || currentNodeMinDimension === null) &&
-                (previousNodeOutputSize.length <= currentNodeMaxDimension || currentNodeMaxDimension === null)
+                (previousNodeOutputSize?.length >= currentNodeMinDimension || currentNodeMinDimension === null) &&
+                (previousNodeOutputSize?.length <= currentNodeMaxDimension || currentNodeMaxDimension === null)
             ) {
                 (previousNode.data?.rightStatus as Writable<HandleStatus>).set(HandleStatusEnum.success);
                 (currentNode.data?.leftStatus as Writable<HandleStatus>).set(HandleStatusEnum.success);
@@ -166,15 +175,6 @@
         if (!sourceNode || !targetNode) {
             return;
         }
-        const targetNodeOutputSize: TensorSize = await BackendApi.getLayerOutputSize(
-            targetNode.data.layer_id as string,
-            get(sourceNode.data.outputSize as Writable<TensorSize>),
-            deconstructParameters(get(targetNode.data.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>)),
-        );
-
-        if (targetNode.id != '69') {
-            (targetNode.data.outputSize as Writable<TensorSize>).set(targetNodeOutputSize);
-        }
 
         let nodeChain: Node[] = constructNodeChain();
         validateNodes(nodeChain);
@@ -183,7 +183,6 @@
     function onNodeOrEdgeDelete() {
         let nodeChain: Node[] = constructNodeChain();
         validateNodes(nodeChain);
-        console.log(nodeChain);
     }
 </script>
 

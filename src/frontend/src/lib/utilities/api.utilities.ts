@@ -135,21 +135,21 @@ export class BackendApi {
             });
     }
 
-    static getLayerOutputSize(id: LayerId, inputSize: TensorSize, parameters: Record<string, ParameterValue<any>>): Promise<TensorSize> {
-        console.log('getLayerOutputSize', id, inputSize, parameters);
-        return new Promise<TensorSize>((resolve) => resolve([3, 5] as TensorSize))
-        // return fetch(BackendApiRequestsEnum.postLayerOutputSize, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //         id,
-        //         input_size: inputSize,
-        //         parameters
-        //     })
-        // })
-        //     .then(response => response.json())
-        //     .then(data => data.output_size);
+    static getLayerOutputSize(layer_id: LayerId, inputSize: TensorSize, parameters: Record<string, ParameterValue<any>>): Promise<TensorSize> {
+        return fetch(BackendApiRequestsEnum.postLayerOutputSize, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                layer_id,
+                input_size: inputSize,
+                parameters
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                return data.output_size;
+            });
     }
 }
