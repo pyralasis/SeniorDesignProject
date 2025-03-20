@@ -25,7 +25,6 @@ from typing import Generic, Literal, TypeAlias, TypeVar
 
 from server.params.constraints import ParameterConstraint
 
-
 T = TypeVar("T")
 
 # class ParamMeta(type):
@@ -75,6 +74,7 @@ class IntParameter(Parameter[int]):
 
 @dataclass
 class IntParameterValue(ParameterValue[int]):
+    val: int
     type: Literal[ParamType.Int] = ParamType.Int
 
 
@@ -90,6 +90,7 @@ class FloatParameter(Parameter[float], float):
 
 @dataclass
 class FloatParameterValue(ParameterValue[float]):
+    val: float
     type: Literal[ParamType.Float] = ParamType.Float
 
 
@@ -105,6 +106,7 @@ class BoolParameter(Parameter[bool]):
 
 @dataclass
 class BoolParameterValue(ParameterValue[bool]):
+    val: bool
     type: Literal[ParamType.Bool] = ParamType.Bool
 
 
@@ -120,6 +122,7 @@ class StringParameter(Parameter[str]):
 
 @dataclass
 class StringParameterValue(ParameterValue[str]):
+    val: str
     type: Literal[ParamType.String] = ParamType.String
 
 
@@ -137,6 +140,7 @@ class Size2DParameter(Parameter[Size2D]):
 
 @dataclass
 class Size2DParameterValue(ParameterValue[Size2D]):
+    val: Size2D
     type: Literal[ParamType.Size2D] = ParamType.Size2D
 
 
@@ -144,15 +148,9 @@ class Size2DParameterValue(ParameterValue[Size2D]):
 # Any Parameter Type
 #
 
-AnyParameter = (
-    IntParameter | FloatParameter | BoolParameter | StringParameter | Size2DParameter
-)
+AnyParameter = IntParameter | FloatParameter | BoolParameter | StringParameter | Size2DParameter
 AnyParameterValue = (
-    IntParameterValue
-    | FloatParameterValue
-    | BoolParameterValue
-    | StringParameterValue
-    | Size2DParameterValue
+    IntParameterValue | FloatParameterValue | BoolParameterValue | StringParameterValue | Size2DParameterValue
 )
 
 T0 = TypeVar("T0")
