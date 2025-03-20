@@ -24,7 +24,7 @@ def create_app():
     layer_service = LayerService(default_layers)
     architecture_service = ArchitectureService(Path(getenv("ARCHITECTURES_PATH", DEFAULT_PATHS["architectures"])))
     data_service = DataService(Path(getenv("DATA_PATH", DEFAULT_PATHS["data"])), default_sources, default_transforms)
-    model_service = ModelService(layer_service, Path(getenv("MODELS_PATH", DEFAULT_PATHS["models"])))
+    model_service = ModelService(layer_service, data_service, architecture_service, Path(getenv("MODELS_PATH", DEFAULT_PATHS["models"])))
 
     # These are where the API endpoints are registered
     app.register_blueprint(

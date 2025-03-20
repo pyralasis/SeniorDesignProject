@@ -1,12 +1,12 @@
 from dataclasses import asdict, dataclass
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import TypeAdapter
 from quart import Blueprint, ResponseReturnValue, request
 from quart.views import MethodView
 from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
-from server.model.service import ModelService
+from server.model.service import ModelService, TrainingConfig
 from server.util.file import FileId
 from server.util.file.blueprint import create_object_blueprint
 from server.util.file.meta import MetaData
@@ -16,6 +16,7 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
     bp = Blueprint("model", __name__)
 
     bp.add_url_rule("/create", view_func=CreateModelView.as_view("create", model_service, architecture_service))
+    bp.add_url_rule("/train", view_func=TrainModelView.as_view("train", model_service))
 
     # Adds available and delete endpoints, as well as metadata endpoints
     bp.register_blueprint(create_object_blueprint(model_service.models, False))
@@ -95,3 +96,72 @@ class CreateModelView(MethodView):
             return asdict(ErrorResponseModelCreationFailure())
 
         return asdict(SuccessfulResponse(model_id=model_id))
+
+
+###
+### Train Model View
+###
+
+
+@dataclass
+class TrainModelRequestBody:
+    model_id: FileId
+    source_id: FileId
+    learning_rate: Optional[float] = None
+    batch_size: Optional[int] = None
+    epochs: Optional[int] = None
+
+
+@dataclass
+class TrainModelSuccessResponse:
+    success: Literal[True] = True
+
+
+@dataclass
+class TrainModelErrorInvalidModel:
+    success: Literal[False] = False
+    error: Literal["invalid_model_id"] = "invalid_model_id"
+
+
+@dataclass
+class TrainModelErrorInvalidSource:
+    success: Literal[False] = False
+    error: Literal["invalid_source_id"] = "invalid_source_id"
+
+
+@dataclass
+class TrainModelErrorTrainingFailure:
+    success: Literal[False] = False
+    error: Literal["training_failure"] = "training_failure"
+
+
+class TrainModelView(MethodView):
+    init_every_request = False
+
+    def __init__(self, model_service: ModelService):
+        self.service = model_service
+        self.adapter = TypeAdapter(TrainModelRequestBody)
+
+    async def post(self) -> ResponseReturnValue:
+        req = self.adapter.validate_python(await request.json)
+
+        if not self.service.models.exists(req.model_id):
+            return asdict(TrainModelErrorInvalidModel())
+
+        if not self.service.data_service.pipelines.exists(req.source_id):
+            return asdict(TrainModelErrorInvalidSource())
+
+        try:
+            # Create training config with any provided overrides
+            config = TrainingConfig()
+            if req.learning_rate is not None:
+                config.learning_rate = req.learning_rate
+            if req.batch_size is not None:
+                config.batch_size = req.batch_size
+            if req.epochs is not None:
+                config.epochs = req.epochs
+
+            self.service.train_model(req.model_id, req.source_id, config)
+            return asdict(TrainModelSuccessResponse())
+        except:
+            return asdict(TrainModelErrorTrainingFailure())
