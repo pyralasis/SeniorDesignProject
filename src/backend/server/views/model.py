@@ -102,7 +102,6 @@ class CreateModelView(MethodView):
 ### Train Model View
 ###
 
-
 @dataclass
 class TrainModelRequestBody:
     model_id: FileId
@@ -164,4 +163,6 @@ class TrainModelView(MethodView):
             self.service.train_model(req.model_id, req.source_id, config)
             return asdict(TrainModelSuccessResponse())
         except:
+            import traceback
+            traceback.print_exc()
             return asdict(TrainModelErrorTrainingFailure())

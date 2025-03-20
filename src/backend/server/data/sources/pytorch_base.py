@@ -23,7 +23,7 @@ class TorchDatasetSource(DataSource, Generic[TDs], ABC):
         return self.dataset[index][1 if self.use_labels else 0]
 
     @override
-    def __len__(self, index: int) -> Any:
+    def __len__(self) -> int:
         return len(  # TODO: enforce having __len__ defined using types
             self.dataset  # type:ignore Most have len defined
         )

@@ -7,7 +7,7 @@ from xml.sax import xmlreader
 
 import torch
 from torch.optim import Adam
-from torch.nn import MSELoss
+from torch.nn import MSELoss, NLLLoss
 from server import layer
 from server.architecture.config import (
     ArchitectureConfig,
@@ -104,7 +104,7 @@ class ModelService:
             config: Training configuration parameters
         """
         # Load the model
-        model_obj = self.models.get(model_id)
+        model_obj = self.models.get(model_id).data
         model = ArchitectureModel.create_from_architecture(
             model_obj.architecture,
             self.layer_service,
@@ -113,12 +113,12 @@ class ModelService:
 
         # Load the data
         value_source, label_source = self.data_service.config_to_sources(
-            self.data_service.pipelines.get(source_id).data
+            self.data_service.pipelines.get(source_id).data.data
         )
 
         # Setup training
         optimizer = Adam(model.parameters(), lr=config.learning_rate)
-        criterion = MSELoss()
+        criterion = NLLLoss()
 
         # Training loop
         model.train()
@@ -135,7 +135,8 @@ class ModelService:
 
                 # Convert to tensors
                 inputs = torch.stack(batch_inputs)
-                labels = torch.stack(batch_labels)
+                labels = torch.tensor(batch_labels)
+
 
                 # Forward pass
                 outputs = model(inputs)
