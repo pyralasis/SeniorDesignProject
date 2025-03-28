@@ -22,7 +22,7 @@ const createModelStore = (): ModelStore =>{
         })
     };
     const getAvailableModels = async (): Promise<void> => {
-        await fetch(`${BACKEND_API_BASE_URL}/model/meta/available`, {
+        await fetch(`${BACKEND_API_BASE_URL}/model/available`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -31,28 +31,19 @@ const createModelStore = (): ModelStore =>{
         .then(response => response.json())
         .then(data => {
             let response = data as AvailableModelsResponse;
+            console.log(data);
             update((store) => {
                 store.availableModels = response.available.map((model) => {
                     return {
-                        // id: model.id as ModelId,
-                        id: model as unknown as ModelId,
-                        // meta: {
-                        //     name: model.meta.name,
-                        //     description: model.meta.description,
-                        //     last_modified: model.meta.last_modified,
-                        //     created_at: model.meta.created_at,
-                        // } as ModelMetaDescription,
+                        id: model.id as ModelId,
                         meta: {
-                            name: "a",
-                            description: "a",
-                            last_modified: "a",
-                            created_at: "a",
+                            name: model.meta.name,
+                            description: model.meta.description,
+                            last_modified: model.meta.last_modified,
+                            created_at: model.meta.created_at,
                         } as ModelMetaDescription,
-                        // info: {
-                        //     version: arch.info.version,
-                        // } as ModelInfoDescription,
                         info: {
-                            version: 1,
+                            version: model.info.version,
                         } as ModelInfoDescription,
                     } as unknown as AvailableModel;
                 });
@@ -61,8 +52,31 @@ const createModelStore = (): ModelStore =>{
         });
     };
     const loadModelById = (): void =>{};
+    const deleteModel = (): void =>{};
+
+    const trainModel = 
+    async (model_id: number,
+        source_id: number,
+        learning_rate: number,
+        batch_size: number,
+        epochs: number): Promise<void> =>{
+        await fetch(`${BACKEND_API_BASE_URL}/model/train`, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+
+            },
+            body: JSON.stringify({
+                "model_id": model_id,
+                "source_id": source_id,
+                "learning_rate": learning_rate,
+                "batch_size": batch_size,
+                "epochs": epochs,
+            }),
+        })
+    };
     return{
-        set, update, subscribe, createModel, getAvailableModels, loadModelById
+        set, update, subscribe, createModel, getAvailableModels, loadModelById, deleteModel, trainModel
     };
 }
 

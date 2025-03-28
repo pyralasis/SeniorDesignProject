@@ -4,13 +4,14 @@
     import { StylingUtility } from "$lib/utilities/styling.utility";
 
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput } from "kiwi-nl";
+    import { Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput, type PopoverItem } from "kiwi-nl";
     import { modelStore } from "$lib/stores/ModelStore";
     import { onMount, setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
     import type { AvailableModel } from "$lib/stores/types/models-store.interface";
     import MenuItem from '$lib/components/General/MenuItem.svelte';
     import Icon from '$lib/components/Icon/Icon.svelte';
+    import { pipelineStore } from "$lib/stores/PipelineStore";
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
 
@@ -25,6 +26,8 @@
         { label: 'Losses', value: 'item1' },
     ];
 
+    let sources: PopoverItem[] = $pipelineStore.availablePipelines;
+    console.log(sources)
     let popoverItems: PopoverItem[] = [];
 
     function handlePopoverItemsChanged(event: CustomEvent): void {
@@ -33,6 +36,7 @@
     
     onMount(() => {
         modelStore.getAvailableModels();
+        pipelineStore.getAvailablePipelines();
     });
 </script>
 

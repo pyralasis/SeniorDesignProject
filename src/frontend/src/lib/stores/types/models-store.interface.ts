@@ -24,6 +24,12 @@ export interface ModelStore extends Writable<ModelStoreProps> {
     createModel: (architecture_id: ArchitectureId, metadata: MetaData) => void;
     getAvailableModels: () => void;
     loadModelById: () => void;
+    deleteModel: () => void;
+    trainModel: (model_id: number,
+                source_id: number,
+                learning_rate: number,
+                batch_size: number,
+                epochs: number,) => void;
 }
 
 export type CreateModelRequestBody = {
