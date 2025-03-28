@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from ast import Mod
 from dataclasses import dataclass
@@ -6,6 +7,7 @@ from typing import Any
 from xml.sax import xmlreader
 
 import torch
+import torch.multiprocessing as mp
 from server import layer
 from server.architecture.config import (
     ArchitectureConfig,
@@ -15,6 +17,7 @@ from server.architecture.config import (
 )
 from server.architecture.service import ArchitectureService
 from server.data.service import DataService
+from server.data.sources.base import DataSourceDataset
 from server.layer import LayerDefinition
 from server.layer.service import LayerService
 from server.layer.size import TensorSize
@@ -27,8 +30,10 @@ from server.util.file import (
 )
 from server.util.file.coordinator import FileCoordinator
 from server.util.file.file import FileId
+from torch import T, Tensor, nn, optim
 from torch.nn import MSELoss, NLLLoss
 from torch.optim import Adam
+from torch.utils.data import DataLoader
 
 """
 Sample model architecture:
@@ -47,6 +52,9 @@ Sample model architecture:
 
 @dataclass
 class TrainingConfig:
+    model_id: FileId
+    source_id: FileId
+    shuffle_data: bool = True
     learning_rate: float = 0.001
     batch_size: int = 32
     epochs: int = 10
@@ -64,7 +72,9 @@ class ModelService:
     A service for managing PyTorch models.
     """
 
-    def __init__(
+    training_queue: asyncio.Queue[TrainingConfig]
+
+    async def __init__(
         self,
         layer_service: LayerService,
         data_service: DataService,
@@ -82,6 +92,53 @@ class ModelService:
             save_path,
         )
 
+        self.training_queue = asyncio.Queue()
+        self.training_task = asyncio.create_task(self.training_thread())
+
+    async def training_thread(self):
+        await asyncio.sleep(0.01)
+        print("RUNNING")
+        while True:
+            cfg = await self.training_queue.get()
+            msg_queue = mp.Queue()
+
+            # Load the model
+            model_obj = self.models.get(cfg.model_id)
+            model = ArchitectureModel.create_from_architecture(
+                model_obj.content.architecture,
+                self.layer_service,
+            )
+            model.load_state_dict(model_obj.content.data)
+
+            # Load the data
+            value_source, label_source = self.data_service.config_to_sources(
+                self.data_service.pipelines.get(cfg.source_id).content.data
+            )
+            ds = DataSourceDataset(value_source, label_source)
+
+            # TODO: more loader settings
+            loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data)
+
+            # Setup training
+            optimizer = Adam(model.parameters(), lr=cfg.learning_rate)
+            criterion = NLLLoss()
+
+            process = mp.Process(target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, msg_queue))
+            process.start()
+
+            received_last_msg = False
+            while received_last_msg:
+                try:
+                    model = msg_queue.get(False)
+                    received_last_msg = True
+                except:
+                    await asyncio.sleep(0.1)
+
+            process.join()
+
+            # Save the updated model
+            self.models.data_files.save_to(cfg.model_id, model.state_dict())
+
     def create_model(self, architecture: ArchitectureConfig, meta_data: MetaData) -> FileId:
         model = ArchitectureModel.create_from_architecture(architecture, self.layer_service)
         model_id = self.models.create(
@@ -90,56 +147,33 @@ class ModelService:
 
         return model_id
 
-    def train_model(
-        self,
-        model_id: FileId,
-        source_id: FileId,
-        config: TrainingConfig = TrainingConfig(),
-    ) -> None:
-        """
-        Train a model using the specified data source and training configuration.
+    async def add_to_training_queue(self, cfg: TrainingConfig):
+        await self.training_queue.put(cfg)
 
-        Args:
-            model_id: ID of the model to train
-            source_id: ID of the data source to use for training
-            config: Training configuration parameters
-        """
-        # Load the model
-        model_obj = self.models.get(model_id)
-        model = ArchitectureModel.create_from_architecture(
-            model_obj.content.architecture,
-            self.layer_service,
-        )
-        model.load_state_dict(model_obj.content.data)
 
-        # Load the data
-        value_source, label_source = self.data_service.config_to_sources(
-            self.data_service.pipelines.get(source_id).content.data
-        )
+def train_model(
+    model: nn.Module,
+    optimizer: optim.Optimizer,
+    criterion: nn.Module,
+    loader: DataLoader[tuple[Tensor, Tensor]],
+    epochs: int,
+    msg_queue: mp.Queue,
+) -> None:
+    # Training loop
+    model.train()
 
-        # Setup training
-        optimizer = Adam(model.parameters(), lr=config.learning_rate)
-        criterion = NLLLoss()
+    for epoch in range(epochs):
+        for i, (x, y) in loader:
 
-        # Training loop
-        model.train()
-        for epoch in range(config.epochs):
-            for i in range(0, len(value_source), config.batch_size):
-                batch_inputs = [value_source[j] for j in range(i, min(i + config.batch_size, len(value_source)))]
-                batch_labels = [label_source[j] for j in range(i, min(i + config.batch_size, len(label_source)))]
+            # Forward pass
+            outputs = model(x)
+            loss = criterion(outputs, y)
 
-                # Convert to tensors
-                inputs = torch.stack(batch_inputs)
-                labels = torch.tensor(batch_labels)
+            # Backward pass and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-                # Forward pass
-                outputs = model(inputs)
-                loss = criterion(outputs, labels)
+        msg_queue.put(model)
 
-                # Backward pass and optimize
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-        # Save the updated model
-        self.models.data_files.save_to(model_id, model.state_dict())
+    msg_queue.put(model)
