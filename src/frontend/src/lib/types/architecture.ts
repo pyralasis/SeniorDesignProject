@@ -30,7 +30,7 @@ export type ArchitectureMetaDescription = MetaData & {}
 
 export type NetworkArchitectureDescription = {
     id: ArchitectureId,
-    data: {
+    content: {
         data: ArchitectureDataDescription,
         layout: NetworkLayoutDescription,
         meta: ArchitectureMetaDescription,

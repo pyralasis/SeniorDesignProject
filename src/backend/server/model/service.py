@@ -6,8 +6,6 @@ from typing import Any
 from xml.sax import xmlreader
 
 import torch
-from torch.optim import Adam
-from torch.nn import MSELoss, NLLLoss
 from server import layer
 from server.architecture.config import (
     ArchitectureConfig,
@@ -15,16 +13,22 @@ from server.architecture.config import (
     LayerInstanceID,
     NetworkLayerConfig,
 )
+from server.architecture.service import ArchitectureService
+from server.data.service import DataService
 from server.layer import LayerDefinition
 from server.layer.service import LayerService
 from server.layer.size import TensorSize
 from server.model.model import ArchitectureModel
-from server.util.file import Loadable, MetaData, TorchWeightsFileManager
+from server.util.file import (
+    JsonFileManager,
+    Loadable,
+    MetaData,
+    TorchWeightsFileManager,
+)
 from server.util.file.coordinator import FileCoordinator
 from server.util.file.file import FileId
-from server.data.service import DataService
-from server.architecture.service import ArchitectureService
-from server.util.file import JsonFileManager
+from torch.nn import MSELoss, NLLLoss
+from torch.optim import Adam
 
 """
 Sample model architecture:
@@ -54,6 +58,7 @@ class ModelObject(Loadable):
     data: dict[str, Any]  # the model's state_dict
     architecture: ArchitectureConfig
 
+
 class ModelService:
     """
     A service for managing PyTorch models.
@@ -77,12 +82,8 @@ class ModelService:
             save_path,
         )
 
-    def create_model(
-        self, architecture: ArchitectureConfig, meta_data: MetaData
-    ) -> FileId:
-        model = ArchitectureModel.create_from_architecture(
-            architecture, self.layer_service
-        )
+    def create_model(self, architecture: ArchitectureConfig, meta_data: MetaData) -> FileId:
+        model = ArchitectureModel.create_from_architecture(architecture, self.layer_service)
         model_id = self.models.create(
             ModelObject(meta_data, model.state_dict(), architecture)
         )  # save the model to the file system
@@ -104,16 +105,16 @@ class ModelService:
             config: Training configuration parameters
         """
         # Load the model
-        model_obj = self.models.get(model_id).data
+        model_obj = self.models.get(model_id)
         model = ArchitectureModel.create_from_architecture(
-            model_obj.architecture,
+            model_obj.content.architecture,
             self.layer_service,
         )
-        model.load_state_dict(model_obj.data)
+        model.load_state_dict(model_obj.content.data)
 
         # Load the data
         value_source, label_source = self.data_service.config_to_sources(
-            self.data_service.pipelines.get(source_id).data.data
+            self.data_service.pipelines.get(source_id).content.data
         )
 
         # Setup training
@@ -124,19 +125,12 @@ class ModelService:
         model.train()
         for epoch in range(config.epochs):
             for i in range(0, len(value_source), config.batch_size):
-                batch_inputs = [
-                    value_source[j]
-                    for j in range(i, min(i + config.batch_size, len(value_source)))
-                ]
-                batch_labels = [
-                    label_source[j]
-                    for j in range(i, min(i + config.batch_size, len(label_source)))
-                ]
+                batch_inputs = [value_source[j] for j in range(i, min(i + config.batch_size, len(value_source)))]
+                batch_labels = [label_source[j] for j in range(i, min(i + config.batch_size, len(label_source)))]
 
                 # Convert to tensors
                 inputs = torch.stack(batch_inputs)
                 labels = torch.tensor(batch_labels)
-
 
                 # Forward pass
                 outputs = model(inputs)
@@ -148,6 +142,4 @@ class ModelService:
                 optimizer.step()
 
         # Save the updated model
-        self.models.update(
-            model_id, ModelObject(model_obj.meta, model.state_dict(), model_obj.architecture)
-        )
+        self.models.data_files.save_to(model_id, model.state_dict())

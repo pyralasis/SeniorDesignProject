@@ -165,18 +165,18 @@ const createPipelineStore = (): PipelineStore => {
                 `${BACKEND_API_BASE_URL}/pipeline/load?${new URLSearchParams({ id: id.toString() }).toString()}`
             );
             const data = ((await response.json()) as LoadPipelineResponse).object;
-            const pipData = data.data.data;
-            const layoutData = data.data.layout;
+            const pipData = data.content.data;
+            const layoutData = data.content.layout;
             const { nodes, edges } = await parseLayersIntoNodesAndEdges(pipData.elements, layoutData);
             update((store) => ({
                 ...store,
                 activePipeline: {
                     id: data.id,
                     meta: {
-                        name: data.data.meta.name,
-                        description: data.data.meta.description,
-                        created_at: data.data.meta.created_at,
-                        last_modified: data.data.meta.last_modified,
+                        name: data.content.meta.name,
+                        description: data.content.meta.description,
+                        created_at: data.content.meta.created_at,
+                        last_modified: data.content.meta.last_modified,
                         version: data.info?.version ?? 0,
                     },
                     nodes: writable<Node[]>(nodes),
@@ -225,7 +225,7 @@ const createPipelineStore = (): PipelineStore => {
 
         const pipeline: NetworkPipelineDescription = {
             id: (pStore.activePipeline.id as PipelineId) ?? -1,
-            data: {
+            content: {
                 data: {
                     elements: parseElements(nodes),
                     value_output: -1,
@@ -271,8 +271,8 @@ const createPipelineStore = (): PipelineStore => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(
                     isNew
-                        ? { meta: pipeline.data.meta, data: pipeline.data.data, layout: pipeline.data.layout }
-                        : { id: pStore.activePipeline.id, object: pipeline.data }
+                        ? { meta: pipeline.content.meta, data: pipeline.content.data, layout: pipeline.content.layout }
+                        : { id: pStore.activePipeline.id, object: pipeline.content }
                 ),
             });
 
