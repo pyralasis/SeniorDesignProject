@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Optional, Protocol, TypeAlias
 
 from server.params import Parameter
+from torch.utils.data import Dataset
 
 DataSourceId: TypeAlias = str
 
@@ -58,3 +59,16 @@ class DataSource(ABC):
 
     @abstractmethod
     def __len__(self) -> int: ...
+
+
+class DataSourceDataset(Dataset):
+    def __init__(self, value_src: DataSource, label_src: DataSource) -> None:
+        super().__init__()
+        self.value_src = value_src
+        self.label_src = label_src
+
+    def __getitem__(self, i) -> Any:
+        return (self.value_src[i], self.label_src[i])
+
+    def __len__(self) -> int:
+        return len(self.value_src)

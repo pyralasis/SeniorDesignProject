@@ -102,13 +102,10 @@ class CreateModelView(MethodView):
 ### Train Model View
 ###
 
+
 @dataclass
 class TrainModelRequestBody:
-    model_id: FileId
-    source_id: FileId
-    learning_rate: Optional[float] = None
-    batch_size: Optional[int] = None
-    epochs: Optional[int] = None
+    config: TrainingConfig
 
 
 @dataclass
@@ -128,12 +125,6 @@ class TrainModelErrorInvalidSource:
     error: Literal["invalid_source_id"] = "invalid_source_id"
 
 
-@dataclass
-class TrainModelErrorTrainingFailure:
-    success: Literal[False] = False
-    error: Literal["training_failure"] = "training_failure"
-
-
 class TrainModelView(MethodView):
     init_every_request = False
 
@@ -144,25 +135,11 @@ class TrainModelView(MethodView):
     async def post(self) -> ResponseReturnValue:
         req = self.adapter.validate_python(await request.json)
 
-        if not self.service.models.exists(req.model_id):
+        if not self.service.models.exists(req.config.model_id):
             return asdict(TrainModelErrorInvalidModel())
 
-        if not self.service.data_service.pipelines.exists(req.source_id):
+        if not self.service.data_service.pipelines.exists(req.config.source_id):
             return asdict(TrainModelErrorInvalidSource())
 
-        try:
-            # Create training config with any provided overrides
-            config = TrainingConfig()
-            if req.learning_rate is not None:
-                config.learning_rate = req.learning_rate
-            if req.batch_size is not None:
-                config.batch_size = req.batch_size
-            if req.epochs is not None:
-                config.epochs = req.epochs
-
-            self.service.train_model(req.model_id, req.source_id, config)
-            return asdict(TrainModelSuccessResponse())
-        except:
-            import traceback
-            traceback.print_exc()
-            return asdict(TrainModelErrorTrainingFailure())
+        await self.service.add_to_training_queue(req.config)
+        return asdict(TrainModelSuccessResponse())

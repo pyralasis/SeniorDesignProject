@@ -26,7 +26,7 @@ class ObjectInfo:
 class LoadedObject(Generic[T]):
     id: FileId
     info: ObjectInfo
-    data: T
+    content: T
 
 
 @dataclass
