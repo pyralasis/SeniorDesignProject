@@ -1,7 +1,6 @@
-from typing import NewType
+from typing import TypeAlias
 
-
-TensorSize = NewType("TensorSize", tuple[int, ...])
+TensorSize: TypeAlias = tuple[int, ...]
 
 
 def size_identity(in_sizes: tuple[TensorSize, ...], *_) -> TensorSize:

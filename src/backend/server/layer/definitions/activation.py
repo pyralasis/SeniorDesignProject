@@ -1,8 +1,8 @@
 import torch
-from server.params import BoolParameter, FloatParameter, IntParameter
 from server.layer import LayerDefinition
 from server.layer.input import InputDefinition
 from server.layer.size import size_identity
+from server.params import BoolParameter, FloatParameter, IntParameter
 
 # Found here: https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity
 
@@ -46,9 +46,7 @@ relu_layer = LayerDefinition(
     "relu",
     "ReLU",
     (InputDefinition(None, 1, None),),
-    (
-        BoolParameter("inplace", "Inplace", False),
-    ),
+    (BoolParameter("inplace", "Inplace", False),),
     lambda in_sizes, inplace, **_: torch.nn.ReLU(inplace),
     lambda in_sizes, **_: in_sizes[0],
 )
@@ -81,16 +79,13 @@ tanh_layer = LayerDefinition(
 )
 
 
-
 # Found here: https://pytorch.org/docs/stable/nn.html#non-linear-activations-other
 
 softmin_layer = LayerDefinition(
     "softmin",
     "Softmin",
     (InputDefinition(None, 1, None),),
-    (
-        IntParameter("dim", "Dim", 1),
-    ),
+    (IntParameter("dim", "Dim", 1),),
     lambda in_sizes, dim, **_: torch.nn.Softmin(dim),
     lambda in_sizes, **_: in_sizes[0],
 )
@@ -99,9 +94,7 @@ softmax_layer = LayerDefinition(
     "softmax",
     "Softmax",
     (InputDefinition(None, 1, None),),
-    (
-        IntParameter("dim", "Dim", 1),
-    ),
+    (IntParameter("dim", "Dim", 1),),
     lambda in_sizes, dim, **_: torch.nn.Softmax(dim),
     lambda in_sizes, **_: in_sizes[0],
 )

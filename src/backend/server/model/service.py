@@ -30,7 +30,7 @@ from server.util.file import (
 )
 from server.util.file.coordinator import FileCoordinator
 from server.util.file.file import FileId
-from torch import T, Tensor, nn, optim
+from torch import Tensor, nn, optim
 from torch.nn import MSELoss, NLLLoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -74,7 +74,7 @@ class ModelService:
 
     training_queue: asyncio.Queue[TrainingConfig]
 
-    async def __init__(
+    def __init__(
         self,
         layer_service: LayerService,
         data_service: DataService,
@@ -93,51 +93,71 @@ class ModelService:
         )
 
         self.training_queue = asyncio.Queue()
+
+    async def start_training_task(self):
         self.training_task = asyncio.create_task(self.training_thread())
 
     async def training_thread(self):
         await asyncio.sleep(0.01)
         print("RUNNING")
         while True:
-            cfg = await self.training_queue.get()
-            msg_queue = mp.Queue()
+            try:
+                cfg = await self.training_queue.get()
+                msg_queue = mp.Queue()
 
-            # Load the model
-            model_obj = self.models.get(cfg.model_id)
-            model = ArchitectureModel.create_from_architecture(
-                model_obj.content.architecture,
-                self.layer_service,
-            )
-            model.load_state_dict(model_obj.content.data)
+                print("received val")
 
-            # Load the data
-            value_source, label_source = self.data_service.config_to_sources(
-                self.data_service.pipelines.get(cfg.source_id).content.data
-            )
-            ds = DataSourceDataset(value_source, label_source)
+                # Load the model
+                model_obj = self.models.get(cfg.model_id)
+                model = ArchitectureModel.create_from_architecture(
+                    model_obj.content.architecture,
+                    self.layer_service,
+                )
+                model.load_state_dict(model_obj.content.data)
 
-            # TODO: more loader settings
-            loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data)
+                print("loaded model")
 
-            # Setup training
-            optimizer = Adam(model.parameters(), lr=cfg.learning_rate)
-            criterion = NLLLoss()
+                # Load the data
+                value_source, label_source = self.data_service.config_to_sources(
+                    self.data_service.pipelines.get(cfg.source_id).content.data
+                )
+                ds = DataSourceDataset(value_source, label_source)
 
-            process = mp.Process(target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, msg_queue))
-            process.start()
+                # TODO: more loader settings
+                loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data)
 
-            received_last_msg = False
-            while received_last_msg:
-                try:
-                    model = msg_queue.get(False)
-                    received_last_msg = True
-                except:
-                    await asyncio.sleep(0.1)
+                # Setup training
+                optimizer = Adam(model.parameters(), lr=cfg.learning_rate)
+                criterion = NLLLoss()
 
-            process.join()
+                process = mp.Process(
+                    target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, msg_queue)
+                )
+                process.start()
 
-            # Save the updated model
-            self.models.data_files.save_to(cfg.model_id, model.state_dict())
+                print("starting process", process)
+
+                received_last_msg = False
+                while received_last_msg:
+                    try:
+                        model = msg_queue.get(False)
+                        print("received result")
+                        received_last_msg = True
+                    except:
+                        await asyncio.sleep(0.1)
+
+                process.join()
+
+                if isinstance(model, Exception):
+                    print("received err", model)
+                    continue
+
+                # Save the updated model
+                self.models.data_files.save_to(cfg.model_id, model.state_dict())
+            except:
+                import traceback
+
+                traceback.print_exc()
 
     def create_model(self, architecture: ArchitectureConfig, meta_data: MetaData) -> FileId:
         model = ArchitectureModel.create_from_architecture(architecture, self.layer_service)
@@ -159,21 +179,24 @@ def train_model(
     epochs: int,
     msg_queue: mp.Queue,
 ) -> None:
-    # Training loop
-    model.train()
+    print("started training")
+    try:
+        # Training loop
+        model.train()
 
-    for epoch in range(epochs):
-        for i, (x, y) in loader:
+        for epoch in range(epochs):
+            print("Epoch", epoch)
+            for i, (x, y) in loader:
 
-            # Forward pass
-            outputs = model(x)
-            loss = criterion(outputs, y)
+                # Forward pass
+                outputs = model(x)
+                loss = criterion(outputs, y)
 
-            # Backward pass and optimize
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+                # Backward pass and optimize
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
         msg_queue.put(model)
-
-    msg_queue.put(model)
+    except Exception as e:
+        msg_queue.put(e)
