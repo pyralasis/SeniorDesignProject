@@ -32,5 +32,4 @@ default_layers = [
 
     pooling.max_pool2d_layer,
     pooling.avgpool2d_layer,
-    pooling.lpool2d_layer,
 ]
