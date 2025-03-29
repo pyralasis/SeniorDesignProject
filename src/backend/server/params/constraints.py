@@ -24,3 +24,11 @@ class WithRange(ParameterConstraint[int]):
     max: int | None = None
     _: KW_ONLY
     type: Literal["range"] = "range"
+
+
+@dataclass
+class WithRangeFloat(ParameterConstraint[float]):
+    min: float | None = None
+    max: float | None = None
+    _: KW_ONLY
+    type: Literal["range_float"] = "range_float"

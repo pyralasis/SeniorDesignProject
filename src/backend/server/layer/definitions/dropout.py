@@ -11,7 +11,7 @@ from server.params import (
     Size2DParameter,
     StringParameter,
 )
-from server.params.constraints import OneOf, WithRange
+from server.params.constraints import OneOf, WithRangeFloat
 
 # found here: https://pytorch.org/docs/stable/nn.html#dropout-layers
 
@@ -20,7 +20,7 @@ dropout_layer = LayerDefinition(
     "Dropout",
     (InputDefinition(None, 1, None),),
     (
-        FloatParameter(id="p", name="P", default=0.5),
+        FloatParameter("p", "Dropout Probability", 0.5, constraint=WithRangeFloat(0, 1)),
         BoolParameter("inplace", "Inplace", False),
     ),
     lambda in_sizes, p, inplace, **_: torch.nn.Dropout(p, inplace),
