@@ -3,31 +3,31 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import torch.multiprocessing as mp
 from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
 from server.data.service import DataService
-from server.data.sources.base import DataSourceDataset
 from server.layer.service import LayerService
 from server.model.loss import default_loss_fns
 from server.model.loss.definition import LossDefinition
 from server.model.model import ArchitectureModel
 from server.model.optim import default_optimizers
 from server.model.optim.definition import OptimizerDefinition
-from server.model.train import TrainingConfig, training_thread
+from server.model.train import (
+    TrainingConfig,
+    TrainingInfo,
+    TrainingQueuedInfo,
+    TrainLogObject,
+    training_thread,
+)
 from server.util.file import (
     JsonFileManager,
     Loadable,
     MetaData,
     TorchWeightsFileManager,
 )
-from server.util.file.coordinator import FileCoordinator
+from server.util.file.coordinator import FileCoordinator, IdGeneration
 from server.util.file.file import FileId
 from server.util.registry import Registry
-from torch import Tensor, nn, optim
-from torch.nn import NLLLoss
-from torch.optim import Adam
-from torch.utils.data import DataLoader
 
 """
 Sample model architecture:
@@ -56,14 +56,15 @@ class ModelService:
     A service for managing PyTorch models.
     """
 
-    training_queue: asyncio.Queue[TrainingConfig]
+    training_queue: asyncio.Queue[tuple[FileId, TrainingConfig]]
 
     def __init__(
         self,
         layer_service: LayerService,
         data_service: DataService,
         architecture_service: ArchitectureService,
-        save_path: Path,
+        model_save_path: Path,
+        training_save_path: Path,
     ) -> None:
         self.loss_fns = Registry[LossDefinition](default_loss_fns)
         self.optimizers = Registry[OptimizerDefinition](default_optimizers)
@@ -75,9 +76,18 @@ class ModelService:
         self.models = FileCoordinator(
             ModelObject,
             "model",
-            TorchWeightsFileManager("data", save_path, ".pt"),
-            [JsonFileManager("architecture", save_path, ArchitectureConfig, ".arch.json")],
-            save_path,
+            TorchWeightsFileManager("data", model_save_path, ".pt"),
+            [JsonFileManager("architecture", model_save_path, ArchitectureConfig, ".arch.json")],
+            model_save_path,
+        )
+
+        self.train_logs = FileCoordinator(
+            TrainLogObject,
+            "train",
+            JsonFileManager("data", training_save_path, TrainingInfo, ".train.log"),  # type: ignore # TODO: fix type error?
+            [JsonFileManager("config", training_save_path, TrainingConfig, ".train.log")],
+            training_save_path,
+            IdGeneration.TimeStamp,
         )
 
         self.training_queue = asyncio.Queue()
@@ -93,5 +103,7 @@ class ModelService:
 
         return model_id
 
-    async def add_to_training_queue(self, cfg: TrainingConfig):
-        await self.training_queue.put(cfg)
+    async def add_to_training_queue(self, cfg: TrainingConfig, meta: MetaData) -> FileId:
+        log_id = self.train_logs.create(TrainLogObject(meta, TrainingQueuedInfo(), cfg))
+        await self.training_queue.put((log_id, cfg))
+        return log_id

@@ -1,13 +1,17 @@
 import asyncio
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from queue import Empty
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
+import torch
 import torch.multiprocessing as mp
 from server.data.sources.base import DataSourceDataset
 from server.model.loss.config import LossConfig
 from server.model.model import ArchitectureModel
 from server.model.optim.config import OptimizerConfig
 from server.util.file.file import FileId
+from server.util.file.meta import MetaData
+from server.util.file.object import Loadable
 from server.util.params import get_params_dict
 from torch import Tensor, nn, optim
 from torch.utils.data import DataLoader
@@ -27,11 +31,46 @@ class TrainingConfig:
     epochs: int = 10
 
 
+@dataclass
+class TrainingQueuedInfo:
+    status: Literal["queued"] = "queued"
+
+
+@dataclass
+class TrainingInProgressInfo:
+    epoch: int
+    avg_loss: float
+    status: Literal["in_progress"] = "in_progress"
+
+
+@dataclass
+class TrainingCompleteInfo:
+    avg_loss: float
+    status: Literal["complete"] = "complete"
+
+
+@dataclass
+class TrainingFailedInfo:
+    reason: str
+    description: str
+    status: Literal["failed"] = "failed"
+
+
+TrainingInfo: TypeAlias = TrainingQueuedInfo | TrainingInProgressInfo | TrainingCompleteInfo | TrainingFailedInfo
+
+
+@dataclass
+class TrainLogObject(Loadable):
+    meta: MetaData
+    data: TrainingInfo
+    config: TrainingConfig
+
+
 async def training_thread(model_service: "ModelService"):
     while True:
         try:
-            cfg = await model_service.training_queue.get()
-            msg_queue = mp.Queue()
+            log_file, cfg = await model_service.training_queue.get()
+            msg_queue = mp.Queue[TrainingMsg]()
 
             # Load the model
             model_obj = model_service.models.get(cfg.model_id)
@@ -64,26 +103,84 @@ async def training_thread(model_service: "ModelService"):
             print("starting process", process)
 
             received_last_msg = False
-            while received_last_msg:
+            while not received_last_msg:
                 try:
-                    model = msg_queue.get(False)
-                    print("received result")
-                    received_last_msg = True
-                except:
+                    msg = msg_queue.get(False)
+                    match msg.type:
+                        case "epoch_complete":
+                            model_service.train_logs.data_files.save_to(
+                                log_file, TrainingInProgressInfo(msg.epoch, msg.avg_loss)
+                            )
+                            model_service.train_logs.increment_version(log_file)
+
+                        case "failure":
+                            model_service.train_logs.data_files.save_to(
+                                log_file, TrainingFailedInfo("interrupted", "Training was interrupted in progress")
+                            )
+                            model_service.train_logs.increment_version(log_file)
+                            received_last_msg = True
+                            process.kill()
+
+                        case "finished":
+                            model_service.train_logs.data_files.save_to(log_file, TrainingCompleteInfo(msg.avg_loss))
+                            model_service.train_logs.increment_version(log_file)
+                            model_service.models.data_files.save_to(cfg.model_id, msg.model.state_dict())
+                            model_service.models.increment_version(cfg.model_id)
+                            received_last_msg = True
+                            process.join()
+
+                except Empty:
                     await asyncio.sleep(0.1)
+                except KeyboardInterrupt | asyncio.CancelledError as e:
+                    process.kill()
+                    model_service.train_logs.data_files.save_to(
+                        log_file, TrainingFailedInfo("interrupted", "Training was interrupted in progress")
+                    )
+                    model_service.train_logs.increment_version(log_file)
+                    raise e
+                except Exception as e:
+                    process.kill()
+                    model_service.train_logs.data_files.save_to(log_file, TrainingFailedInfo("error", str(e)))
+                    model_service.train_logs.increment_version(log_file)
+                    received_last_msg = True
 
-            process.join()
+        except KeyboardInterrupt | asyncio.CancelledError as e:
+            while not model_service.training_queue.empty():
+                log_file, cfg = model_service.training_queue.get_nowait()
+                model_service.train_logs.data_files.save_to(
+                    log_file, TrainingFailedInfo("interrupted", "Training was interrupted while queued")
+                )
+                model_service.train_logs.increment_version(log_file)
 
-            if isinstance(model, Exception):
-                print("received err", model)
-                continue
-
-            # Save the updated model
-            model_service.models.data_files.save_to(cfg.model_id, model.state_dict())
+            raise e
         except:
             import traceback
 
             traceback.print_exc()
+
+
+@dataclass
+class TrainingFinishedMsg(Loadable):
+    avg_loss: float
+    model: nn.Module
+    type: Literal["finished"] = "finished"
+
+
+@dataclass
+class EpochCompleteMsg(Loadable):
+    epoch: int
+    avg_loss: float
+    type: Literal["epoch_complete"] = "epoch_complete"
+
+
+@dataclass
+class TrainingFailureMsg(Loadable):
+    reason: str
+    description: str
+    type: Literal["failure"] = "failure"
+
+
+TrainingMsg = TrainingFinishedMsg | EpochCompleteMsg | TrainingFailureMsg
 
 
 def train_model(
@@ -92,15 +189,16 @@ def train_model(
     criterion: nn.Module,
     loader: DataLoader[tuple[Tensor, Tensor]],
     epochs: int,
-    msg_queue: mp.Queue,
+    msg_queue: "mp.Queue[TrainingMsg]",
 ) -> None:
-    print("started training")
     try:
         # Training loop
         model.train()
 
         for epoch in range(epochs):
             print("Epoch", epoch)
+
+            total_loss = 0
             for i, (x, y) in loader:
 
                 # Forward pass
@@ -112,6 +210,11 @@ def train_model(
                 loss.backward()
                 optimizer.step()
 
-        msg_queue.put(model)
+                total_loss += torch.sum(loss).item()
+
+            avg_loss = total_loss / len(loader)
+            msg_queue.put(EpochCompleteMsg(epoch + 1, avg_loss))
+
+        msg_queue.put(TrainingFinishedMsg(avg_loss, model))
     except Exception as e:
-        msg_queue.put(e)
+        msg_queue.put(TrainingFailureMsg("error", str(e)))

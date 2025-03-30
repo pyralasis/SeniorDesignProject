@@ -1,4 +1,6 @@
 import random
+import time
+from enum import Enum
 from pathlib import Path
 from typing import Generic, TypeVar, TypeVarTuple
 
@@ -24,6 +26,11 @@ class IncorrectFileArgumentsError(Exception):
         self.req_arg_count = req_arg_count
 
 
+class IdGeneration(Enum):
+    RandomNumber = 0
+    TimeStamp = 1
+
+
 class FileCoordinator(Generic[TObj, TData, *Ts]):
     def __init__(
         self,
@@ -32,6 +39,7 @@ class FileCoordinator(Generic[TObj, TData, *Ts]):
         data_file_manager: IFileManager[TData],
         extra_files: list[INetworkFileManager],
         save_path: Path,
+        id_generation: IdGeneration = IdGeneration.RandomNumber,
     ) -> None:
         self.obj_type = obj_type
         self.api_name = api_name
@@ -39,9 +47,10 @@ class FileCoordinator(Generic[TObj, TData, *Ts]):
         self.meta_files = create_meta_file_manager(save_path)
         self.data_files = data_file_manager
         self.extra_files = extra_files
+        self.id_generation = id_generation
 
     def create(self, obj: TObj) -> FileId:
-        id = self._generate_id()
+        id = self._generate_uniq_id()
 
         self._save_files(id, obj)
         self.info_files.save_to(id, ObjectInfo(0))
@@ -110,10 +119,15 @@ class FileCoordinator(Generic[TObj, TData, *Ts]):
     def exists(self, id: FileId):
         return self.info_files.exists(id)
 
-    def _generate_id(self) -> FileId:
-        id = random.randint(1, 1000000000)
-
+    def _generate_uniq_id(self) -> FileId:
+        id = self._generate_id()
         while self.exists(id):
-            id = random.randint(1, 1000000000)
-
+            id = self._generate_id()
         return id
+
+    def _generate_id(self) -> FileId:
+        match self.id_generation:
+            case IdGeneration.RandomNumber:
+                return random.randint(1, 1000000000)
+            case IdGeneration.TimeStamp:
+                return round(time.time() * 1000)
