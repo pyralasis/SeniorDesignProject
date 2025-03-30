@@ -1,27 +1,19 @@
 import asyncio
-import uuid
-from ast import Mod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from xml.sax import xmlreader
 
-import torch
 import torch.multiprocessing as mp
-from server import layer
-from server.architecture.config import (
-    ArchitectureConfig,
-    InputLayerConfig,
-    LayerInstanceID,
-    NetworkLayerConfig,
-)
+from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
 from server.data.service import DataService
 from server.data.sources.base import DataSourceDataset
-from server.layer import LayerDefinition
 from server.layer.service import LayerService
-from server.layer.size import TensorSize
+from server.model.loss import default_loss_fns
+from server.model.loss.definition import LossDefinition
 from server.model.model import ArchitectureModel
+from server.model.optim import default_optimizers
+from server.model.optim.definition import OptimizerDefinition
 from server.util.file import (
     JsonFileManager,
     Loadable,
@@ -30,8 +22,9 @@ from server.util.file import (
 )
 from server.util.file.coordinator import FileCoordinator
 from server.util.file.file import FileId
+from server.util.registry import Registry
 from torch import Tensor, nn, optim
-from torch.nn import MSELoss, NLLLoss
+from torch.nn import NLLLoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
@@ -81,9 +74,13 @@ class ModelService:
         architecture_service: ArchitectureService,
         save_path: Path,
     ) -> None:
+        self.loss_fns = Registry[LossDefinition](default_loss_fns)
+        self.optimizers = Registry[OptimizerDefinition](default_optimizers)
+
         self.layer_service = layer_service
         self.data_service = data_service
         self.architecture_service = architecture_service
+
         self.models = FileCoordinator(
             ModelObject,
             "model",
@@ -98,14 +95,10 @@ class ModelService:
         self.training_task = asyncio.create_task(self.training_thread())
 
     async def training_thread(self):
-        await asyncio.sleep(0.01)
-        print("RUNNING")
         while True:
             try:
                 cfg = await self.training_queue.get()
                 msg_queue = mp.Queue()
-
-                print("received val")
 
                 # Load the model
                 model_obj = self.models.get(cfg.model_id)
@@ -114,8 +107,6 @@ class ModelService:
                     self.layer_service,
                 )
                 model.load_state_dict(model_obj.content.data)
-
-                print("loaded model")
 
                 # Load the data
                 value_source, label_source = self.data_service.config_to_sources(

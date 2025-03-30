@@ -10,6 +10,7 @@ from server.model.service import ModelService, TrainingConfig
 from server.util.file import FileId
 from server.util.file.blueprint import create_object_blueprint
 from server.util.file.meta import MetaData
+from server.util.registry_blueprint import create_registry_blueprint
 
 
 def create_model_blueprint(model_service: ModelService, architecture_service: ArchitectureService) -> Blueprint:
@@ -20,6 +21,16 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
 
     # Adds available and delete endpoints, as well as metadata endpoints
     bp.register_blueprint(create_object_blueprint(model_service.models, False))
+
+    bp.register_blueprint(
+        create_registry_blueprint(model_service.loss_fns, "loss"),
+        url_prefix="/loss",
+    )
+
+    bp.register_blueprint(
+        create_registry_blueprint(model_service.optimizers, "optimizers"),
+        url_prefix="/optimizer",
+    )
 
     return bp
 

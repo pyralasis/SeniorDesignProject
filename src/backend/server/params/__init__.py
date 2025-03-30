@@ -84,7 +84,7 @@ class IntParameterValue(ParameterValue[int]):
 
 
 @dataclass
-class FloatParameter(Parameter[float], float):
+class FloatParameter(Parameter[float]):
     type: Literal[ParamType.Float] = ParamType.Float
 
 

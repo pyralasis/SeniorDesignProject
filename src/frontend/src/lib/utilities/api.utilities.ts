@@ -58,7 +58,7 @@ export class BackendApi {
 
 
     static async getAvailableSources(): Promise<SourceBlueprint<any>[]> {
-        return fetch(`${BACKEND_API_BASE_URL}/pipeline/available_sources`, {
+        return fetch(`${BACKEND_API_BASE_URL}/pipeline/source/available`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export class BackendApi {
     }
 
     static getSourceById(id: SourceId): Promise<SourceBlueprint<any>> {
-        return fetch(`${BACKEND_API_BASE_URL}/pipeline/get_source?id=${id}`, {
+        return fetch(`${BACKEND_API_BASE_URL}/pipeline/source/get?id=${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ export class BackendApi {
     }
 
     static async getAvailableTransforms(): Promise<TransformBlueprint<any>[]> {
-        return fetch(`${BACKEND_API_BASE_URL}/pipeline/available_transforms`, {
+        return fetch(`${BACKEND_API_BASE_URL}/pipeline/transform/available`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ export class BackendApi {
     }
 
     static getTransformById(id: TransformId): Promise<TransformBlueprint<any>> {
-        return fetch(`${BACKEND_API_BASE_URL}/pipeline/get_transform?id=${id}`, {
+        return fetch(`${BACKEND_API_BASE_URL}/pipeline/transform/get?id=${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
