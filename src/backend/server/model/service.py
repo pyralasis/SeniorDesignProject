@@ -14,6 +14,7 @@ from server.model.loss.definition import LossDefinition
 from server.model.model import ArchitectureModel
 from server.model.optim import default_optimizers
 from server.model.optim.definition import OptimizerDefinition
+from server.model.train import TrainingConfig, training_thread
 from server.util.file import (
     JsonFileManager,
     Loadable,
@@ -41,16 +42,6 @@ Sample model architecture:
     "layout_file": null
 }
 """
-
-
-@dataclass
-class TrainingConfig:
-    model_id: FileId
-    source_id: FileId
-    shuffle_data: bool = True
-    learning_rate: float = 0.001
-    batch_size: int = 32
-    epochs: int = 10
 
 
 @dataclass
@@ -92,63 +83,7 @@ class ModelService:
         self.training_queue = asyncio.Queue()
 
     async def start_training_task(self):
-        self.training_task = asyncio.create_task(self.training_thread())
-
-    async def training_thread(self):
-        while True:
-            try:
-                cfg = await self.training_queue.get()
-                msg_queue = mp.Queue()
-
-                # Load the model
-                model_obj = self.models.get(cfg.model_id)
-                model = ArchitectureModel.create_from_architecture(
-                    model_obj.content.architecture,
-                    self.layer_service,
-                )
-                model.load_state_dict(model_obj.content.data)
-
-                # Load the data
-                value_source, label_source = self.data_service.config_to_sources(
-                    self.data_service.pipelines.get(cfg.source_id).content.data
-                )
-                ds = DataSourceDataset(value_source, label_source)
-
-                # TODO: more loader settings
-                loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data)
-
-                # Setup training
-                optimizer = Adam(model.parameters(), lr=cfg.learning_rate)
-                criterion = NLLLoss()
-
-                process = mp.Process(
-                    target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, msg_queue)
-                )
-                process.start()
-
-                print("starting process", process)
-
-                received_last_msg = False
-                while received_last_msg:
-                    try:
-                        model = msg_queue.get(False)
-                        print("received result")
-                        received_last_msg = True
-                    except:
-                        await asyncio.sleep(0.1)
-
-                process.join()
-
-                if isinstance(model, Exception):
-                    print("received err", model)
-                    continue
-
-                # Save the updated model
-                self.models.data_files.save_to(cfg.model_id, model.state_dict())
-            except:
-                import traceback
-
-                traceback.print_exc()
+        self.training_task = asyncio.create_task(training_thread(self))
 
     def create_model(self, architecture: ArchitectureConfig, meta_data: MetaData) -> FileId:
         model = ArchitectureModel.create_from_architecture(architecture, self.layer_service)
@@ -160,34 +95,3 @@ class ModelService:
 
     async def add_to_training_queue(self, cfg: TrainingConfig):
         await self.training_queue.put(cfg)
-
-
-def train_model(
-    model: nn.Module,
-    optimizer: optim.Optimizer,
-    criterion: nn.Module,
-    loader: DataLoader[tuple[Tensor, Tensor]],
-    epochs: int,
-    msg_queue: mp.Queue,
-) -> None:
-    print("started training")
-    try:
-        # Training loop
-        model.train()
-
-        for epoch in range(epochs):
-            print("Epoch", epoch)
-            for i, (x, y) in loader:
-
-                # Forward pass
-                outputs = model(x)
-                loss = criterion(outputs, y)
-
-                # Backward pass and optimize
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-        msg_queue.put(model)
-    except Exception as e:
-        msg_queue.put(e)

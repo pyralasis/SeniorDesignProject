@@ -6,7 +6,8 @@ from quart import Blueprint, ResponseReturnValue, request
 from quart.views import MethodView
 from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
-from server.model.service import ModelService, TrainingConfig
+from server.model.service import ModelService
+from server.model.train import TrainingConfig
 from server.util.file import FileId
 from server.util.file.blueprint import create_object_blueprint
 from server.util.file.meta import MetaData
