@@ -1,16 +1,19 @@
 import asyncio
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import torch.multiprocessing as mp
 from server.data.sources.base import DataSourceDataset
 from server.model.loss.config import LossConfig
 from server.model.model import ArchitectureModel
 from server.model.optim.config import OptimizerConfig
-from server.model.service import ModelService
 from server.util.file.file import FileId
 from server.util.params import get_params_dict
 from torch import Tensor, nn, optim
 from torch.utils.data import DataLoader
+
+if TYPE_CHECKING:
+    from server.model.service import ModelService
 
 
 @dataclass
@@ -24,7 +27,7 @@ class TrainingConfig:
     epochs: int = 10
 
 
-async def training_thread(model_service: ModelService):
+async def training_thread(model_service: "ModelService"):
     while True:
         try:
             cfg = await model_service.training_queue.get()
