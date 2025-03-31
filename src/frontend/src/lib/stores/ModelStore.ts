@@ -7,7 +7,9 @@ import type { ArchitectureId } from "$lib/types/architecture";
 const createModelStore = (): ModelStore => {
     const { subscribe, set, update } = writable<ModelStoreProps>({
         availableModels: undefined,
-        activeModel: undefined
+        activeModel: undefined,
+        availableOptimizers: undefined,
+        availableLosses: undefined,
     });
     const createModel = async (architecture_id: ArchitectureId, metadata: MetaData): Promise<void> => {
         await fetch(`${BACKEND_API_BASE_URL}/model/create`, {
@@ -31,7 +33,6 @@ const createModelStore = (): ModelStore => {
             .then(response => response.json())
             .then(data => {
                 let response = data as AvailableModelsResponse;
-                console.log(data);
                 update((store) => {
                     store.availableModels = response.available.map((model) => {
                         return {
@@ -81,8 +82,43 @@ const createModelStore = (): ModelStore => {
                 ),
             })
         };
+    
+    const getAvailableOptimizers = async (): Promise<void> => { 
+        await fetch(`${BACKEND_API_BASE_URL}/model/optimizer/available`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                let response = data;
+                update((store) => {
+                    store.availableOptimizers = response;
+                    return store;
+                });
+            });
+    };
+
+    const getAvailableLosses = async (): Promise<void> => { 
+        await fetch(`${BACKEND_API_BASE_URL}/model/loss/available`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                let response = data;
+                update((store) => {
+                    store.availableLosses = response;
+                    return store;
+                });
+            });
+    };
+
     return {
-        set, update, subscribe, createModel, getAvailableModels, loadModelById, deleteModel, trainModel
+        set, update, subscribe, createModel, getAvailableModels, loadModelById, deleteModel, trainModel, getAvailableLosses, getAvailableOptimizers
     };
 }
 

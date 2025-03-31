@@ -1,6 +1,7 @@
 import type { ArchitectureId } from '$lib/types/architecture';
 import type { Info } from '$lib/types/info';
 import type { MetaData } from '$lib/types/metadata';
+import type { Parameter } from '$lib/types/parameter';
 import { type Writable } from 'svelte/store';
 
 export interface activeModel { }
@@ -15,9 +16,23 @@ export interface AvailableModel {
     info: ModelInfoDescription;
 }
 
+export interface AvailableLoss {
+    id: string;
+    name: string;
+    parameters: Parameter<any>[];
+}
+
+export interface AvailableOptimizer {
+    id: string;
+    name: string;
+    parameters: Parameter<any>[];
+}
+
 export interface ModelStoreProps {
     availableModels: AvailableModel[] | undefined | any;
     activeModel: activeModel | undefined;
+    availableLosses: AvailableLoss[] | undefined | any;
+    availableOptimizers: AvailableOptimizer[] | undefined | any;
 }
 
 export interface ModelStore extends Writable<ModelStoreProps> {
@@ -31,6 +46,8 @@ export interface ModelStore extends Writable<ModelStoreProps> {
         batch_size: number,
         shuffle_data: boolean,
         epochs: number) => void;
+    getAvailableOptimizers: () => void;
+    getAvailableLosses: () => void;
 }
 
 export type CreateModelRequestBody = {
