@@ -141,7 +141,7 @@ async def training_thread(model_service: "ModelService"):
                     except Empty:
                         await asyncio.sleep(0.1)
 
-            except KeyboardInterrupt | asyncio.CancelledError as e:
+            except (KeyboardInterrupt, asyncio.CancelledError) as e:
                 if process is not None:
                     process.kill()
                 model_service.train_logs.data_files.save_to(
@@ -156,7 +156,7 @@ async def training_thread(model_service: "ModelService"):
                 model_service.train_logs.increment_version(log_file)
                 received_last_msg = True
 
-        except KeyboardInterrupt | asyncio.CancelledError as e:
+        except (KeyboardInterrupt, asyncio.CancelledError) as e:
             while not model_service.training_queue.empty():
                 log_file, cfg = model_service.training_queue.get_nowait()
                 model_service.train_logs.data_files.save_to(
