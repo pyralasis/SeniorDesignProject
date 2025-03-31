@@ -76,7 +76,7 @@ async def training_thread(model_service: "ModelService"):
             print("received queue msg")
 
             try:
-                msg_queue = mp.Queue[TrainingMsg]()
+                msg_queue = mp.Queue()
 
                 # Load the model
                 model_obj = model_service.models.get(cfg.model_id)
