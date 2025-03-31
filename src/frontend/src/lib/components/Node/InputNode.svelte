@@ -16,7 +16,6 @@
     const rightConnected: Writable<boolean> = data?.rightConnected as Writable<boolean>;
     const rightStatus: Writable<HandleStatus> = data?.rightStatus as Writable<HandleStatus>;
     let sizeDimensions = writable<number>($outputSize.length);
-    $: numConnections = $rightConnected ? 1 : 0;
 
     function toggleConnection(connected: boolean) {
         $rightConnected = connected;

@@ -18,7 +18,6 @@ import type {
     PipelineVersion,
     PipelineInfoDescription,
     PipelineElement,
-    InstanceId,
 } from "$lib/types/pipeline";
 import type { TransformConfig, TransformId } from "$lib/types/transform";
 import type { SourceConfig, SourceId } from "$lib/types/source";
@@ -43,7 +42,7 @@ function findParameterById(parameters: any[], id: string): Parameter<any> {
     return parameters.find((parameter) => parameter.id === id);
 }
 
-function parseElements(nodes: Node[]): PipelineElement[] {
+function parseElements(nodes: Node[], edges: Edge[]): PipelineElement[] {
     return nodes.map((node) => {
         const parameters = get(node.data.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>);
         if (node.type === "source") {
@@ -59,6 +58,7 @@ function parseElements(nodes: Node[]): PipelineElement[] {
                 transform_id: node.data.transform_id,
                 instance_id: parseInt(node.id),
                 param_values: Object.fromEntries(parameters.map(({ parameter, value }) => [parameter.id, value])),
+                input: edges.find((edge) => edge.target === node.id)?.source ?? -1,
             } as TransformConfig;
         }
     });
@@ -227,7 +227,7 @@ const createPipelineStore = (): PipelineStore => {
             id: (pStore.activePipeline.id as PipelineId) ?? -1,
             data: {
                 data: {
-                    elements: parseElements(nodes),
+                    elements: parseElements(nodes, edges),
                     value_output: -1,
                     label_output: -1,
                 } as PipelineConfig,

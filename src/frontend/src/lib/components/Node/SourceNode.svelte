@@ -21,16 +21,6 @@
 </script>
 
 <Handle
-    type="target"
-    position={Position.Left}
-    style="
-        border-color: {$color + (selected ? 'bb' : '34')};
-        border-radius: 0;
-        height: 8px;
-        width: 6px;
-    "
-/>
-<Handle
     type="source"
     position={Position.Right}
     style="
