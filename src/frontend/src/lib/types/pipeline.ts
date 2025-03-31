@@ -25,7 +25,7 @@ export type PipelineMetaDescription = MetaData & {}
 
 export type NetworkPipelineDescription = {
     id: PipelineId,
-    data: {
+    content: {
         data: PipelineConfig,
         meta: PipelineMetaDescription,
         layout: NetworkLayoutDescription,

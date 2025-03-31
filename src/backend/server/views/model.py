@@ -1,5 +1,5 @@
 from dataclasses import asdict, dataclass
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import TypeAdapter
 from quart import Blueprint, ResponseReturnValue, request
@@ -7,9 +7,17 @@ from quart.views import MethodView
 from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
 from server.model.service import ModelService
+from server.model.train import TrainingConfig
 from server.util.file import FileId
-from server.util.file.blueprint import create_object_blueprint
+from server.util.file.blueprint import (
+    AvailableFilesView,
+    AvailableObjectsView,
+    LoadObjectView,
+    create_file_blueprint,
+    create_object_blueprint,
+)
 from server.util.file.meta import MetaData
+from server.util.registry_blueprint import create_registry_blueprint
 
 
 def create_model_blueprint(model_service: ModelService, architecture_service: ArchitectureService) -> Blueprint:
@@ -19,6 +27,43 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
 
     # Adds available and delete endpoints, as well as metadata endpoints
     bp.register_blueprint(create_object_blueprint(model_service.models, False))
+
+    bp.register_blueprint(
+        create_registry_blueprint(model_service.loss_fns, "loss"),
+        url_prefix="/loss",
+    )
+
+    bp.register_blueprint(
+        create_registry_blueprint(model_service.optimizers, "optimizers"),
+        url_prefix="/optimizer",
+    )
+
+    # Training
+    bp_train = Blueprint("train", __name__)
+    bp_train.add_url_rule("/start", view_func=TrainModelView.as_view("start", model_service))
+
+    # Train Objects
+    bp_train.add_url_rule("/available", view_func=AvailableObjectsView.as_view(f"available", model_service.train_logs))
+    bp_train.add_url_rule("/load", view_func=LoadObjectView.as_view(f"load", model_service.train_logs))
+
+    # Train status files
+    bp_train.register_blueprint(
+        create_file_blueprint(model_service.train_logs.data_files, model_service.train_logs, False),  # type: ignore
+        url_prefix=f"/data",
+    )
+
+    # Training meta files
+    bp_train.register_blueprint(
+        create_file_blueprint(model_service.train_logs.meta_files, model_service.train_logs), url_prefix=f"/meta"
+    )
+
+    # Training config files
+    bp_train.register_blueprint(
+        create_file_blueprint(model_service.train_logs.extra_files[0], model_service.train_logs, False),
+        url_prefix=f"/config",
+    )
+
+    bp.register_blueprint(bp_train, url_prefix="/train")
 
     return bp
 
@@ -95,3 +140,52 @@ class CreateModelView(MethodView):
             return asdict(ErrorResponseModelCreationFailure())
 
         return asdict(SuccessfulResponse(model_id=model_id))
+
+
+###
+### Train Model View
+###
+
+
+@dataclass
+class TrainModelRequestBody:
+    meta: MetaData
+    config: TrainingConfig
+
+
+@dataclass
+class TrainModelSuccessResponse:
+    log_id: FileId
+    success: Literal[True] = True
+
+
+@dataclass
+class TrainModelErrorInvalidModel:
+    success: Literal[False] = False
+    error: Literal["invalid_model_id"] = "invalid_model_id"
+
+
+@dataclass
+class TrainModelErrorInvalidSource:
+    success: Literal[False] = False
+    error: Literal["invalid_source_id"] = "invalid_source_id"
+
+
+class TrainModelView(MethodView):
+    init_every_request = False
+
+    def __init__(self, model_service: ModelService):
+        self.service = model_service
+        self.adapter = TypeAdapter(TrainModelRequestBody)
+
+    async def post(self) -> ResponseReturnValue:
+        req = self.adapter.validate_python(await request.json)
+
+        if not self.service.models.exists(req.config.model_id):
+            return asdict(TrainModelErrorInvalidModel())
+
+        if not self.service.data_service.pipelines.exists(req.config.source_id):
+            return asdict(TrainModelErrorInvalidSource())
+
+        log_id = await self.service.add_to_training_queue(req.config, req.meta)
+        return asdict(TrainModelSuccessResponse(log_id))

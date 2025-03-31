@@ -14,17 +14,25 @@ from server.views.blueprint import create_api_blueprint
 DEFAULT_PATHS = {
     "architectures": "./architectures",
     "models": "./models",
+    "train": "./train",
     "data": "./data",
 }
 
 
-def create_app():
+async def create_app():
     app = Quart(__name__)
 
     layer_service = LayerService(default_layers)
     architecture_service = ArchitectureService(Path(getenv("ARCHITECTURES_PATH", DEFAULT_PATHS["architectures"])))
     data_service = DataService(Path(getenv("DATA_PATH", DEFAULT_PATHS["data"])), default_sources, default_transforms)
-    model_service = ModelService(layer_service, Path(getenv("MODELS_PATH", DEFAULT_PATHS["models"])))
+    model_service = ModelService(
+        layer_service,
+        data_service,
+        architecture_service,
+        Path(getenv("MODELS_PATH", DEFAULT_PATHS["models"])),
+        Path(getenv("TRAIN_PATH", DEFAULT_PATHS["train"])),
+    )
+    await model_service.start_training_task()
 
     # These are where the API endpoints are registered
     app.register_blueprint(

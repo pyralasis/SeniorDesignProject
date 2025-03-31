@@ -4,10 +4,12 @@ import type { AvailableModel, AvailableModelsResponse, ModelId, ModelInfoDescrip
 import type { MetaData } from "$lib/types/metadata";
 import type { ArchitectureId } from "$lib/types/architecture";
 
-const createModelStore = (): ModelStore =>{
+const createModelStore = (): ModelStore => {
     const { subscribe, set, update } = writable<ModelStoreProps>({
         availableModels: undefined,
-        activeModel: undefined
+        activeModel: undefined,
+        availableOptimizers: undefined,
+        availableLosses: undefined,
     });
     const createModel = async (architecture_id: ArchitectureId, metadata: MetaData): Promise<void> => {
         await fetch(`${BACKEND_API_BASE_URL}/model/create`, {
@@ -22,47 +24,101 @@ const createModelStore = (): ModelStore =>{
         })
     };
     const getAvailableModels = async (): Promise<void> => {
-        await fetch(`${BACKEND_API_BASE_URL}/model/meta/available`, {
+        await fetch(`${BACKEND_API_BASE_URL}/model/available`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            let response = data as AvailableModelsResponse;
-            update((store) => {
-                store.availableModels = response.available.map((model) => {
-                    return {
-                        // id: model.id as ModelId,
-                        id: model as unknown as ModelId,
-                        // meta: {
-                        //     name: model.meta.name,
-                        //     description: model.meta.description,
-                        //     last_modified: model.meta.last_modified,
-                        //     created_at: model.meta.created_at,
-                        // } as ModelMetaDescription,
-                        meta: {
-                            name: "a",
-                            description: "a",
-                            last_modified: "a",
-                            created_at: "a",
-                        } as ModelMetaDescription,
-                        // info: {
-                        //     version: arch.info.version,
-                        // } as ModelInfoDescription,
-                        info: {
-                            version: 1,
-                        } as ModelInfoDescription,
-                    } as unknown as AvailableModel;
+            .then(response => response.json())
+            .then(data => {
+                let response = data as AvailableModelsResponse;
+                update((store) => {
+                    store.availableModels = response.available.map((model) => {
+                        return {
+                            id: model.id as ModelId,
+                            meta: {
+                                name: model.meta.name,
+                                description: model.meta.description,
+                                last_modified: model.meta.last_modified,
+                                created_at: model.meta.created_at,
+                            } as ModelMetaDescription,
+                            info: {
+                                version: model.info.version,
+                            } as ModelInfoDescription,
+                        } as unknown as AvailableModel;
+                    });
+                    return store;
                 });
-                return store;
             });
-        });
     };
-    const loadModelById = (): void =>{};
-    return{
-        set, update, subscribe, createModel, getAvailableModels, loadModelById
+    const loadModelById = (): void => { };
+    const deleteModel = (): void => { };
+
+    const trainModel =
+        async (model_id: number,
+            source_id: number,
+            learning_rate: number,
+            batch_size: number,
+            shuffle_data: boolean,
+            epochs: number): Promise<void> => {
+            await fetch(`${BACKEND_API_BASE_URL}/model/train`, {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json',
+
+                },
+                body: JSON.stringify({
+                    "config":
+                    {
+                        "model_id": model_id,
+                        "source_id": source_id,
+                        "learning_rate": learning_rate,
+                        "batch_size": batch_size,
+                        "shuffle_data": shuffle_data,
+                        "epochs": epochs,
+                    }
+                }
+                ),
+            })
+        };
+    
+    const getAvailableOptimizers = async (): Promise<void> => { 
+        await fetch(`${BACKEND_API_BASE_URL}/model/optimizer/available`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                let response = data;
+                update((store) => {
+                    store.availableOptimizers = response;
+                    return store;
+                });
+            });
+    };
+
+    const getAvailableLosses = async (): Promise<void> => { 
+        await fetch(`${BACKEND_API_BASE_URL}/model/loss/available`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                let response = data;
+                update((store) => {
+                    store.availableLosses = response;
+                    return store;
+                });
+            });
+    };
+
+    return {
+        set, update, subscribe, createModel, getAvailableModels, loadModelById, deleteModel, trainModel, getAvailableLosses, getAvailableOptimizers
     };
 }
 

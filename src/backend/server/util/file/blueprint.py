@@ -273,7 +273,9 @@ class UpdateObjectView(MethodView, Generic[T]):
 ###
 
 
-def create_file_blueprint(file_manager: INetworkFileManager, file_coordinator: FileCoordinator) -> Blueprint:
+def create_file_blueprint(
+    file_manager: INetworkFileManager, file_coordinator: FileCoordinator, allow_update: bool = True
+) -> Blueprint:
     file_api_name = file_manager.api_name()
     obj_api_name = file_coordinator.api_name
 
@@ -287,10 +289,12 @@ def create_file_blueprint(file_manager: INetworkFileManager, file_coordinator: F
         "/load",
         view_func=LoadFileView.as_view(f"load", file_manager),
     )
-    bp.add_url_rule(
-        "/update",
-        view_func=UpdateFileView.as_view(f"update", file_manager, file_coordinator),
-    )
+
+    if allow_update:
+        bp.add_url_rule(
+            "/update",
+            view_func=UpdateFileView.as_view(f"update", file_manager, file_coordinator),
+        )
 
     return bp
 

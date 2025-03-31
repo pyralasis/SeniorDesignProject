@@ -1,6 +1,7 @@
 from typing import Generic, Protocol, TypeVar
 
 
+# TODO: ABC?
 class Registerable(Protocol):
     id: str
 

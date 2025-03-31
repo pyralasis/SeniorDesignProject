@@ -1,5 +1,4 @@
-from typing import NewType
-
+from typing import NewType, TypeAlias
 
 TensorSize = NewType("TensorSize", tuple[int, ...])
 

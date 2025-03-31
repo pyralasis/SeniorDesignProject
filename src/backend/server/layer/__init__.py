@@ -4,7 +4,7 @@ from typing import Any, Protocol, TypeAlias
 import torch
 from server.layer.input import InputDefinition
 from server.layer.size import TensorSize
-from server.params import Parameter
+from server.params import AnyParameter, Parameter
 
 LayerID: TypeAlias = str
 
@@ -14,7 +14,7 @@ class LayerDescription:
     id: LayerID
     name: str
     inputs: tuple[InputDefinition, ...]
-    parameters: tuple[Parameter[Any], ...]
+    parameters: tuple[AnyParameter, ...]
 
 
 class LayerConstructor(Protocol):
@@ -26,17 +26,11 @@ class LayerSizeCallable(Protocol):
 
 
 @dataclass
-class ParameterValue:
-    val: Any
-    type: str
-
-
-@dataclass
 class LayerDefinition:
     id: LayerID
     name: str
     inputs: tuple[InputDefinition, ...]
-    parameters: tuple[Parameter[Any], ...]
+    parameters: tuple[AnyParameter, ...]
     constructor: LayerConstructor
     size: LayerSizeCallable
 

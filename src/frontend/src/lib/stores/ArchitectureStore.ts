@@ -160,8 +160,9 @@ const createArchitectureStore = (): ArchitectureStore => {
             updateSaveStatus(true, SaveStatusEnum.Success);
             const response = await fetch(`${BACKEND_API_BASE_URL}/architecture/load?${new URLSearchParams({ id }).toString()}`);
             const data = ((await response.json()) as LoadArchitectureResponse).object;
-            const archData = data.data.data;
-            const layoutData = data.data.layout;
+            console.log(data)
+            const archData = data.content.data;
+            const layoutData = data.content.layout;
 
             const { nodes, edges } = await parseLayersIntoNodesAndEdges(
                 archData.layers,
@@ -174,10 +175,10 @@ const createArchitectureStore = (): ArchitectureStore => {
                 activeArchitecture: {
                     id: data.id,
                     meta: {
-                        name: data.data.meta.name,
-                        description: data.data.meta.description,
-                        created_at: data.data.meta.created_at,
-                        last_modified: data.data.meta.last_modified,
+                        name: data.content.meta.name,
+                        description: data.content.meta.description,
+                        created_at: data.content.meta.created_at,
+                        last_modified: data.content.meta.last_modified,
                         version: data.info?.version ?? 0,
                     },
                     nodes: writable<Node[]>(nodes),
@@ -229,7 +230,7 @@ const createArchitectureStore = (): ArchitectureStore => {
         const outputNode = nodes.filter((node) => node.id === '69')[0];
         const architecture: NetworkArchitectureDescription = {
             id: (aStore.activeArchitecture.id as ArchitectureId) ?? "",
-            data: {
+            content: {
                 data: {
                     inputs: inputNodes.map((node) => {
                         let outputSize = get(node.data.outputSize as Writable<TensorSize>);
@@ -294,8 +295,8 @@ const createArchitectureStore = (): ArchitectureStore => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(
                     isNew
-                        ? { meta: architecture.data.meta, data: architecture.data.data, layout: architecture.data.layout }
-                        : { id: aStore.activeArchitecture.id, object: architecture.data }
+                        ? { meta: architecture.content.meta, data: architecture.content.data, layout: architecture.content.layout }
+                        : { id: aStore.activeArchitecture.id, object: architecture.content }
                 ),
             });
 

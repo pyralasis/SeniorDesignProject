@@ -1,38 +1,62 @@
 <script lang="ts">
-// @ts-nocheck
+    // @ts-nocheck
 
     import { StylingUtility } from "$lib/utilities/styling.utility";
 
-    import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput } from "kiwi-nl";
+    import Spinner from "$lib/components/Spinner/Spinner.svelte";
+    import { Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput, type PopoverItem } from "kiwi-nl";
     import { modelStore } from "$lib/stores/ModelStore";
-    import { onMount, setContext } from 'svelte';
-    import { writable, type Writable } from 'svelte/store';
+    import { onMount, setContext } from "svelte";
+    import { writable, type Writable } from "svelte/store";
     import type { AvailableModel } from "$lib/stores/types/models-store.interface";
-    import MenuItem from '$lib/components/General/MenuItem.svelte';
-    import Icon from '$lib/components/Icon/Icon.svelte';
+    import MenuItem from "$lib/components/General/MenuItem.svelte";
+    import Icon from "$lib/components/Icon/Icon.svelte";
+    import { pipelineStore } from "$lib/stores/PipelineStore";
+    import { time } from "console";
+    import { setTimeout } from "timers";
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
 
-    setContext('selected-item', selectedModel);
+    setContext("selected-item", selectedModel);
+
+    // let optimizerItems: PopoverItem[] = [{ label: "Optimizers", value: "item1" }];
+    let optimizerItems: PopoverItem[] = $modelStore.availableOptimizers?.map((x) => ({label: x.name, value: x}));
+    console.log($modelStore.availableOptimizers);
 
 
-    let optimizerItems: PopoverItem[] = [
-        { label: 'Optimizers', value: 'item1' },
-    ];
+    let lossItems: PopoverItem[] = [{ label: "Losses", value: "item1" }];
 
-    let lossItems: PopoverItem[] = [
-        { label: 'Losses', value: 'item1' },
-    ];
+    let sources: PopoverItem[] = $pipelineStore.availablePipelines?.map((x) => ({ label: x.meta.name, value: x.id }));
 
-    let popoverItems: PopoverItem[] = [];
+    let selectedOptimizerItem: PopoverItem[] = [];
 
-    function handlePopoverItemsChanged(event: CustomEvent): void {
-        popoverItems = event.detail.selectedItems;
+    function handleOptimizerPopoverItemChanged(event: CustomEvent): void {
+        selectedOptimizerItem = event.detail.selectedItems;
     }
-    
+
+    let selectedLossItem: PopoverItem[] = [];
+
+    function handleLossPopoverItemChanged(event: CustomEvent): void {
+        selectedLossItem = event.detail.selectedItems;
+    }
+
+    let selectedSourceItem: PopoverItem[] = [];
+
+    function handleSourcePopoverItemChanged(event: CustomEvent): void {
+        selectedSourceItem = event.detail.selectedItems;
+    }
+
+    let epochs_value = 10;
+    let batch_value = 16;
+    let learning_value = 0.001;
+
     onMount(() => {
         modelStore.getAvailableModels();
+        pipelineStore.getAvailablePipelines();
+        modelStore.getAvailableOptimizers();
+        modelStore.getAvailableLosses();
+        // console.log($modelStore.availableOptimizers);
+        
     });
 </script>
 
@@ -42,13 +66,8 @@
     </div>
     <div class="model-page__top">
         <div class="model-page__top-left">
-            <p>
-                Create a model from an existing architecture on the Architectures Page! (FIND A BETTER SPOT FOR THIS MESSAGE)
-            </p>
-            <p>
-                Select the model you would like to...
-            </p>
-
+            <p>Create a model from an existing architecture on the Architectures Page! (FIND A BETTER SPOT FOR THIS MESSAGE)</p>
+            <p>Select the model you would like to...</p>
         </div>
         <div class="model-page__top-right">
             <div class="model-model-items">
@@ -83,27 +102,46 @@
                     <p>No model selected</p>
                 </div>
             {/if}
-
         </div>
         <div class="model-page__bottom-right">
             {#if $selectedModel}
-                <TextInput label="Training Epochs" />
+                <TextInput label="Training Epochs" bind:value={epochs_value} />
+                <TextInput label="Batch Size" bind:value={batch_value} />
+                <TextInput label="Learning Rate" bind:value={learning_value} />
                 <div class="popovers">
-                    <Popover on:popoverItemsChanged={handlePopoverItemsChanged} items={optimizerItems}>
+                    <Popover on:popoverItemsChanged={handleOptimizerPopoverItemChanged} items={optimizerItems}>
                         <PopoverChipTrigger slot="trigger" label="Optimizers" />
                         <PopoverSingleSelectContent slot="content" />
                     </Popover>
-                    <Popover on:popoverItemsChanged={handlePopoverItemsChanged} items={lossItems}>
+                    <Popover on:popoverItemsChanged={handleLossPopoverItemChanged} items={lossItems}>
                         <PopoverChipTrigger slot="trigger" label="Loss Functions" />
+                        <PopoverSingleSelectContent slot="content" />
+                    </Popover>
+                    <Popover on:popoverItemsChanged={handleSourcePopoverItemChanged} items={sources}>
+                        <PopoverChipTrigger slot="trigger" label="Data Sources" />
                         <PopoverSingleSelectContent slot="content" />
                     </Popover>
                 </div>
                 <Button
                     type="primary"
+                    on:click={() => {
+                        console.log(selectedSourceItem[0]);
+                        modelStore.trainModel(
+                            $selectedModel.id,
+                            selectedSourceItem[0].value,
+                            learning_value,
+                            batch_value,
+                            true,
+                            epochs_value
+                        );
+                    }}>Train</Button
+                >
+                <Button
+                    type="primary"
                     style={StylingUtility.redButton}
                     on:click={() => {
                         if ($selectedModel) {
-                            console.log("hello")
+                            console.log("hello");
                         }
                     }}><Icon name="trash" /></Button
                 >
@@ -113,7 +151,6 @@
 </div>
 
 <style lang="scss">
-
     .model-page {
         display: flex;
         flex-direction: column;
