@@ -85,7 +85,7 @@ class ModelService:
             TrainLogObject,
             "train",
             JsonFileManager("data", training_save_path, TrainingInfo, ".train.log"),  # type: ignore # TODO: fix type error?
-            [JsonFileManager("config", training_save_path, TrainingConfig, ".train.log")],
+            [JsonFileManager("config", training_save_path, TrainingConfig, ".train.cfg")],
             training_save_path,
             IdGeneration.TimeStamp,
         )
