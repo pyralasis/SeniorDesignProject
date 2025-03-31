@@ -12,21 +12,16 @@
     import MenuItem from "$lib/components/General/MenuItem.svelte";
     import Icon from "$lib/components/Icon/Icon.svelte";
     import { pipelineStore } from "$lib/stores/PipelineStore";
-    import { time } from "console";
-    import { setTimeout } from "timers";
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
 
     setContext("selected-item", selectedModel);
 
-    // let optimizerItems: PopoverItem[] = [{ label: "Optimizers", value: "item1" }];
-    let optimizerItems: PopoverItem[] = $modelStore.availableOptimizers?.map((x) => ({label: x.name, value: x}));
-    console.log($modelStore.availableOptimizers);
+    let optimizerItems: PopoverItem[] = $derived($modelStore.availableOptimizers?.map((x) => ({label: x.name, value: x})));
 
+    let lossItems: PopoverItem[] = $derived($modelStore.availableLosses?.map((x) => ({label: x.name, value: x})));
 
-    let lossItems: PopoverItem[] = [{ label: "Losses", value: "item1" }];
-
-    let sources: PopoverItem[] = $pipelineStore.availablePipelines?.map((x) => ({ label: x.meta.name, value: x.id }));
+    let sources: PopoverItem[] = $derived($pipelineStore.availablePipelines?.map((x) => ({ label: x.meta.name, value: x.id })));
 
     let selectedOptimizerItem: PopoverItem[] = [];
 
@@ -46,17 +41,15 @@
         selectedSourceItem = event.detail.selectedItems;
     }
 
-    let epochs_value = 10;
-    let batch_value = 16;
-    let learning_value = 0.001;
+    let epochs_value = $state(10);
+    let batch_value = $state(16);
+    let learning_value = $state(0.001);
 
     onMount(() => {
         modelStore.getAvailableModels();
         pipelineStore.getAvailablePipelines();
         modelStore.getAvailableOptimizers();
-        modelStore.getAvailableLosses();
-        // console.log($modelStore.availableOptimizers);
-        
+        modelStore.getAvailableLosses();        
     });
 </script>
 
@@ -113,6 +106,7 @@
                         <PopoverChipTrigger slot="trigger" label="Optimizers" />
                         <PopoverSingleSelectContent slot="content" />
                     </Popover>
+                    
                     <Popover on:popoverItemsChanged={handleLossPopoverItemChanged} items={lossItems}>
                         <PopoverChipTrigger slot="trigger" label="Loss Functions" />
                         <PopoverSingleSelectContent slot="content" />
@@ -125,11 +119,12 @@
                 <Button
                     type="primary"
                     on:click={() => {
-                        console.log(selectedSourceItem[0]);
                         modelStore.trainModel(
                             $selectedModel.id,
                             selectedSourceItem[0].value,
                             learning_value,
+                            {"id": selectedLossItem[0].value.id, "param_values": selectedLossItem[0].value.parameters},
+                            {"id": selectedOptimizerItem[0].value.id, "param_values": selectedOptimizerItem[0].value.parameters},
                             batch_value,
                             true,
                             epochs_value

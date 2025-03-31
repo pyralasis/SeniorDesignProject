@@ -69,82 +69,94 @@ class TrainLogObject(Loadable):
 async def training_thread(model_service: "ModelService"):
     while True:
         try:
+            process = None
+
+            print("waiting for training msg")
             log_file, cfg = await model_service.training_queue.get()
-            msg_queue = mp.Queue[TrainingMsg]()
+            print("received queue msg")
 
-            # Load the model
-            model_obj = model_service.models.get(cfg.model_id)
-            model = ArchitectureModel.create_from_architecture(
-                model_obj.content.architecture,
-                model_service.layer_service,
-            )
-            model.load_state_dict(model_obj.content.data)
+            try:
+                msg_queue = mp.Queue()
 
-            # Load the data
-            value_source, label_source = model_service.data_service.config_to_sources(
-                model_service.data_service.pipelines.get(cfg.source_id).content.data
-            )
-            ds = DataSourceDataset(value_source, label_source)
+                # Load the model
+                model_obj = model_service.models.get(cfg.model_id)
+                model = ArchitectureModel.create_from_architecture(
+                    model_obj.content.architecture,
+                    model_service.layer_service,
+                )
+                model.load_state_dict(model_obj.content.data)
 
-            # TODO: more loader settings
-            loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data)
+                # Load the data
+                value_source, label_source = model_service.data_service.config_to_sources(
+                    model_service.data_service.pipelines.get(cfg.source_id).content.data
+                )
+                ds = DataSourceDataset(value_source, label_source)
 
-            optimizer = model_service.optimizers.get(cfg.optimizer.id).constructor(
-                model, **get_params_dict(cfg.optimizer.param_values)
-            )
+                # TODO: more loader settings
+                loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data)
 
-            criterion = model_service.loss_fns.get(cfg.loss_fn.id).constructor(
-                **get_params_dict(cfg.loss_fn.param_values)
-            )
+                optimizer = model_service.optimizers.get(cfg.optimizer.id).constructor(
+                    model, **get_params_dict(cfg.optimizer.param_values)
+                )
 
-            process = mp.Process(target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, msg_queue))
-            process.start()
+                criterion = model_service.loss_fns.get(cfg.loss_fn.id).constructor(
+                    **get_params_dict(cfg.loss_fn.param_values)
+                )
 
-            print("starting process", process)
+                process = mp.Process(
+                    target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, msg_queue)
+                )
+                process.start()
 
-            received_last_msg = False
-            while not received_last_msg:
-                try:
-                    msg = msg_queue.get(False)
-                    match msg.type:
-                        case "epoch_complete":
-                            model_service.train_logs.data_files.save_to(
-                                log_file, TrainingInProgressInfo(msg.epoch, msg.avg_loss)
-                            )
-                            model_service.train_logs.increment_version(log_file)
+                print("starting process", process)
 
-                        case "failure":
-                            model_service.train_logs.data_files.save_to(
-                                log_file, TrainingFailedInfo("interrupted", "Training was interrupted in progress")
-                            )
-                            model_service.train_logs.increment_version(log_file)
-                            received_last_msg = True
-                            process.kill()
+                received_last_msg = False
+                while not received_last_msg:
+                    try:
+                        msg = msg_queue.get(False)
+                        match msg.type:
+                            case "epoch_complete":
+                                model_service.train_logs.data_files.save_to(
+                                    log_file, TrainingInProgressInfo(msg.epoch, msg.avg_loss)
+                                )
+                                model_service.train_logs.increment_version(log_file)
 
-                        case "finished":
-                            model_service.train_logs.data_files.save_to(log_file, TrainingCompleteInfo(msg.avg_loss))
-                            model_service.train_logs.increment_version(log_file)
-                            model_service.models.data_files.save_to(cfg.model_id, msg.model.state_dict())
-                            model_service.models.increment_version(cfg.model_id)
-                            received_last_msg = True
-                            process.join()
+                            case "failure":
+                                model_service.train_logs.data_files.save_to(
+                                    log_file, TrainingFailedInfo("interrupted", "Training was interrupted in progress")
+                                )
+                                model_service.train_logs.increment_version(log_file)
+                                received_last_msg = True
+                                process.kill()
 
-                except Empty:
-                    await asyncio.sleep(0.1)
-                except KeyboardInterrupt | asyncio.CancelledError as e:
+                            case "finished":
+                                model_service.train_logs.data_files.save_to(
+                                    log_file, TrainingCompleteInfo(msg.avg_loss)
+                                )
+                                model_service.train_logs.increment_version(log_file)
+                                model_service.models.data_files.save_to(cfg.model_id, msg.model.state_dict())
+                                model_service.models.increment_version(cfg.model_id)
+                                received_last_msg = True
+                                process.join()
+                    except Empty:
+                        await asyncio.sleep(0.1)
+
+            except (KeyboardInterrupt, asyncio.CancelledError) as e:
+                if process is not None:
                     process.kill()
-                    model_service.train_logs.data_files.save_to(
-                        log_file, TrainingFailedInfo("interrupted", "Training was interrupted in progress")
-                    )
-                    model_service.train_logs.increment_version(log_file)
-                    raise e
-                except Exception as e:
+                model_service.train_logs.data_files.save_to(
+                    log_file, TrainingFailedInfo("interrupted", "Training was interrupted in progress")
+                )
+                model_service.train_logs.increment_version(log_file)
+                raise e
+            except Exception as e:
+                if process is not None:
                     process.kill()
-                    model_service.train_logs.data_files.save_to(log_file, TrainingFailedInfo("error", str(e)))
-                    model_service.train_logs.increment_version(log_file)
-                    received_last_msg = True
+                model_service.train_logs.data_files.save_to(log_file, TrainingFailedInfo("error", str(e)))
+                model_service.train_logs.increment_version(log_file)
+                received_last_msg = True
 
-        except KeyboardInterrupt | asyncio.CancelledError as e:
+        except (KeyboardInterrupt, asyncio.CancelledError) as e:
             while not model_service.training_queue.empty():
                 log_file, cfg = model_service.training_queue.get_nowait()
                 model_service.train_logs.data_files.save_to(

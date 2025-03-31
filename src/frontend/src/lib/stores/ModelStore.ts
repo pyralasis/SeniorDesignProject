@@ -1,8 +1,9 @@
 import { BACKEND_API_BASE_URL } from "$lib/utilities/api.constants";
 import { writable } from "svelte/store";
-import type { AvailableModel, AvailableModelsResponse, ModelId, ModelInfoDescription, ModelMetaDescription, ModelStore, ModelStoreProps } from "./types/models-store.interface";
+import type { AvailableModel, AvailableModelsResponse, LossConfig, ModelId, ModelInfoDescription, ModelMetaDescription, ModelStore, ModelStoreProps, OptimizerConfig, OptimizerParams } from "./types/models-store.interface";
 import type { MetaData } from "$lib/types/metadata";
 import type { ArchitectureId } from "$lib/types/architecture";
+import type { Parameter } from "$lib/types/parameter";
 
 const createModelStore = (): ModelStore => {
     const { subscribe, set, update } = writable<ModelStoreProps>({
@@ -59,24 +60,31 @@ const createModelStore = (): ModelStore => {
         async (model_id: number,
             source_id: number,
             learning_rate: number,
+            loss: LossConfig,
+            optimizer: OptimizerConfig,
             batch_size: number,
             shuffle_data: boolean,
             epochs: number): Promise<void> => {
-            await fetch(`${BACKEND_API_BASE_URL}/model/train`, {
+                let opt_conf_params = {} as OptimizerParams; 
+                optimizer.param_values.forEach((x) => opt_conf_params[x.id] = {type: x.type, val: x.default});
+                
+                await fetch(`${BACKEND_API_BASE_URL}/model/train/start`, {
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json',
-
                 },
                 body: JSON.stringify({
-                    "config":
+                    meta: {},
+                    config:
                     {
-                        "model_id": model_id,
-                        "source_id": source_id,
-                        "learning_rate": learning_rate,
-                        "batch_size": batch_size,
-                        "shuffle_data": shuffle_data,
-                        "epochs": epochs,
+                        model_id: model_id,
+                        source_id: source_id,
+                        learning_rate: learning_rate,
+                        loss_fn: {id: loss.id, param_values: {}},
+                        optimizer: {id: optimizer.id, param_values: opt_conf_params},
+                        batch_size: batch_size,
+                        shuffle_data: shuffle_data,
+                        epochs: epochs,
                     }
                 }
                 ),

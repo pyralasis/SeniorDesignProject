@@ -1,7 +1,7 @@
 import type { ArchitectureId } from '$lib/types/architecture';
 import type { Info } from '$lib/types/info';
 import type { MetaData } from '$lib/types/metadata';
-import type { Parameter } from '$lib/types/parameter';
+import type { Parameter, ParameterValue } from '$lib/types/parameter';
 import { type Writable } from 'svelte/store';
 
 export interface activeModel { }
@@ -43,6 +43,8 @@ export interface ModelStore extends Writable<ModelStoreProps> {
     trainModel: (model_id: number,
         source_id: number,
         learning_rate: number,
+        loss: LossConfig,
+        optimizer: OptimizerConfig,
         batch_size: number,
         shuffle_data: boolean,
         epochs: number) => void;
@@ -59,3 +61,16 @@ export type AvailableModelsResponse = {
     available: AvailableModel[],
     sucess: boolean
 }
+
+
+export type LossConfig = {
+    id: number
+    param_values: Parameter<any>[]
+}
+
+export type OptimizerConfig = {
+    id: number,
+    param_values: Parameter<any>[]
+}
+    
+export type OptimizerParams = {[id: string]: ParameterValue<any>}
