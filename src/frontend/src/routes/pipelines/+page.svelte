@@ -11,7 +11,6 @@
     import { onMount, setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
 
-
     let selectedPipeline: Writable<AvailablePipeline | undefined> = writable(undefined);
     let creatingNewPipeline: Writable<boolean> = writable(false);
     let validatingDelete: Writable<boolean> = writable(false);
@@ -147,6 +146,7 @@
         justify-content: start;
         overflow: hidden;
         height: 100%;
+        box-sizing: border-box;
         color: #ffffff;
 
         &__header {
@@ -262,5 +262,6 @@
         justify-content: center;
         align-items: center;
         height: 100%;
+        box-sizing: border-box;
     }
 </style>

@@ -16,19 +16,24 @@
     import type { SourceBlueprint } from '$lib/types/source';
     import { NodeTypeEnum } from '$lib/types/node-type.enum';
     import { PipelineStatusEnum } from '$lib/stores/types/pipeline-store.interface';
- 
-    
+    import type { NodeBlueprint } from '$lib/utilities/DnDUtils';
+
     let nodes: Writable<Node[]>;
     let edges: Writable<Edge[]>;
     let availableSources: Writable<DnDContext[]> = writable([]);
     let availableTransforms: Writable<DnDContext[]> = writable([]);
+    let valueOutput: DnDContext = {
+        type: NodeTypeEnum.ValuesOutput,
+        nodeBlueprint: { id: 'value-output', name: 'Value Output', parameters: [] },
+    };
+    let labelOutput: DnDContext = {
+        type: NodeTypeEnum.LabelsOutput,
+        nodeBlueprint: { id: 'label-output', name: 'Label Output', parameters: [] },
+    };
 
     $: id = parseInt(page.params.id);
-   
 
     let isEditingTitle: Writable<boolean> = writable(false);
-
-    
 
     pipelineStore.subscribe((store) => {
         if (!store.activePipeline) {
@@ -43,12 +48,12 @@
             pipelineStore.updatePipelineSaveStatus();
         }
     }
-    function onChange(){
-       if ($pipelineStore.saveStatus === PipelineStatusEnum.NotSaved) {
+    function onChange() {
+        if ($pipelineStore.saveStatus === PipelineStatusEnum.NotSaved) {
             return;
-       }
-       pipelineStore.updateSaveStatus(false, PipelineStatusEnum.NotSaved)
-    };
+        }
+        pipelineStore.updateSaveStatus(false, PipelineStatusEnum.NotSaved);
+    }
     onMount(() => {
         window.addEventListener('keydown', handleKeydown);
 
@@ -114,13 +119,13 @@
                 </div>
             {:else if !$pipelineStore.activePipeline?.loading && nodes && edges}
                 <NodeEditor
-                    onSave={() => pipelineStore.updatePipelineSaveStatus()}  
-                    onChange= {onChange}
+                    onSave={() => pipelineStore.updatePipelineSaveStatus()}
+                    {onChange}
                     onCreateNode={pipelineStore.addNodeToActivePipeline}
                     onDeleteNode={pipelineStore.deleteNodeFromActivePipeline}
                     {nodes}
                     {edges}
-                    nodeblueprints={[...$availableSources, ...$availableTransforms]}
+                    nodeblueprints={[valueOutput, labelOutput, ...$availableSources, ...$availableTransforms]}
                     nodeNameEditor={false}
                 />
             {:else}
@@ -136,6 +141,7 @@
     .edit-pipelines-page {
         width: 100%;
         height: 100%;
+        box-sizing: border-box;
 
         &__header {
             padding: 16px;
@@ -158,7 +164,7 @@
     }
     .save-status {
         display: flex;
-        align-items: center; 
+        align-items: center;
         color: white;
         font-size: 14px;
         font-weight: bold;
@@ -166,12 +172,13 @@
         margin-right: 0;
     }
     .save-status span {
-        margin-right: 10px; 
+        margin-right: 10px;
     }
     .spinner-container {
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100%;
+        box-sizing: border-box;
     }
 </style>

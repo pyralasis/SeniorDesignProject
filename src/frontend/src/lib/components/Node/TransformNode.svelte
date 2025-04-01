@@ -1,11 +1,8 @@
 <script lang="ts">
-    import { type Writable, writable } from 'svelte/store';
+    import { type Writable } from 'svelte/store';
     import { Handle, Position, type NodeProps } from '@xyflow/svelte';
     import NodeField from './NodeParameter.svelte';
     import type { Parameter, ParameterValue } from '$lib/types/parameter';
-    import Icon from '$lib/components/Icon/Icon.svelte';
-    import { IconNameEnum } from '../Icon/types/icon-name.enum';
-    import type { TransformType } from '$lib/types/transform';
 
     type $$Props = NodeProps;
 
@@ -18,6 +15,7 @@
     const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
         { parameter: Parameter<any>; value: ParameterValue<any> }[]
     >;
+    console.log($parameters);
 </script>
 
 <Handle

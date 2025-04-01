@@ -241,6 +241,7 @@
     .edit-architectures-page {
         width: 100%;
         height: 100%;
+        box-sizing: border-box;
 
         &__header {
             padding: 16px;
@@ -278,5 +279,6 @@
         justify-content: center;
         align-items: center;
         height: 100%;
+        box-sizing: border-box;
     }
 </style>

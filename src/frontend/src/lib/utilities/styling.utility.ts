@@ -85,4 +85,32 @@ export class StylingUtility {
         },
     } as const;
 
+    // Popover
+    static readonly popoverChipTrigger = {
+        borderRadius: 0,
+        backgroundColor: '#000000',
+        color: '#FFFFFF',
+        hover: {
+            backgroundColor: '#212121',
+            color: '#FFFFFF',
+            border: '1px solid #FFFFFF',
+        },
+        chevronColor: '#FFFFFF',
+    }
+    static readonly popoverSingleSelectContent = {
+        borderRadius: 0,
+        backgroundColor: '#000000',
+        color: '#FFFFFF',
+        itemColor: '#FFFFFF',
+        hover: {
+            backgroundColor: '#212121',
+            color: '#FFFFFF',
+        },
+        selected: {
+            itemBackgroundColor: '#FFFFFF',
+            itemColor: '#000000',
+        },
+        chevronColor: '#FFFFFF',
+    }
+
 } 

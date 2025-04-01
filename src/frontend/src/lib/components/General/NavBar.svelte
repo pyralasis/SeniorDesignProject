@@ -35,6 +35,7 @@
         padding-top: 0.5em;
         /* grid-row: span 2; */
         height: 100%;
+        box-sizing: border-box;
     }
 
     hr {

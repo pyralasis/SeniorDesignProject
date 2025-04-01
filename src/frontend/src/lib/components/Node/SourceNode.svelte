@@ -1,10 +1,8 @@
 <script lang="ts">
-    import { type Writable, writable } from 'svelte/store';
+    import { type Writable } from 'svelte/store';
     import { Handle, Position, type NodeProps } from '@xyflow/svelte';
     import NodeField from './NodeParameter.svelte';
     import type { Parameter, ParameterValue } from '$lib/types/parameter';
-    import Icon from '$lib/components/Icon/Icon.svelte';
-    import { IconNameEnum } from '../Icon/types/icon-name.enum';
 
     type $$Props = NodeProps;
 
@@ -13,7 +11,6 @@
     export let selected: $$Props['selected'] = false;
 
     const color: Writable<string> = data?.color as Writable<string>;
-    const title: Writable<string> = data?.title as Writable<string>;
     const name: Writable<string> = data?.name as Writable<string>;
     const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
         { parameter: Parameter<any>; value: ParameterValue<any> }[]

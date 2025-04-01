@@ -52,6 +52,7 @@
         justify-content: start;
         align-items: center;
         height: 100%;
+        box-sizing: border-box;
         border-right: 1px solid #ffffff;
         padding: 16px 8px 0 8px;
         background-color: #111111;
@@ -64,6 +65,7 @@
             padding-top: 10px;
             overflow-y: auto;
             max-height: 100%;
+            box-sizing: border-box;
         }
 
         &__section {

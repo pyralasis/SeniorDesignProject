@@ -57,7 +57,7 @@
         transition: outline 0.2s;
     "
 >
-    <div class="output-node__header node__header">Output</div>
+    <div class="output-node__header node__header">Value Output</div>
 </div>
 
 <style lang="scss">

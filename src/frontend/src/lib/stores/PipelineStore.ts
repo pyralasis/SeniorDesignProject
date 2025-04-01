@@ -18,15 +18,18 @@ import type {
     PipelineVersion,
     PipelineInfoDescription,
     PipelineElement,
+    InstanceId,
 } from "$lib/types/pipeline";
 import type { TransformConfig, TransformId } from "$lib/types/transform";
 import type { SourceConfig, SourceId } from "$lib/types/source";
 import { NodeTypeEnum } from "$lib/types/node-type.enum";
 import { PipelineStatusEnum } from "$lib/stores/types/pipeline-store.interface";
+import { HandleStatusEnum } from "$lib/components/Node/handle-status.enum";
 
 function getTransformParametersByTransformId(transformId: TransformId): Promise<Parameter<any>[]> {
     return BackendApi.getAvailableTransforms().then((transforms) => {
         const transform = transforms.find((t) => t.id === transformId);
+        console.log("Transform found: ", transform);
         return transform?.parameters || [];
     });
 }
@@ -52,7 +55,7 @@ function parseElements(nodes: Node[], edges: Edge[]): PipelineElement[] {
                 instance_id: parseInt(node.id),
                 param_values: Object.fromEntries(parameters.map(({ parameter, value }) => [parameter.id, value])),
             } as SourceConfig;
-        } else {
+        } else if (node.type === "transform") {
             return {
                 type: NodeTypeEnum.Transform,
                 transform_id: node.data.transform_id,
@@ -61,10 +64,11 @@ function parseElements(nodes: Node[], edges: Edge[]): PipelineElement[] {
                 input: edges.find((edge) => edge.target === node.id)?.source ?? -1,
             } as TransformConfig;
         }
-    });
+        return undefined;
+    }).filter((element): element is PipelineElement => element !== undefined);
 }
 
-async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout: any): Promise<{ nodes: Node[]; edges: Edge[] }> {
+async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout: any, labelOutput: number, valueOutput: number): Promise<{ nodes: Node[]; edges: Edge[] }> {
     let nodes: Node[] = [];
     let edges: Edge[] = layout.edges.map((edge: any) => edge as Edge);
 
@@ -103,6 +107,30 @@ async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout:
                 position: { x: layout.nodes[element.instance_id]?.x ?? 0, y: layout.nodes[element.instance_id]?.y ?? 0 },
                 dragHandle: ".node__header",
             } satisfies Node);
+            if (labelOutput > 0) {
+                nodes.push({
+                    id: '71',
+                    type: 'labelsOutput',
+                    data: {
+                        leftConnected: writable<boolean>(layout.nodes['71']?.metadata.leftConnected ?? false),
+                        leftStatus: writable<string>(layout.nodes['71']?.metadata.leftStatus ?? HandleStatusEnum.default),
+                    },
+                    position: { x: layout.nodes['71']?.x ?? 0, y: layout.nodes['71']?.y ?? 0 },
+                    dragHandle: '.node__header',
+                } satisfies Node);
+            }
+            if (valueOutput > 0) {
+                nodes.push({
+                    id: '70',
+                    type: 'valuesOutput',
+                    data: {
+                        leftConnected: writable<boolean>(layout.nodes['70']?.metadata.leftConnected ?? false),
+                        leftStatus: writable<string>(layout.nodes['70']?.metadata.leftStatus ?? HandleStatusEnum.default),
+                    },
+                    position: { x: layout.nodes['70']?.x ?? 0, y: layout.nodes['70']?.y ?? 0 },
+                    dragHandle: '.node__header',
+                } satisfies Node);
+            }
         })
     );
 
@@ -167,7 +195,7 @@ const createPipelineStore = (): PipelineStore => {
             const data = ((await response.json()) as LoadPipelineResponse).object;
             const pipData = data.content.data;
             const layoutData = data.content.layout;
-            const { nodes, edges } = await parseLayersIntoNodesAndEdges(pipData.elements, layoutData);
+            const { nodes, edges } = await parseLayersIntoNodesAndEdges(pipData.elements, layoutData, pipData.label_output, pipData.value_output);
             update((store) => ({
                 ...store,
                 activePipeline: {
@@ -220,16 +248,17 @@ const createPipelineStore = (): PipelineStore => {
         }
 
         const nodes = get(pStore.activePipeline.nodes);
-
         const edges = get(pStore.activePipeline.edges);
+        const valueOutputNode = nodes.find((node) => node.id === "70");
+        const labelOutputNode = nodes.find((node) => node.id === "71");
 
         const pipeline: NetworkPipelineDescription = {
             id: (pStore.activePipeline.id as PipelineId) ?? -1,
             content: {
                 data: {
                     elements: parseElements(nodes, edges),
-                    value_output: -1,
-                    label_output: -1,
+                    value_output: valueOutputNode ? parseInt(edges.filter((edge) => edge.target === valueOutputNode.id)[0]?.source ?? 0) as InstanceId : -1,
+                    label_output: labelOutputNode ? parseInt(edges.filter((edge) => edge.target === labelOutputNode.id)[0]?.source ?? 0) as InstanceId : -1,
                 } as PipelineConfig,
                 layout: {
                     nodes: Object.fromEntries(

@@ -11,7 +11,6 @@
     import { writable, type Writable } from 'svelte/store';
     import { modelStore } from '$lib/stores/ModelStore';
 
-
     let selectedArchitecture: Writable<AvailableArchitecture | undefined> = writable(undefined);
     let creatingNewArchitecture: Writable<boolean> = writable(false);
     let validatingDelete: Writable<boolean> = writable(false);
@@ -125,7 +124,13 @@
                 <Button type="primary" style={StylingUtility.whiteBorderButton} href="/architectures/edit/{$selectedArchitecture?.id}"
                     >Open In Node Editor</Button
                 >
-                <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={() => {modelStore.createModel($selectedArchitecture.id, $selectedArchitecture.meta)}}>Convert to Model</Button>
+                <Button
+                    type="primary"
+                    style={StylingUtility.whiteBorderButton}
+                    on:click={() => {
+                        modelStore.createModel($selectedArchitecture.id, $selectedArchitecture.meta);
+                    }}>Convert to Model</Button
+                >
                 <Button
                     type="primary"
                     style={StylingUtility.redButton}
@@ -153,6 +158,7 @@
         justify-content: start;
         overflow: hidden;
         height: 100%;
+        box-sizing: border-box;
         color: #ffffff;
 
         &__header {
@@ -268,5 +274,6 @@
         justify-content: center;
         align-items: center;
         height: 100%;
+        box-sizing: border-box;
     }
 </style>

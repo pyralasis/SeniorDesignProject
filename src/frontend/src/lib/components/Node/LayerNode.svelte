@@ -186,6 +186,7 @@
             color: #ffffff;
             background: #070707;
             height: 25px;
+            box-sizing: border-box;
         }
 
         &__header-chevron {
@@ -228,6 +229,7 @@
     .target-handle {
         border-radius: 0;
         height: 10px;
+        box-sizing: border-box;
         width: 4px;
     }
 
@@ -241,12 +243,14 @@
         color: #fff;
 
         height: 35px;
+        box-sizing: border-box;
         z-index: -1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         transition: transform 0.2s;
+        outline: 1px solid #989898;
 
         &__title {
             font-size: 10px;
@@ -282,12 +286,14 @@
         background-color: #070707;
         color: #fff;
         height: 35px;
+        box-sizing: border-box;
         z-index: -1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         transition: transform 0.2s;
+        outline: 1px solid #989898;
 
         &__title {
             font-size: 10px;

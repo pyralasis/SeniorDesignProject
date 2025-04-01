@@ -1,25 +1,25 @@
 <script lang="ts">
     // @ts-nocheck
 
-    import { StylingUtility } from "$lib/utilities/styling.utility";
+    import { StylingUtility } from '$lib/utilities/styling.utility';
 
-    import Spinner from "$lib/components/Spinner/Spinner.svelte";
-    import { Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput, type PopoverItem } from "kiwi-nl";
-    import { modelStore } from "$lib/stores/ModelStore";
-    import { onMount, setContext } from "svelte";
-    import { writable, type Writable } from "svelte/store";
-    import type { AvailableModel } from "$lib/stores/types/models-store.interface";
-    import MenuItem from "$lib/components/General/MenuItem.svelte";
-    import Icon from "$lib/components/Icon/Icon.svelte";
-    import { pipelineStore } from "$lib/stores/PipelineStore";
+    import Spinner from '$lib/components/Spinner/Spinner.svelte';
+    import { Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput, type PopoverItem } from 'kiwi-nl';
+    import { modelStore } from '$lib/stores/ModelStore';
+    import { onMount, setContext } from 'svelte';
+    import { writable, type Writable } from 'svelte/store';
+    import type { AvailableModel } from '$lib/stores/types/models-store.interface';
+    import MenuItem from '$lib/components/General/MenuItem.svelte';
+    import Icon from '$lib/components/Icon/Icon.svelte';
+    import { pipelineStore } from '$lib/stores/PipelineStore';
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
 
-    setContext("selected-item", selectedModel);
+    setContext('selected-item', selectedModel);
 
-    let optimizerItems: PopoverItem[] = $derived($modelStore.availableOptimizers?.map((x) => ({label: x.name, value: x})));
+    let optimizerItems: PopoverItem[] = $derived($modelStore.availableOptimizers?.map((x) => ({ label: x.name, value: x })));
 
-    let lossItems: PopoverItem[] = $derived($modelStore.availableLosses?.map((x) => ({label: x.name, value: x})));
+    let lossItems: PopoverItem[] = $derived($modelStore.availableLosses?.map((x) => ({ label: x.name, value: x })));
 
     let sources: PopoverItem[] = $derived($pipelineStore.availablePipelines?.map((x) => ({ label: x.meta.name, value: x.id })));
 
@@ -49,7 +49,7 @@
         modelStore.getAvailableModels();
         pipelineStore.getAvailablePipelines();
         modelStore.getAvailableOptimizers();
-        modelStore.getAvailableLosses();        
+        modelStore.getAvailableLosses();
     });
 </script>
 
@@ -103,17 +103,17 @@
                 <TextInput label="Learning Rate" bind:value={learning_value} />
                 <div class="popovers">
                     <Popover on:popoverItemsChanged={handleOptimizerPopoverItemChanged} items={optimizerItems}>
-                        <PopoverChipTrigger slot="trigger" label="Optimizers" />
-                        <PopoverSingleSelectContent slot="content" />
+                        <PopoverChipTrigger slot="trigger" label="Optimizers" style={StylingUtility.popoverChipTrigger} />
+                        <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
                     </Popover>
-                    
+
                     <Popover on:popoverItemsChanged={handleLossPopoverItemChanged} items={lossItems}>
-                        <PopoverChipTrigger slot="trigger" label="Loss Functions" />
-                        <PopoverSingleSelectContent slot="content" />
+                        <PopoverChipTrigger slot="trigger" label="Loss Functions" style={StylingUtility.popoverChipTrigger} />
+                        <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
                     </Popover>
                     <Popover on:popoverItemsChanged={handleSourcePopoverItemChanged} items={sources}>
-                        <PopoverChipTrigger slot="trigger" label="Data Sources" />
-                        <PopoverSingleSelectContent slot="content" />
+                        <PopoverChipTrigger slot="trigger" label="Data Sources" style={StylingUtility.popoverChipTrigger} />
+                        <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
                     </Popover>
                 </div>
                 <Button
@@ -123,11 +123,11 @@
                             $selectedModel.id,
                             selectedSourceItem[0].value,
                             learning_value,
-                            {"id": selectedLossItem[0].value.id, "param_values": selectedLossItem[0].value.parameters},
-                            {"id": selectedOptimizerItem[0].value.id, "param_values": selectedOptimizerItem[0].value.parameters},
+                            { id: selectedLossItem[0].value.id, param_values: selectedLossItem[0].value.parameters },
+                            { id: selectedOptimizerItem[0].value.id, param_values: selectedOptimizerItem[0].value.parameters },
                             batch_value,
                             true,
-                            epochs_value
+                            epochs_value,
                         );
                     }}>Train</Button
                 >
@@ -136,7 +136,7 @@
                     style={StylingUtility.redButton}
                     on:click={() => {
                         if ($selectedModel) {
-                            console.log("hello");
+                            console.log('hello');
                         }
                     }}><Icon name="trash" /></Button
                 >
@@ -152,6 +152,7 @@
         justify-content: start;
         overflow: hidden;
         height: 100%;
+        box-sizing: border-box;
         color: #ffffff;
 
         &__header {
@@ -248,5 +249,10 @@
                 margin: 2px 0px;
             }
         }
+    }
+
+    .popovers {
+        display: flex;
+        gap: 10px;
     }
 </style>

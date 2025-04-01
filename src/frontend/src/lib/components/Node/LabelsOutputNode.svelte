@@ -57,7 +57,7 @@
         transition: outline 0.2s;
     "
 >
-    <div class="output-node__header node__header">Output</div>
+    <div class="output-node__header node__header">Label Output</div>
 </div>
 
 <style lang="scss">
@@ -78,6 +78,7 @@
             color: #ffffff;
             background: #070707;
             height: 45px;
+            box-sizing: border-box;
             font-size: 12px;
             font-weight: 600;
 

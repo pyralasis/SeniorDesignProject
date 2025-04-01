@@ -6,6 +6,8 @@ export const NodeTypeEnum = {
     Source: 'source',
     Input: 'input',
     Output: 'output',
+    ValuesOutput: 'valuesOutput',
+    LabelsOutput: 'labelsOutput',
 } as const;
 
 export type NodeType = EnumOf<typeof NodeTypeEnum>;

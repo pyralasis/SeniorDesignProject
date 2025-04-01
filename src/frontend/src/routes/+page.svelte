@@ -19,6 +19,7 @@
 <style lang="scss">
     .home-page {
         height: 100%;
+        box-sizing: border-box;
         width: 100%;
         overflow: hidden;
     }
@@ -26,6 +27,7 @@
     .content {
         display: flex;
         height: 100%;
+        box-sizing: border-box;
     }
 
     .left-container {

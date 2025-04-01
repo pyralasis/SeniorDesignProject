@@ -57,6 +57,7 @@
         display: flex;
         align-items: center;
         height: 54px;
+        box-sizing: border-box;
         color: #ffffff;
         position: relative;
         overflow: hidden;
@@ -68,10 +69,12 @@
         z-index: 2;
         background-color: #111111;
         height: 27px;
+        box-sizing: border-box;
     }
 
     img {
         height: 27px;
+        box-sizing: border-box;
     }
 
     .drawer-container {
@@ -80,6 +83,7 @@
         position: absolute;
         left: 0;
         height: 100%;
+        box-sizing: border-box;
         background-color: #111111;
         transform: translateX(-83%);
         transition: transform 0.3s ease;
@@ -92,6 +96,7 @@
 
         nav {
             height: 100%;
+            box-sizing: border-box;
 
             ul {
                 display: flex;
@@ -99,6 +104,7 @@
                 padding: 0;
                 margin: 0;
                 height: 100%;
+                box-sizing: border-box;
                 align-items: center;
                 gap: 24px;
             }

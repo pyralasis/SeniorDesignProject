@@ -14,7 +14,8 @@
     .layout {
         display: flex;
         flex-direction: column;
-        height: 100vh;
+        height: 100%;
+        box-sizing: border-box;
         width: auto;
         font-family: 'Inter', sans-serif;
         box-sizing: border-box;

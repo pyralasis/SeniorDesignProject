@@ -7,7 +7,7 @@
     import '@xyflow/svelte/dist/style.css';
     import { type Parameter, type ParameterValue } from '$lib/types/parameter';
     import NodeEditorActions from './NodeEditorActions.svelte';
-    import { setContext, onMount, onDestroy } from 'svelte';
+    import { setContext } from 'svelte';
     import { SoundUtility } from '$lib/utilities/sound.utility';
     import SourceNode from '../Node/SourceNode.svelte';
     import TransformNode from '../Node/TransformNode.svelte';
@@ -16,6 +16,8 @@
     import OutputNode from '../Node/OutputNode.svelte';
     import { type LayerInput, type LayerBlueprint, type TensorSize } from '$lib/types/layer';
     import { type HandleStatus, HandleStatusEnum } from '../Node/handle-status.enum';
+    import ValuesOutputNode from '../Node/ValuesOutputNode.svelte';
+    import LabelsOutputNode from '../Node/LabelsOutputNode.svelte';
 
     export let nodes: Writable<Node[]>;
     export let edges: Writable<Edge[]>;
@@ -150,6 +152,40 @@
                 dragHandle: '.node__header',
                 position: { x: position.x, y: position.y },
             } satisfies Node;
+        } else if ($dndContext?.type === 'valuesOutput') {
+            if ($nodes.some((node) => node.type === 'valuesOutput')) {
+                alert('Only one label output node is allowed.');
+                return;
+            }
+            newNode = {
+                id: '70',
+                type: 'valuesOutput',
+                data: {
+                    color: writable<string>($xColor),
+                    expanded: writable<boolean>(false),
+                    leftConnected: writable<boolean>(false),
+                    leftStatus: writable<HandleStatus>(HandleStatusEnum.default),
+                },
+                dragHandle: '.node__header',
+                position: { x: position.x, y: position.y },
+            } satisfies Node;
+        } else if ($dndContext?.type === 'labelsOutput') {
+            if ($nodes.some((node) => node.type === 'labels-output')) {
+                alert('Only one label output node is allowed.');
+                return;
+            }
+            newNode = {
+                id: '71',
+                type: 'labelsOutput',
+                data: {
+                    color: writable<string>($xColor),
+                    expanded: writable<boolean>(false),
+                    leftConnected: writable<boolean>(false),
+                    leftStatus: writable<HandleStatus>(HandleStatusEnum.default),
+                },
+                dragHandle: '.node__header',
+                position: { x: position.x, y: position.y },
+            } satisfies Node;
         } else {
             return;
         }
@@ -163,6 +199,8 @@
         transform: TransformNode,
         input: InputNode,
         output: OutputNode,
+        valuesOutput: ValuesOutputNode,
+        labelsOutput: LabelsOutputNode,
     };
 
     function onDelete() {
@@ -211,22 +249,25 @@
         flex-direction: column;
         overflow: hidden;
         background-color: #111111;
-        height: 94%;
+        height: 800px;
         border-bottom: 1px solid #ffffff;
 
         &__content {
             display: flex;
             flex-direction: row;
-            height: calc(100% + 30px);
+            height: 100%;
+            box-sizing: border-box;
         }
 
         &__flow {
             width: 100%;
             height: 100%;
+            box-sizing: border-box;
         }
 
         &__sidebar {
             width: fit-content;
+            height: calc(800px - 87px);
         }
     }
 

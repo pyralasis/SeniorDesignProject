@@ -1,19 +1,17 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
-    import { Button, ButtonSizeEnum, ButtonTypeEnum, Flyout, Header, HeaderTypeEnum, TextInput } from "kiwi-nl";
-    
+    import { goto } from '$app/navigation';
+    import { Button, ButtonSizeEnum, ButtonTypeEnum, Flyout, Header, HeaderTypeEnum, TextInput } from 'kiwi-nl';
+
     let createFlyout: any;
     let architectureTitle: string;
-    
+
     //needs to validate any fields and display some kind of marker for invalid fields
-    function createArchitecture(){
-        if(architectureTitle.length > 0){
+    function createArchitecture() {
+        if (architectureTitle.length > 0) {
             goto('/edit-architecture');
         }
     }
 </script>
-
-
 
 <div class="panel">
     <div class="panel__header">
@@ -21,11 +19,9 @@
     </div>
 
     <div class="panel__buttons">
-        <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.large} on:click={() => createFlyout.toggle()}>
-            Create
-        </Button>
+        <Button type={ButtonTypeEnum.primary} size={ButtonSizeEnum.large} on:click={() => createFlyout.toggle()}>Create</Button>
     </div>
-    
+
     <div style="position: absolute;">
         <Flyout bind:this={createFlyout} header="New Architecture" subheader="">
             <div slot="flyout-body" class="flyout-body">
@@ -37,17 +33,16 @@
             </div>
         </Flyout>
     </div>
-    
 </div>
 
-
-
 <style lang="scss">
-    .panel{
+    .panel {
         width: 20%;
         height: 20%;
+        box-sizing: border-box;
         max-width: 20%;
         max-height: 20%;
+        box-sizing: border-box;
         border: black solid 1px;
         border-radius: 10px;
         justify-content: center;
@@ -57,12 +52,12 @@
         justify-content: space-between;
         padding: 10px;
 
-        &__header{
+        &__header {
             display: flex;
             justify-content: center;
             max-width: 100%;
         }
-        &__buttons{
+        &__buttons {
             display: flex;
             flex-direction: row;
             justify-content: center;
