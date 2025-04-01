@@ -88,7 +88,7 @@ export class StylingUtility {
     // Popover
     static readonly popoverChipTrigger = {
         borderRadius: 0,
-        backgroundColor: '#000000',
+        backgroundColor: '#111111',
         color: '#FFFFFF',
         hover: {
             backgroundColor: '#212121',
@@ -99,16 +99,16 @@ export class StylingUtility {
     }
     static readonly popoverSingleSelectContent = {
         borderRadius: 0,
-        backgroundColor: '#000000',
+        backgroundColor: '#111111',
         color: '#FFFFFF',
         itemColor: '#FFFFFF',
         hover: {
-            backgroundColor: '#212121',
-            color: '#FFFFFF',
+            backgroundColor: '#FE2E0030',
+            color: '#FE2E00',
         },
         selected: {
-            itemBackgroundColor: '#FFFFFF',
-            itemColor: '#000000',
+            itemBackgroundColor: '#FE2E0030',
+            itemColor: '#FE2E00',
         },
         chevronColor: '#FFFFFF',
     }

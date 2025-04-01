@@ -69,9 +69,9 @@
                         <Spinner></Spinner>
                     </div>
                 {:else if $modelStore.availableModels.length === 0}
-                    <p class="no-pipelines-found">No models found</p>
+                    <p class="no-models-found">No models found</p>
                 {:else}
-                    <div class="select-pipeline-page__items-header">
+                    <div class="model-page__items-header">
                         <p>Name</p>
                         <p>Last Modified</p>
                     </div>
@@ -86,12 +86,12 @@
     <div class="model-page__bottom">
         <div class="model-page__bottom-left">
             {#if $selectedModel}
-                <div class="select-pipeline-page__bottom-left-pipeline-info">
+                <div class="model-page__bottom-left-model-info">
                     <h2>{$selectedModel.meta.name}</h2>
                     <p>{$selectedModel.meta.description}</p>
                 </div>
             {:else}
-                <div class="select-pipeline-page__bottom-left-empty">
+                <div class="model-page__bottom-left-empty">
                     <p>No model selected</p>
                 </div>
             {/if}
@@ -254,5 +254,24 @@
     .popovers {
         display: flex;
         gap: 10px;
+    }
+    .no-pipeline-found {
+        color: #c2c2c2;
+    }
+
+    .name-input {
+        width: 20%;
+    }
+
+    .description-input {
+        width: 80%;
+    }
+
+    .spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        box-sizing: border-box;
     }
 </style>

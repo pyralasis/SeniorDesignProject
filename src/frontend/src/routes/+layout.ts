@@ -1,3 +1,3 @@
 export const load = () => ({
-    hasHeader: true,
+    hasHeader: false,
 });
