@@ -98,3 +98,13 @@ softmax_layer = LayerDefinition(
     lambda in_sizes, dim, **_: torch.nn.Softmax(dim),
     lambda in_sizes, **_: in_sizes[0],
 )
+
+log_softmax_layer = LayerDefinition(
+    "log_softmax",
+    "LogSoftmax",
+    (InputDefinition(None, 1, None),),
+    (IntParameter("dim", "Dim", 1),),
+    lambda in_sizes, dim, **_: torch.nn.LogSoftmax(dim),
+    lambda in_sizes, **_: in_sizes[0],
+)
+
