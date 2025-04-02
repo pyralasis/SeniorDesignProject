@@ -88,6 +88,14 @@
 </script>
 
 <div class="edit-pipelines-page">
+    <a 
+    href="/architectures"
+    on:click={() => {
+        pipelineStore.saveActivePipeline();
+    }}
+>
+Back to Pipelines
+</a>
     <div class="edit-pipelines-page__header">
         <div class="edit-pipelines-page__header-left">
             {#if $isEditingTitle}
@@ -160,6 +168,24 @@
         h1 {
             margin: 0;
             color: #ffffff;
+        }
+        a {
+            display: inline-block;
+            gap: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 4px;
+            white-space: nowrap;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            margin-top: 10px       
+        }
+
+        a:hover {
+            color: #fe2e00;
+            text-decoration: underline;
+            transition: all 0.3s ease;
         }
     }
     .save-status {

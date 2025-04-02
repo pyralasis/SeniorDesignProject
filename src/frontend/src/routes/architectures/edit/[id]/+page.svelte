@@ -187,6 +187,14 @@
 </script>
 
 <div class="edit-architectures-page">
+    <a
+        href="/architectures"
+        on:click={() => {
+            architectureStore.saveActiveArchitecture();
+        }}
+    >
+    Back to Architectures
+    </a>
     <div class="edit-architectures-page__header">
         <div class="edit-architectures-page__header-left">
             {#if $isEditingTitle}
@@ -261,6 +269,25 @@
             margin: 0;
             color: #ffffff;
         }
+        a {
+            display: inline-block;
+            gap: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 4px;
+            white-space: nowrap;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            margin-top: 10px       
+        }
+
+        a:hover {
+            color: #fe2e00;
+            text-decoration: underline;
+            transition: all 0.3s ease;
+        }
+    
     }
     .save-status {
         display: flex;
@@ -281,4 +308,5 @@
         height: 100%;
         box-sizing: border-box;
     }
+    
 </style>
