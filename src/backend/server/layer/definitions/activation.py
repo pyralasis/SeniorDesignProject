@@ -80,7 +80,6 @@ tanh_layer = LayerDefinition(
 
 
 # Found here: https://pytorch.org/docs/stable/nn.html#non-linear-activations-other
-
 softmin_layer = LayerDefinition(
     "softmin",
     "Softmin",

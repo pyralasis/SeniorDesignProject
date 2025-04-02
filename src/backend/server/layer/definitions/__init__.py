@@ -21,6 +21,7 @@ default_layers = [
     activation.tanh_layer,
     activation.softmin_layer,
     activation.softmax_layer,
+    activation.log_softmax_layer,
 
     convolution.conv2d_layer,
     convolution.fold_layer,
