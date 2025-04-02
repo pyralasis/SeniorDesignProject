@@ -116,9 +116,8 @@
         <div class="select-pipeline-page__bottom-right">
             {#if $selectedPipeline}
                 <Button type="primary" style={StylingUtility.whiteBorderButton} href="/pipelines/edit/{$selectedPipeline?.id}"
-                    >Open In Node Editor</Button
+                    >Open Node Editor</Button
                 >
-                <Button type="primary" style={StylingUtility.whiteBorderButton}>Convert to Model</Button>
                 <Button
                     type="primary"
                     style={StylingUtility.redButton}

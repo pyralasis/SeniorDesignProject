@@ -1,13 +1,13 @@
 <script lang="ts">
     import { Button, ButtonTypeEnum, TextInput } from 'kiwi-nl';
-    import { getContext } from 'svelte';
+    import { onMount, getContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
     import Icon from '../Icon/Icon.svelte';
     import { IconNameEnum } from '../Icon/types/icon-name.enum';
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import { architectureStore } from '$lib/stores/ArchitectureStore';
     import { pipelineStore } from '$lib/stores/PipelineStore';
-
+    let validateClearNodes: Writable<boolean> = writable(false);
 
     export let selectedNodeTitle: Writable<string> | undefined;
     export let selectedNodeColor: Writable<string> | undefined;
@@ -33,7 +33,15 @@
         selectedNodeTitle.update((title) => (title = event.detail.value));
         onChange();
     }
-
+    function handleOnClear(): void {
+        if($validateClearNodes) {
+            onClearNodes();
+            validateClearNodes.set(false);
+        }
+        else{
+            validateClearNodes.set(true);
+        }
+    }
     function onColorChange(event: Event) {
         if (!selectedNodeColor) {
             xColor.update((color) => (color = `${(event.target as HTMLInputElement).value ?? '#fff'}`));
@@ -42,6 +50,17 @@
         selectedNodeColor.update((color) => (color = `${(event.target as HTMLInputElement).value ?? '#fff'}`));
         onChange();
     }
+    onMount(() => {
+        window.addEventListener('click', (event) => {
+            if (!event.target) {
+                return;
+            }
+            if ($validateClearNodes && !(event.target as Element)?.closest('.node-editor-actions__delete')) {
+                validateClearNodes.set(false);
+            }
+        });
+
+    });
 </script>
 
 <div class="node-editor-actions">
@@ -68,7 +87,7 @@
         </Button>
         <div class="vertical-line"> </div>
         <Button type={ButtonTypeEnum.primary} on:click={onDelete} style={StylingUtility.redButton}>Delete</Button>
-        <Button type={ButtonTypeEnum.primary} on:click={onClearNodes} style={StylingUtility.whiteBorderButton}>Clear</Button>
+        <Button type={ButtonTypeEnum.primary} on:click={handleOnClear} style={StylingUtility.whiteBorderButton}>{#if $validateClearNodes} Confirm Clear {:else} Clear {/if}</Button>
     </div>
 </div>
 

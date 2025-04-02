@@ -8,7 +8,7 @@
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import { Button, TextInput } from 'kiwi-nl';
     import { onMount, setContext } from 'svelte';
-    import { writable, type Writable } from 'svelte/store';
+    import {writable, type Writable } from 'svelte/store';
     import { modelStore } from '$lib/stores/ModelStore';
 
     let selectedArchitecture: Writable<AvailableArchitecture | undefined> = writable(undefined);
@@ -17,6 +17,8 @@
     let newArchitectureName: string = '';
     let newArchitectureDescription: string = '';
 
+    let validatingConvertToModel: Writable<boolean> = writable(false);
+    
     setContext('selected-item', selectedArchitecture);
 
     async function handleCreateNewArchitecture(): Promise<void> {
@@ -32,7 +34,21 @@
             validatingDelete.set(true);
         }
     }
+   
 
+    async function handleConvertToModel(): Promise<void> {
+        if ($validatingConvertToModel) {
+            if ($selectedArchitecture?.id) {
+                modelStore.createModel($selectedArchitecture.id, $selectedArchitecture.meta);
+                console.log("Success");
+            } else {
+                console.error('Selected architecture ID is undefined.');
+            }
+            validatingConvertToModel.set(false);
+        } else {
+            validatingConvertToModel.set(true);
+        }
+    }
     function handleCreateNewArchitectureInitialisation(): void {
         selectedArchitecture.set(undefined);
         newArchitectureName = '';
@@ -50,6 +66,10 @@
             if ($validatingDelete && !(event.target as Element)?.closest('.select-architecture-page__bottom-right')) {
                 validatingDelete.set(false);
             }
+            if ($validatingConvertToModel && !(event.target as Element)?.closest('.select-architecture-page__bottom-right')) {
+                validatingConvertToModel.set(false);
+            }
+            
         });
     });
 </script>
@@ -91,8 +111,14 @@
         <div class="select-architecture-page__bottom-left">
             {#if $selectedArchitecture}
                 <div class="select-architecture-page__bottom-left-architecture-info">
-                    <h2>{$selectedArchitecture.meta.name}</h2>
-                    <p>{$selectedArchitecture.meta.description}</p>
+                    <div class="name">
+                        <h2>Name:</h2>
+                        <h2>{$selectedArchitecture.meta.name}</h2>
+                    </div>
+                    <div class="description">
+                        <p>{$selectedArchitecture.meta.description}</p>
+                    </div>
+
                 </div>
             {:else if $creatingNewArchitecture}
                 <div class="select-architecture-page__create-new-architecture-actions">
@@ -122,15 +148,23 @@
         <div class="select-architecture-page__bottom-right">
             {#if $selectedArchitecture}
                 <Button type="primary" style={StylingUtility.whiteBorderButton} href="/architectures/edit/{$selectedArchitecture?.id}"
-                    >Open In Node Editor</Button
+                    >Open Node Editor</Button
                 >
                 <Button
                     type="primary"
                     style={StylingUtility.whiteBorderButton}
                     on:click={() => {
-                        modelStore.createModel($selectedArchitecture.id, $selectedArchitecture.meta);
-                    }}>Convert to Model</Button
+                        if ($selectedArchitecture) {
+                            handleConvertToModel();
+                        }
+                    }}
                 >
+                    {#if $validatingConvertToModel}
+                      Click Again To Confirm
+                    {:else}
+                      Convert to Model
+                    {/if}
+                  </Button>
                 <Button
                     type="primary"
                     style={StylingUtility.redButton}
@@ -212,6 +246,14 @@
                 font-size: 24px;
                 font-weight: 600;
                 margin: 0;
+            }
+            .name {
+                display: flex;
+                gap: 10px;
+            }
+            .description {
+                display: flex;
+                flex-direction: column;
             }
         }
 

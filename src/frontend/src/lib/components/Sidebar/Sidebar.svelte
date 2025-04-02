@@ -63,9 +63,12 @@
             flex-direction: column;
             align-items: center;
             padding-top: 10px;
-            overflow-y: auto;
+            overflow-y: scroll;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
             max-height: 100%;
             box-sizing: border-box;
+            padding-bottom: 300px;
         }
 
         &__section {

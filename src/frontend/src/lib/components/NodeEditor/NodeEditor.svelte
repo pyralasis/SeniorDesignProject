@@ -241,16 +241,15 @@
             </SvelteFlow>
         </div>
     </div>
-</div>
+</div> 
 
 <style lang="scss">
     .node-editor {
         display: flex;
         flex-direction: column;
-        overflow: hidden;
         background-color: #111111;
-        height: 800px;
         border-bottom: 1px solid #ffffff;
+        height: 100%;
 
         &__content {
             display: flex;
@@ -264,15 +263,11 @@
             height: 100%;
             box-sizing: border-box;
         }
-
-        &__sidebar {
-            width: fit-content;
-            height: calc(800px - 87px);
-        }
     }
 
     :global(.svelte-flow__node) {
         width: fit-content;
         padding: 0;
     }
+        
 </style>
