@@ -64,8 +64,8 @@
             align-items: center;
             padding-top: 10px;
             overflow-y: scroll;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+            scrollbar-width: thin;
+            scrollbar-color: #FFFFFF transparent;
             max-height: 100%;
             box-sizing: border-box;
             padding-bottom: 300px;

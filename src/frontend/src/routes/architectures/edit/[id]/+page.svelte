@@ -250,7 +250,7 @@
         width: 100%;
         height: 100%;
         box-sizing: border-box;
-
+        overflow: hidden; 
         &__header {
             padding: 16px;
             display: flex;
