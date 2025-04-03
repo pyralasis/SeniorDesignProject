@@ -3,6 +3,7 @@
     import { Button } from 'kiwi-nl';
     import { StylingUtility } from '$lib/utilities/styling.utility';
     import Logo from '$lib/assets/logo-5.svg';
+    import { ApiUtility } from '$lib/utilities/api-utility';
 
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
@@ -14,18 +15,6 @@
         ctx = canvas.getContext('2d')!;
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        socket = new WebSocket('ws://localhost:8080');
-        socket.onopen = () => console.log('WebSocket connected');
-        socket.onmessage = (event: MessageEvent) => {
-            try {
-                const data = JSON.parse(event.data);
-                predictedNumber = data.prediction;
-            } catch (error) {
-                console.error('Error parsing message:', error);
-            }
-        };
-        socket.onerror = (error) => console.error('WebSocket error:', error);
     });
 
     function startDrawing(event: PointerEvent) {
@@ -55,6 +44,7 @@
         ctx.beginPath();
         ctx.moveTo(x, y);
     }
+
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'black';
@@ -62,7 +52,7 @@
         predictedNumber = '';
     }
 
-    function submitDrawing() {
+    async function submitDrawing() {
         const offCanvas = document.createElement('canvas');
         offCanvas.width = 28;
         offCanvas.height = 28;
@@ -78,18 +68,13 @@
             for (let j = 0; j < 28; j++) {
                 const index = (i * 28 + j) * 4;
                 const pixel = data[index];
-                const normalized = pixel / 255;
+                const normalized = pixel;
                 row.push(normalized);
             }
             matrix.push(row);
         }
 
-        // Send the 28x28 matrix via WebSocket as JSON.
-        if (socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ image: matrix }));
-        } else {
-            console.error('WebSocket is not open');
-        }
+        predictedNumber = (await ApiUtility.inferNumber(matrix))?.toString() ?? '0';
     }
 </script>
 

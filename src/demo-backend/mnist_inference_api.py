@@ -6,7 +6,7 @@ Command line arguments:
     --weight_path: path to the model weights file
 
 Example usage:
-    python mnist_inference_api.py --port 8888 --weight_path mnist_demo_pt.pth
+    python mnist_inference_api.py --port 8888 --weight_path mnist_cnn.pt
 
 API endpoints:
     GET /api/demo/infer
