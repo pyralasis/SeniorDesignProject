@@ -33,6 +33,7 @@
         <TextInput
             style={StylingUtility.textInput}
             label={parameter.name}
+            bind:value={value.val}
             on:change={(event) => updateValue(event, ParameterTypeEnum.Float)}
         />
     {:else if parameter.type === ParameterTypeEnum.String}

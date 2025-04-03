@@ -54,7 +54,17 @@ const createModelStore = (): ModelStore => {
             });
     };
     const loadModelById = (): void => { };
-    const deleteModel = (): void => { };
+
+    const deleteModel = async (id: ModelId): Promise<void> => {
+        await fetch(`${BACKEND_API_BASE_URL}/model/delete`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: id }),
+        });
+        getAvailableModels();
+    };
 
     const trainModel =
         async (model_id: number,
@@ -65,8 +75,9 @@ const createModelStore = (): ModelStore => {
             batch_size: number,
             shuffle_data: boolean,
             epochs: number): Promise<void> => {
+                // debugger;
                 let opt_conf_params = {} as OptimizerParams; 
-                optimizer.param_values.forEach((x) => opt_conf_params[x.id] = {type: x.type, val: x.default});
+                optimizer.param_values.forEach((x: any) => opt_conf_params[x.parameter.id] = x.value);
                 
                 await fetch(`${BACKEND_API_BASE_URL}/model/train/start`, {
                 method: 'post',

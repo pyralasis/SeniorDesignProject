@@ -4,7 +4,7 @@
     import { StylingUtility } from '$lib/utilities/styling.utility';
 
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput, type PopoverItem } from 'kiwi-nl';
+    import { type ButtonCustomStyling, Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput, type PopoverItem, Flyout, ButtonTypeEnum, FlyoutSideEnum } from 'kiwi-nl';
     import { modelStore } from '$lib/stores/ModelStore';
     import { onMount, setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
@@ -12,38 +12,63 @@
     import MenuItem from '$lib/components/General/MenuItem.svelte';
     import Icon from '$lib/components/Icon/Icon.svelte';
     import { pipelineStore } from '$lib/stores/PipelineStore';
+    import type { Parameter, ParameterValue } from '$lib/types/parameter';
+    import NodeField from '$lib/components/Node/NodeParameter.svelte';
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
+        
+    let parameters: { parameter: Parameter<any>; value: ParameterValue<any> }[] = $state([]);
 
     setContext('selected-item', selectedModel);
 
     let optimizerItems: PopoverItem[] = $derived($modelStore.availableOptimizers?.map((x) => ({ label: x.name, value: x })));
-
     let lossItems: PopoverItem[] = $derived($modelStore.availableLosses?.map((x) => ({ label: x.name, value: x })));
-
     let sources: PopoverItem[] = $derived($pipelineStore.availablePipelines?.map((x) => ({ label: x.meta.name, value: x.id })));
+    
 
-    let selectedOptimizerItem: PopoverItem[] = [];
-
+    let selectedOptimizerItem: PopoverItem | undefined = $state(undefined);
     function handleOptimizerPopoverItemChanged(event: CustomEvent): void {
-        selectedOptimizerItem = event.detail.selectedItems;
+        console.log(event)
+        selectedOptimizerItem = event.detail.selectedItems[0];
+        if (selectedOptimizerItem) {
+            parameters.length = 0;
+            selectedOptimizerItem.value.parameters.forEach((x) => parameters?.push({parameter: x, value: {type: x.type, val: x.default}}))
+        }
     }
 
-    let selectedLossItem: PopoverItem[] = [];
-
+    let selectedLossItem: PopoverItem | undefined = $state(undefined);
     function handleLossPopoverItemChanged(event: CustomEvent): void {
-        selectedLossItem = event.detail.selectedItems;
+        selectedLossItem = event.detail.selectedItems[0];
+        
     }
 
-    let selectedSourceItem: PopoverItem[] = [];
-
+    let selectedSourceItem: PopoverItem | undefined =  $state(undefined);
     function handleSourcePopoverItemChanged(event: CustomEvent): void {
-        selectedSourceItem = event.detail.selectedItems;
+        selectedSourceItem = event.detail.selectedItems[0];
     }
 
     let epochs_value = $state(10);
     let batch_value = $state(16);
     let learning_value = $state(0.001);
+
+    let flyoutElement;
+
+    let validatingDelete: Writable<boolean> = writable(false);
+    function handleDeleteArchitecture(id: string): void {
+        if ($validatingDelete) {
+            modelStore.deleteModel(id);
+            selectedModel.set(undefined);
+        } else {
+            validatingDelete.set(true);
+        }
+    }
+
+    let can_train = $derived(selectedOptimizerItem !== undefined && selectedLossItem !== undefined && selectedSourceItem !== undefined);
+    const DISABLED_BUTTON_STYLE: ButtonCustomStyling = {
+        backgroundColor: "#444",
+        hover: "#444",
+        cursor: "not-allowed"
+    }
 
     onMount(() => {
         modelStore.getAvailableModels();
@@ -59,8 +84,8 @@
     </div>
     <div class="model-page__top">
         <div class="model-page__top-left">
-            <p>Create a model from an existing architecture on the Architectures Page! (FIND A BETTER SPOT FOR THIS MESSAGE)</p>
-            <p>Select the model you would like to...</p>
+            <p>Create a model from an existing architecture on the Architectures Page!</p>
+            <p>Select the model you would like to Train!</p>
         </div>
         <div class="model-page__top-right">
             <div class="model-model-items">
@@ -69,7 +94,7 @@
                         <Spinner></Spinner>
                     </div>
                 {:else if $modelStore.availableModels.length === 0}
-                    <p class="no-models-found">No models found</p>
+                    <p class="no-models-found">No models found. Create a model from an existing architecture on the Architectures Page!</p>
                 {:else}
                     <div class="model-page__items-header">
                         <p>Name</p>
@@ -98,52 +123,79 @@
         </div>
         <div class="model-page__bottom-right">
             {#if $selectedModel}
-                <TextInput label="Training Epochs" bind:value={epochs_value} style={StylingUtility.textInput} />
-                <TextInput label="Batch Size" bind:value={batch_value} style={StylingUtility.textInput} />
-                <TextInput label="Learning Rate" bind:value={learning_value} style={StylingUtility.textInput} />
-                <div class="popovers">
-                    <Popover on:popoverItemsChanged={handleOptimizerPopoverItemChanged} items={optimizerItems}>
-                        <PopoverChipTrigger slot="trigger" label="Optimizers" style={StylingUtility.popoverChipTrigger} />
-                        <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
-                    </Popover>
+                <div class="two-rows">
+                    <div class="inputs">
+                        <TextInput label="Training Epochs" bind:value={epochs_value} style={StylingUtility.textInput} />
+                        <TextInput label="Batch Size" bind:value={batch_value} style={StylingUtility.textInput} />
+                        <TextInput label="Learning Rate" bind:value={learning_value} style={StylingUtility.textInput} />
+                    </div>
+                    
+                    <div class="popovers">
+                        <Popover on:popoverItemsChanged={handleOptimizerPopoverItemChanged} items={optimizerItems}>
+                            <PopoverChipTrigger slot="trigger" label="Optimizers" style={StylingUtility.popoverChipTrigger} />
+                            <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
+                        </Popover>
+                        <Button style={selectedOptimizerItem || DISABLED_BUTTON_STYLE} on:click={selectedOptimizerItem && (() => flyoutElement.toggle())}><Icon name="pencil" /></Button>
 
-                    <Popover on:popoverItemsChanged={handleLossPopoverItemChanged} items={lossItems}>
-                        <PopoverChipTrigger slot="trigger" label="Loss Functions" style={StylingUtility.popoverChipTrigger} />
-                        <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
-                    </Popover>
-                    <Popover on:popoverItemsChanged={handleSourcePopoverItemChanged} items={sources}>
-                        <PopoverChipTrigger slot="trigger" label="Data Sources" style={StylingUtility.popoverChipTrigger} />
-                        <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
-                    </Popover>
+                        <Popover on:popoverItemsChanged={handleLossPopoverItemChanged} items={lossItems}>
+                            <PopoverChipTrigger slot="trigger" label="Loss Functions" style={StylingUtility.popoverChipTrigger} />
+                            <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
+                        </Popover>
+                        <Popover on:popoverItemsChanged={handleSourcePopoverItemChanged} items={sources}>
+                            <PopoverChipTrigger slot="trigger" label="Data Sources" style={StylingUtility.popoverChipTrigger} />
+                            <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
+                        </Popover>
+                    </div>
                 </div>
                 <Button
                     type="primary"
-                    on:click={() => {
+                    style={can_train ? undefined : DISABLED_BUTTON_STYLE}
+                    on:click={can_train && (() => {
+                        // console.log(parameters)
                         modelStore.trainModel(
                             $selectedModel.id,
-                            selectedSourceItem[0].value,
+                            selectedSourceItem.value,
                             learning_value,
-                            { id: selectedLossItem[0].value.id, param_values: selectedLossItem[0].value.parameters },
-                            { id: selectedOptimizerItem[0].value.id, param_values: selectedOptimizerItem[0].value.parameters },
+                            { id: selectedLossItem.value.id, param_values: selectedLossItem.value.parameters },
+                            { id: selectedOptimizerItem.value.id, param_values: $state.snapshot(parameters) },
                             batch_value,
                             true,
                             epochs_value,
                         );
-                    }}>Train</Button
-                >
+                    })}>
+                    Train
+                </Button>
                 <Button
                     type="primary"
                     style={StylingUtility.redButton}
                     on:click={() => {
                         if ($selectedModel) {
-                            console.log('hello');
+                            handleDeleteArchitecture($selectedModel.id);
                         }
-                    }}><Icon name="trash" /></Button
+                    }}
                 >
+                    {#if $validatingDelete}
+                        Click Again To Confirm
+                    {:else}
+                        <Icon name="trash" />
+                    {/if}
+                </Button>
             {/if}
         </div>
     </div>
+    <Flyout bind:this={flyoutElement} style={StylingUtility.flyout} header="Optimizer Parameters" subheader="">
+        <div slot="flyout-body" class="flyout-body" style="gap: 20px; display: flex; flex-direction: column;">
+            {#each parameters as parameter}
+                <NodeField parameter={parameter.parameter} value={parameter.value}/>
+            {/each}
+            {#if parameters.length === 0}
+                <div class="node__content-empty">Optimizer has no parameters.</div>
+            {/if}
+        </div>
+    </Flyout>
 </div>
+
+
 
 <style lang="scss">
     .model-page {
@@ -254,6 +306,19 @@
     .popovers {
         display: flex;
         gap: 10px;
+        flex-direction: row;
+    }
+
+    .inputs {
+        display: flex;
+        gap: 10px;
+        flex-direction: row;
+    }
+
+    .two-rows {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
     }
     .no-pipeline-found {
         color: #c2c2c2;
