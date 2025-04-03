@@ -15,17 +15,34 @@
     const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
         { parameter: Parameter<any>; value: ParameterValue<any> }[]
     >;
+    const rightConnected: Writable<boolean> = data?.rightConnected as Writable<boolean>;
+
+    function toggleConnection(connected: boolean) {
+        $rightConnected = connected;
+    }
+
+    function getBackgroundColor(connected: boolean) {
+        if (!connected) {
+            return '#333';
+        } else {
+            return '#FFF';
+        }
+    }
 </script>
 
 <Handle
     type="source"
     position={Position.Right}
     style="
+        background-color: {getBackgroundColor($rightConnected)};
         border-color: {$color + (selected ? 'bb' : '34')};
         border-radius: 4px;
         height: 8px;
         width: 6px;
     "
+    onconnect={() => toggleConnection(true)}
+    ondisconnect={() => toggleConnection(false)}
+    isConnectable={!$rightConnected}
 />
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->

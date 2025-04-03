@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import MenuItem from '$lib/components/General/MenuItem.svelte';
     import Icon from '$lib/components/Icon/Icon.svelte';
     import Spinner from '$lib/components/Spinner/Spinner.svelte';

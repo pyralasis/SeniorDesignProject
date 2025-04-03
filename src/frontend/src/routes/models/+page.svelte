@@ -98,9 +98,9 @@
         </div>
         <div class="model-page__bottom-right">
             {#if $selectedModel}
-                <TextInput label="Training Epochs" bind:value={epochs_value} />
-                <TextInput label="Batch Size" bind:value={batch_value} />
-                <TextInput label="Learning Rate" bind:value={learning_value} />
+                <TextInput label="Training Epochs" bind:value={epochs_value} style={StylingUtility.textInput} />
+                <TextInput label="Batch Size" bind:value={batch_value} style={StylingUtility.textInput} />
+                <TextInput label="Learning Rate" bind:value={learning_value} style={StylingUtility.textInput} />
                 <div class="popovers">
                     <Popover on:popoverItemsChanged={handleOptimizerPopoverItemChanged} items={optimizerItems}>
                         <PopoverChipTrigger slot="trigger" label="Optimizers" style={StylingUtility.popoverChipTrigger} />

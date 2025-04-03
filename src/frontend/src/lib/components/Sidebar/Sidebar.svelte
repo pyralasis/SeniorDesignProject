@@ -3,7 +3,6 @@
     import SidebarLayer from './SidebarNode.svelte';
     import { type NodeType } from '$lib/types/node-type.enum';
     import { writable } from 'svelte/store';
-    import { MousePointer, Scan } from 'lucide-svelte';
     const dndContext = useDnD();
 
     export let expanded: boolean = true;
@@ -56,7 +55,7 @@
         border-right: 1px solid #ffffff;
         padding: 16px 8px 0 8px;
         background-color: #111111;
-
+        position: relative;
         &__nodes-container {
             position: relative;
             display: flex;
@@ -65,10 +64,9 @@
             padding-top: 10px;
             overflow-y: scroll;
             scrollbar-width: thin;
-            scrollbar-color: #FFFFFF transparent;
+            scrollbar-color: #ffffff transparent;
             max-height: 100%;
             box-sizing: border-box;
-            padding-bottom: 300px;
         }
 
         &__section {

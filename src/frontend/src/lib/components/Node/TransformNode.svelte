@@ -3,6 +3,7 @@
     import { Handle, Position, type NodeProps } from '@xyflow/svelte';
     import NodeField from './NodeParameter.svelte';
     import type { Parameter, ParameterValue } from '$lib/types/parameter';
+    import { HandleStatusEnum, type HandleStatus } from './handle-status.enum';
 
     type $$Props = NodeProps;
 
@@ -15,28 +16,53 @@
     const parameters: Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]> = data?.parameters as Writable<
         { parameter: Parameter<any>; value: ParameterValue<any> }[]
     >;
-    console.log($parameters);
+    const leftConnected: Writable<boolean> = data?.leftConnected as Writable<boolean>;
+    const rightConnected: Writable<boolean> = data?.rightConnected as Writable<boolean>;
+
+    function toggleConnection(side: 'left' | 'right', connected: boolean) {
+        if (side === 'left') {
+            $leftConnected = connected;
+        } else {
+            $rightConnected = connected;
+        }
+    }
+
+    function getBackgroundColor(connected: boolean) {
+        if (!connected) {
+            return '#333';
+        } else {
+            return '#FFF';
+        }
+    }
 </script>
 
 <Handle
     type="target"
     position={Position.Left}
     style="
+        background-color: {getBackgroundColor($leftConnected)};
         border-color: {$color + (selected ? 'bb' : '34')};
         border-radius: 0;
         height: 8px;
         width: 6px;
     "
+    onconnect={() => toggleConnection('left', true)}
+    ondisconnect={() => toggleConnection('left', false)}
+    isConnectable={!$leftConnected}
 />
 <Handle
     type="source"
     position={Position.Right}
     style="
+        background-color: {getBackgroundColor($rightConnected)};
         border-color: {$color + (selected ? 'bb' : '34')};
         border-radius: 4px;
         height: 8px;
         width: 6px;
     "
+    onconnect={() => toggleConnection('right', true)}
+    ondisconnect={() => toggleConnection('right', false)}
+    isConnectable={!$rightConnected}
 />
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->

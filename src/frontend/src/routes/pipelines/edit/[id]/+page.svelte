@@ -88,14 +88,14 @@
 </script>
 
 <div class="edit-pipelines-page">
-    <a 
-    href="/architectures"
-    on:click={() => {
-        pipelineStore.saveActivePipeline();
-    }}
->
-Back to Pipelines
-</a>
+    <a
+        href="/pipelines"
+        on:click={() => {
+            pipelineStore.saveActivePipeline();
+        }}
+    >
+        Back to Pipelines
+    </a>
     <div class="edit-pipelines-page__header">
         <div class="edit-pipelines-page__header-left">
             {#if $isEditingTitle}
@@ -150,7 +150,7 @@ Back to Pipelines
         width: 100%;
         height: 100%;
         box-sizing: border-box;
-        overflow: hidden; 
+        overflow: hidden;
         &__header {
             padding: 16px;
             display: flex;
@@ -179,7 +179,7 @@ Back to Pipelines
             white-space: nowrap;
             color: #ffffff;
             transition: all 0.3s ease;
-            margin-top: 10px       
+            margin-top: 10px;
         }
 
         a:hover {

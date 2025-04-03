@@ -99,7 +99,7 @@ export class StylingUtility {
     }
     static readonly popoverSingleSelectContent = {
         borderRadius: 0,
-        backgroundColor: '#111111',
+        backgroundColor: '#222222',
         color: '#FFFFFF',
         itemColor: '#FFFFFF',
         hover: {

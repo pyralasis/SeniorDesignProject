@@ -97,7 +97,7 @@
     type="source"
     position={Position.Right}
     style="
-    background-color: {getBackgroundColor($rightConnected, $rightStatus)};
+        background-color: {getBackgroundColor($rightConnected, $rightStatus)};
         border-color: {'#FFFFFF' + (selected ? 'bb' : '34')};
         border-radius: 4px;
         height: 8px;

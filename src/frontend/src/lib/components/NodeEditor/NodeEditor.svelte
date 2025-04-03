@@ -14,6 +14,7 @@
 
     import InputNode from '../Node/InputNode.svelte';
     import OutputNode from '../Node/OutputNode.svelte';
+    import ButtonEdge from '../Edge/ButtonEdge.svelte';
     import { type LayerInput, type LayerBlueprint, type TensorSize } from '$lib/types/layer';
     import { type HandleStatus, HandleStatusEnum } from '../Node/handle-status.enum';
     import ValuesOutputNode from '../Node/ValuesOutputNode.svelte';
@@ -203,6 +204,10 @@
         labelsOutput: LabelsOutputNode,
     };
 
+    const edgeTypes = {
+        button: ButtonEdge,
+    };
+
     function onDelete() {
         onDeleteNode(selectedNode?.id ?? '');
     }
@@ -231,6 +236,8 @@
                 {nodes}
                 {edges}
                 {nodeTypes}
+                {edgeTypes}
+                fitView
                 on:dragover={onDragOver}
                 on:drop={onDrop}
                 on:nodedragstart={onChange}
@@ -241,7 +248,7 @@
             </SvelteFlow>
         </div>
     </div>
-</div> 
+</div>
 
 <style lang="scss">
     .node-editor {
@@ -249,7 +256,7 @@
         flex-direction: column;
         background-color: #111111;
         border-bottom: 1px solid #ffffff;
-        height: 100%;
+        height: 75%;
 
         &__content {
             display: flex;
@@ -269,5 +276,4 @@
         width: fit-content;
         padding: 0;
     }
-        
 </style>
