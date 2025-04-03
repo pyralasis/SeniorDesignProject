@@ -70,7 +70,7 @@ export type LossConfig = {
 
 export type OptimizerConfig = {
     id: number,
-    param_values: Parameter<any>[]
+    param_values: {parameter: Parameter<any>[], value: ParameterValue<any>}[]
 }
     
 export type OptimizerParams = {[id: string]: ParameterValue<any>}
