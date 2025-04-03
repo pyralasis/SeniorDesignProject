@@ -1,6 +1,5 @@
 <script lang="ts">
     // @ts-nocheck
-
     import { StylingUtility } from '$lib/utilities/styling.utility';
 
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
@@ -14,6 +13,7 @@
     import { pipelineStore } from '$lib/stores/PipelineStore';
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
+    
 
     setContext('selected-item', selectedModel);
 
@@ -24,6 +24,22 @@
     let sources: PopoverItem[] = $derived($pipelineStore.availablePipelines?.map((x) => ({ label: x.meta.name, value: x.id })));
 
     let selectedOptimizerItem: PopoverItem[] = [];
+
+    let validatingDelete: Writable<boolean> = writable(false);
+
+        function handleDeleteModel(){
+        console.log('Delete model', $selectedModel);
+        if ($validatingDelete) {
+            modelStore.deleteModel($selectedModel.id);
+            selectedModel.set(undefined);
+            validatingDelete.set(false);
+            // Refresh the models list
+            modelStore.getAvailableModels();
+        } else {
+            validatingDelete.set(true);
+        }
+    }
+
 
     function handleOptimizerPopoverItemChanged(event: CustomEvent): void {
         selectedOptimizerItem = event.detail.selectedItems;
@@ -50,7 +66,16 @@
         pipelineStore.getAvailablePipelines();
         modelStore.getAvailableOptimizers();
         modelStore.getAvailableLosses();
+        window.addEventListener('click', (event) => {
+            if (!event.target) {
+                return;
+            }
+            if ($validatingDelete && !(event.target as Element)?.closest('.model-page__bottom-right')) {
+                validatingDelete.set(false);
+        }
+        });
     });
+
 </script>
 
 <div class="model-page">
@@ -135,10 +160,16 @@
                     type="primary"
                     style={StylingUtility.redButton}
                     on:click={() => {
-                        if ($selectedModel) {
-                            console.log('hello');
+                        if($selectedModel){
+                            handleDeleteModel();
                         }
-                    }}><Icon name="trash" /></Button
+                    }}> 
+                    {#if $validatingDelete}
+                        Click To Confirm
+                    {:else}
+                        <Icon name="trash" />
+                    {/if}
+                    </Button
                 >
             {/if}
         </div>
@@ -195,6 +226,7 @@
             gap: 10px;
             max-width: 60%;
             height: 38px;
+
         }
 
         &__bottom-left-model-info {
