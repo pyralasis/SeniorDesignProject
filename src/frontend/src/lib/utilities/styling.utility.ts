@@ -113,4 +113,14 @@ export class StylingUtility {
         chevronColor: '#FFFFFF',
     }
 
+    //Flyout
+    static readonly flyout = {
+        backgroundColor: '#111111',
+        color: '#FFFFFF',
+        headerColor: '#FFFFFF',
+        subheaderColor: '#FFFFFF',
+        headerFontWeight: 'bold',
+        subheaderFontWeight: 'normal',
+    }
+
 } 

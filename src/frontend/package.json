@@ -33,7 +33,7 @@
 		"fs": "^0.0.1-security",
 		"gh-pages": "^6.1.1",
 		"gsap": "^3.12.7",
-		"kiwi-nl": "^0.1.6",
+		"kiwi-nl": "^2.1.6",
 		"lodash": "^4.17.21",
 		"lucide-svelte": "^0.476.0",
 		"save-as": "^0.1.8"
