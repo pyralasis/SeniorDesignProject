@@ -5,7 +5,7 @@ export const ParameterTypeEnum = {
     Float: 'float',
     Int: 'int',
     Size2D: 'size2d',
-    String: 'string',
+    String: 'str',
 } as const;
 
 export type ParameterType = EnumOf<typeof ParameterTypeEnum>;

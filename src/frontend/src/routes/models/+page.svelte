@@ -24,11 +24,9 @@
     let lossItems: PopoverItem[] = $derived($modelStore.availableLosses?.map((x) => ({ label: x.name, value: x })));
     let sources: PopoverItem[] = $derived($pipelineStore.availablePipelines?.map((x) => ({ label: x.meta.name, value: x.id })));
 
-    let selectedOptimizerItem: PopoverItem[] = [];
-
     let validatingDelete: Writable<boolean> = writable(false);
 
-        function handleDeleteModel(){
+    function handleDeleteModel(){
         console.log('Delete model', $selectedModel);
         if ($validatingDelete) {
             modelStore.deleteModel($selectedModel.id);
@@ -40,7 +38,6 @@
             validatingDelete.set(true);
         }
     }
-
 
     let selectedOptimizerItem: PopoverItem | undefined = $state(undefined);
     function handleOptimizerPopoverItemChanged(event: CustomEvent): void {
@@ -68,16 +65,6 @@
     let learning_value = $state(0.001);
 
     let flyoutElement;
-
-    let validatingDelete: Writable<boolean> = writable(false);
-    function handleDeleteArchitecture(id: string): void {
-        if ($validatingDelete) {
-            modelStore.deleteModel(id);
-            selectedModel.set(undefined);
-        } else {
-            validatingDelete.set(true);
-        }
-    }
 
     let can_train = $derived(selectedOptimizerItem !== undefined && selectedLossItem !== undefined && selectedSourceItem !== undefined);
     const DISABLED_BUTTON_STYLE: ButtonCustomStyling = {

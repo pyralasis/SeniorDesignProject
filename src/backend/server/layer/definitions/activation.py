@@ -23,7 +23,7 @@ leakyrelu_layer = LayerDefinition(
     "LeakyReLU",
     (InputDefinition(None, 1, None),),
     (
-        FloatParameter(id="negative_slope", name="Negative Slope", default=1.0),
+        FloatParameter(id="negative_slope", name="Negative Slope", default=0.01),
         BoolParameter("inplace", "Inplace", False),
     ),
     lambda in_sizes, negative_slope, inplace, **_: torch.nn.LeakyReLU(negative_slope, inplace),

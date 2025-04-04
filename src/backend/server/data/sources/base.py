@@ -54,6 +54,7 @@ class DataSource(ABC):
     def __getitem__(self, index: int) -> Any:
         val = self._get(index)
         for transform in self.transforms:
+            print(transform, val)
             val = transform(val)
         return val
 

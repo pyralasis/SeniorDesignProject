@@ -99,6 +99,7 @@
                 position: { x: position.x, y: position.y },
             } satisfies Node;
         } else if ($dndContext?.type === 'source' || $dndContext?.type === 'transform') {
+            console.log($dndContext)
             newNode = {
                 id: `${Math.floor(Math.random() * 1000000)}`,
                 type: $dndContext?.type,

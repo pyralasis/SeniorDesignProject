@@ -57,7 +57,7 @@ class DataService:
             el = node_map[id]
 
             if el.type == "source":
-                return self.sources.get(el.src_id).constructor(**el.param_values)
+                return self.sources.get(el.src_id).constructor(**el.get_params())
             else:
                 source = get_source_for(el.input)
                 transform_type = self.transforms.get(el.transform_id)

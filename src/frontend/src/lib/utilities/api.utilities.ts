@@ -2,7 +2,7 @@ import { type LayerBlueprint, type LayerId, type TensorSize } from "$lib/types/l
 import type { ParameterValue } from "$lib/types/parameter";
 import type { SourceBlueprint, SourceId } from "$lib/types/source";
 import type { TransformBlueprint, TransformId } from "$lib/types/transform";
-import { get } from "lodash";
+// import { get } from "lodash";
 import { BACKEND_API_BASE_URL } from "./api.constants";
 
 export const BackendApiRequestsEnum = {

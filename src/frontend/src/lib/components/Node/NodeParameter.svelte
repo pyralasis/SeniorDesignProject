@@ -49,7 +49,7 @@
             label={parameter.name}
             maxlength={2}
             inputamount={2}
-            value={value.val}
+            bind:value={value.val}
             on:change={(event) => updateValue(event, ParameterTypeEnum.Size2D)}
         />
     {/if}

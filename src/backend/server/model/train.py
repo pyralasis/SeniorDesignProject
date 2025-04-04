@@ -103,6 +103,7 @@ async def training_thread(model_service: "ModelService"):
                     **get_params_dict(cfg.loss_fn.param_values)
                 )
 
+
                 process = mp.Process(
                     target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, msg_queue)
                 )
@@ -123,7 +124,7 @@ async def training_thread(model_service: "ModelService"):
 
                             case "failure":
                                 model_service.train_logs.data_files.save_to(
-                                    log_file, TrainingFailedInfo("interrupted", "Training was interrupted in progress")
+                                    log_file, TrainingFailedInfo("error", msg.description)
                                 )
                                 model_service.train_logs.increment_version(log_file)
                                 received_last_msg = True
@@ -211,8 +212,9 @@ def train_model(
             print("Epoch", epoch)
 
             total_loss = 0
-            for i, (x, y) in loader:
-
+            for i, vals in loader:
+                print(vals)
+                (x, y) = vals
                 # Forward pass
                 outputs = model(x)
                 loss = criterion(outputs, y)
@@ -230,3 +232,6 @@ def train_model(
         msg_queue.put(TrainingFinishedMsg(avg_loss, model))
     except Exception as e:
         msg_queue.put(TrainingFailureMsg("error", str(e)))
+        import traceback
+
+        traceback.print_exc()
