@@ -202,5 +202,5 @@ class GetDevicesView(MethodView):
     def __init__(self, model_service: ModelService):
         self.service = model_service
 
-    async def post(self) -> GetDevicesResponse:
+    async def get(self) -> GetDevicesResponse:
         return self.service.available_devices()
