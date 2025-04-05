@@ -71,9 +71,7 @@ async def training_thread(model_service: "ModelService"):
         try:
             process = None
 
-            print("waiting for training msg")
             log_file, cfg = await model_service.training_queue.get()
-            print("received queue msg")
 
             try:
                 msg_queue = mp.Queue()
@@ -103,13 +101,10 @@ async def training_thread(model_service: "ModelService"):
                     **get_params_dict(cfg.loss_fn.param_values)
                 )
 
-
                 process = mp.Process(
                     target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, msg_queue)
                 )
                 process.start()
-
-                print("starting process", process)
 
                 received_last_msg = False
                 while not received_last_msg:
@@ -209,14 +204,11 @@ def train_model(
         model.train()
 
         for epoch in range(epochs):
-            print("Epoch", epoch)
 
             total_loss = 0
-            for i, vals in loader:
-                print(vals)
-                (x, y) = vals
+            for i, (x, y) in enumerate(loader):
                 # Forward pass
-                outputs = model(x)
+                outputs = model([x])
                 loss = criterion(outputs, y)
 
                 # Backward pass and optimize
