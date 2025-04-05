@@ -106,6 +106,9 @@ async def training_thread(model_service: "ModelService"):
                 )
                 process.start()
 
+                model_service.train_logs.data_files.save_to(log_file, TrainingInProgressInfo(1, 10000))
+                model_service.train_logs.increment_version(log_file)
+
                 received_last_msg = False
                 while not received_last_msg:
                     try:

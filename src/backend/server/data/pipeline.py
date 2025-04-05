@@ -5,7 +5,7 @@ from server.data.sources import DataSourceId
 from server.data.sources.base import DataSourceDefinition
 from server.data.transforms import TransformId
 from server.data.transforms.base import TransformDefinition
-from server.params import ParameterValue
+from server.params import AnyParameter, AnyParameterValue, ParameterValue
 from server.util.registry import Registry
 
 InstanceId: TypeAlias = int
@@ -16,7 +16,7 @@ class SourceConfig:
     type: Literal["source"]
     instance_id: InstanceId
     src_id: DataSourceId
-    param_values: dict[str, ParameterValue]
+    param_values: dict[str, AnyParameterValue]
 
     def get_params(self) -> dict[str, Any]:
         return {key: param.val for key, param in self.param_values.items()}
@@ -29,7 +29,7 @@ class TransformConfig:
     transform_id: TransformId
     input: InstanceId  # TODO: multiple inputs
 
-    param_values: dict[str, ParameterValue]
+    param_values: dict[str, AnyParameterValue]
 
     def get_params(self) -> dict[str, Any]:
         return {key: param.val for key, param in self.param_values.items()}

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import torch
 from server.architecture.config import ArchitectureConfig
 from server.architecture.service import ArchitectureService
 from server.data.service import DataService
@@ -107,3 +108,9 @@ class ModelService:
         log_id = self.train_logs.create(TrainLogObject(meta, TrainingQueuedInfo(), cfg))
         await self.training_queue.put((log_id, cfg))
         return log_id
+
+    def available_devices(self) -> list[str]:
+        devices = ["cpu"]
+        if torch.cuda.is_available():
+            devices += [f"cuda:{i}" for i in range(torch.cuda.device_count())]
+        return devices

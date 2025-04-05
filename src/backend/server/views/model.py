@@ -63,6 +63,8 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
         url_prefix=f"/config",
     )
 
+    bp_train.add_url_rule("/devices", view_func=GetDevicesView.as_view("devices", model_service))
+
     bp.register_blueprint(bp_train, url_prefix="/train")
 
     return bp
@@ -189,3 +191,16 @@ class TrainModelView(MethodView):
 
         log_id = await self.service.add_to_training_queue(req.config, req.meta)
         return asdict(TrainModelSuccessResponse(log_id))
+
+
+GetDevicesResponse = list[str]
+
+
+class GetDevicesView(MethodView):
+    init_every_request = False
+
+    def __init__(self, model_service: ModelService):
+        self.service = model_service
+
+    async def post(self) -> GetDevicesResponse:
+        return self.service.available_devices()
