@@ -26,6 +26,7 @@ class TrainingConfig:
     source_id: FileId
     loss_fn: LossConfig
     optimizer: OptimizerConfig
+    device: str = "cpu"
     shuffle_data: bool = True
     batch_size: int = 32
     epochs: int = 10
@@ -91,7 +92,7 @@ async def training_thread(model_service: "ModelService"):
                 ds = DataSourceDataset(value_source, label_source)
 
                 # TODO: more loader settings
-                loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data)
+                loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data, num_workers=0)
 
                 optimizer = model_service.optimizers.get(cfg.optimizer.id).constructor(
                     model, **get_params_dict(cfg.optimizer.param_values)
@@ -102,11 +103,11 @@ async def training_thread(model_service: "ModelService"):
                 )
 
                 process = mp.Process(
-                    target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, msg_queue)
+                    target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, cfg.device, msg_queue)
                 )
                 process.start()
 
-                model_service.train_logs.data_files.save_to(log_file, TrainingInProgressInfo(1, 10000))
+                model_service.train_logs.data_files.save_to(log_file, TrainingInProgressInfo(0, 10000))
                 model_service.train_logs.increment_version(log_file)
 
                 received_last_msg = False
@@ -200,16 +201,23 @@ def train_model(
     criterion: nn.Module,
     loader: DataLoader[tuple[Tensor, Tensor]],
     epochs: int,
+    device: str,
     msg_queue: "mp.Queue[TrainingMsg]",
 ) -> None:
     try:
+        torch_device = torch.device(device)
+
         # Training loop
+        model = model.to(torch_device)
         model.train()
 
         for epoch in range(epochs):
 
             total_loss = 0
             for i, (x, y) in enumerate(loader):
+                x = x.to(torch_device)
+                y = y.to(torch_device)
+
                 # Forward pass
                 outputs = model([x])
                 loss = criterion(outputs, y)
