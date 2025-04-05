@@ -39,15 +39,16 @@ export interface ModelStore extends Writable<ModelStoreProps> {
     createModel: (architecture_id: ArchitectureId, metadata: MetaData) => void;
     getAvailableModels: () => void;
     loadModelById: () => void;
-    deleteModel: () => void;
+    deleteModel: (id: ModelId) => void;
     trainModel: (model_id: number,
         source_id: number,
-        learning_rate: number,
         loss: LossConfig,
         optimizer: OptimizerConfig,
         batch_size: number,
         shuffle_data: boolean,
-        epochs: number) => void;
+        epochs: number,
+        device: string
+        ) => void;
     getAvailableOptimizers: () => void;
     getAvailableLosses: () => void;
 }
