@@ -92,7 +92,7 @@ async def training_thread(model_service: "ModelService"):
                 ds = DataSourceDataset(value_source, label_source)
 
                 # TODO: more loader settings
-                loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data, num_workers=0)
+                loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data)
 
                 optimizer = model_service.optimizers.get(cfg.optimizer.id).constructor(
                     model, **get_params_dict(cfg.optimizer.param_values)
