@@ -126,16 +126,18 @@
                     <Spinner />
                 </div>
             {:else if !$pipelineStore.activePipeline?.loading && nodes && edges}
-                <NodeEditor
-                    onSave={() => pipelineStore.updatePipelineSaveStatus()}
-                    {onChange}
-                    onCreateNode={pipelineStore.addNodeToActivePipeline}
-                    onDeleteNode={pipelineStore.deleteNodeFromActivePipeline}
-                    {nodes}
-                    {edges}
-                    nodeblueprints={[valueOutput, labelOutput, ...$availableSources, ...$availableTransforms]}
-                    nodeNameEditor={false}
-                />
+                {#key $nodes.length !== 0}
+                    <NodeEditor
+                        onSave={() => pipelineStore.updatePipelineSaveStatus()}
+                        {onChange}
+                        onCreateNode={pipelineStore.addNodeToActivePipeline}
+                        onDeleteNode={pipelineStore.deleteNodeFromActivePipeline}
+                        {nodes}
+                        {edges}
+                        nodeblueprints={[valueOutput, labelOutput, ...$availableSources, ...$availableTransforms]}
+                        nodeNameEditor={false}
+                    />
+                {/key}
             {:else}
                 <div class="spinner-container">
                     <Spinner />

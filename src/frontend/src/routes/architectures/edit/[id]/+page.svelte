@@ -184,6 +184,7 @@
         let nodeChain: Node[] = constructNodeChain();
         validateNodes(nodeChain);
     }
+
 </script>
 
 <div class="edit-architectures-page">
@@ -225,7 +226,8 @@
                     <Spinner />
                 </div>
             {:else if !$architectureStore.activeArchitecture?.loading && nodes && edges}
-                <NodeEditor
+                {#key $nodes.length !== 0}
+                    <NodeEditor
                     onSave={() => architectureStore.updateArchitectureSaveStatus()}
                     {onChange}
                     onCreateNode={architectureStore.addNodeToActiveArchitecture}
@@ -235,7 +237,8 @@
                     {nodes}
                     {edges}
                     nodeblueprints={[...$inputNodeBluePrints, ...$outputNodeBluePrints, ...$availableLayers]}
-                />
+                    />
+                {/key}
             {:else}
                 <div class="spinner-container">
                     <Spinner />
