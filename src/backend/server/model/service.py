@@ -18,6 +18,7 @@ from server.model.train import (
     TrainingInfo,
     TrainingQueuedInfo,
     TrainLogObject,
+    get_time,
     training_thread,
 )
 from server.util.file import (
@@ -105,7 +106,7 @@ class ModelService:
         return model_id
 
     async def add_to_training_queue(self, cfg: TrainingConfig, meta: MetaData) -> FileId:
-        log_id = self.train_logs.create(TrainLogObject(meta, TrainingQueuedInfo(), cfg))
+        log_id = self.train_logs.create(TrainLogObject(meta, TrainingQueuedInfo(get_time()), cfg))
         await self.training_queue.put((log_id, cfg))
         return log_id
 
