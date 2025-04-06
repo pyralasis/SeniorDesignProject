@@ -93,7 +93,7 @@
     let table_values: TableRow[] = $state([]);
 
     let grid_template_css: string = $derived(
-        columns.reduce((prev, cur) => prev + `minmax(${cur.min_width},${cur.proportion}fr) `, "grid-template-columns: ") + " 30px"
+        columns.reduce((prev, cur) => prev + `minmax(${cur.min_width},${cur.proportion}fr) `, "grid-template-columns: ") + " 32px"
     );
 
     $effect(() => {

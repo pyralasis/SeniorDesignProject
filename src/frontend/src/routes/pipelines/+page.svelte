@@ -1,22 +1,22 @@
 <script lang="ts">
-    import MenuItem from '$lib/components/General/MenuItem.svelte';
-    import Icon from '$lib/components/Icon/Icon.svelte';
-    import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { pipelineStore } from '$lib/stores/PipelineStore';
-    import type { AvailablePipeline } from '$lib/stores/types/pipeline-store.interface';
-    import type { PipelineId } from '$lib/types/pipeline';
-    import { StylingUtility } from '$lib/utilities/styling.utility';
-    import { Button, TextInput } from 'kiwi-nl';
-    import { onMount, setContext } from 'svelte';
-    import { writable, type Writable } from 'svelte/store';
+    import MenuItem from "$lib/components/General/MenuItem.svelte";
+    import Icon from "$lib/components/Icon/Icon.svelte";
+    import Spinner from "$lib/components/Spinner/Spinner.svelte";
+    import { pipelineStore } from "$lib/stores/PipelineStore";
+    import type { AvailablePipeline } from "$lib/stores/types/pipeline-store.interface";
+    import type { PipelineId } from "$lib/types/pipeline";
+    import { StylingUtility } from "$lib/utilities/styling.utility";
+    import { Button, TextInput } from "kiwi-nl";
+    import { onMount, setContext } from "svelte";
+    import { writable, type Writable } from "svelte/store";
 
     let selectedPipeline: Writable<AvailablePipeline | undefined> = writable(undefined);
     let creatingNewPipeline: Writable<boolean> = writable(false);
     let validatingDelete: Writable<boolean> = writable(false);
-    let newPipelineName: string = '';
-    let newPipelineDescription: string = '';
+    let newPipelineName: string = "";
+    let newPipelineDescription: string = "";
 
-    setContext('selected-item', selectedPipeline);
+    setContext("selected-item", selectedPipeline);
 
     async function handleCreateNewPipeline(): Promise<void> {
         await pipelineStore.createNewPipeline(newPipelineName, newPipelineDescription);
@@ -34,19 +34,19 @@
 
     function handleCreateNewPipelineInitialisation(): void {
         selectedPipeline.set(undefined);
-        newPipelineName = '';
-        newPipelineDescription = '';
+        newPipelineName = "";
+        newPipelineDescription = "";
         creatingNewPipeline.set(true);
     }
 
     onMount(() => {
         pipelineStore.getAvailablePipelines();
 
-        window.addEventListener('click', (event) => {
+        window.addEventListener("click", (event) => {
             if (!event.target) {
                 return;
             }
-            if ($validatingDelete && !(event.target as Element)?.closest('.select-pipeline-page__bottom-right')) {
+            if ($validatingDelete && !(event.target as Element)?.closest(".select-pipeline-page__bottom-right")) {
                 validatingDelete.set(false);
             }
         });
@@ -97,14 +97,19 @@
                         <TextInput label="Name" style={StylingUtility.textInput} bind:value={newPipelineName}></TextInput>
                     </div>
                     <div class="description-input">
-                        <TextInput label="Description" style={StylingUtility.textInput} bind:value={newPipelineDescription}></TextInput>
+                        <TextInput label="Description" style={StylingUtility.textInput} bind:value={newPipelineDescription}
+                        ></TextInput>
                     </div>
                 </div>
                 <div class="select-pipeline-page__create-new-pipeline-actions-buttons">
-                    <Button type="primary" style={StylingUtility.whiteBorderButton} on:click={async () => await handleCreateNewPipeline()}
-                        >Create</Button
+                    <Button
+                        type="primary"
+                        style={StylingUtility.whiteBorderButton}
+                        on:click={async () => await handleCreateNewPipeline()}>Create</Button
                     >
-                    <Button type="primary" style={StylingUtility.redButton} on:click={() => creatingNewPipeline.set(false)}>Cancel</Button>
+                    <Button type="primary" style={StylingUtility.redButton} on:click={() => creatingNewPipeline.set(false)}
+                        >Cancel</Button
+                    >
                 </div>
             {:else}
                 <div class="select-pipeline-page__bottom-left-empty">
@@ -153,7 +158,7 @@
             padding: 20px;
             padding-left: 64px;
             h1 {
-                font-size: 42px;
+                font-size: 44px;
                 font-weight: 500;
                 margin: 0;
             }
@@ -175,7 +180,6 @@
             height: 160px;
             min-height: 160px;
         }
-
 
         &__bottom-left {
             display: flex;
