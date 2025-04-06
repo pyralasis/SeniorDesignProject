@@ -1,110 +1,116 @@
 <script lang="ts">
-    import type { AvailableModel, TrainingConfig } from '$lib/stores/types/models-store.interface';
-    import { SoundUtility } from '$lib/utilities/sound.utility';
-    import { getContext, onMount } from 'svelte';
-    import type { Writable } from 'svelte/store';
-    import { modelStore } from '$lib/stores/ModelStore';
-    import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { Button, Tag, TagColorEnum } from 'kiwi-nl'
-    import { BackendApi, BackendApiRequestsEnum } from '$lib/utilities/api.utilities';
-    import { pipelineStore } from '$lib/stores/PipelineStore';
-    import { StylingUtility } from '$lib/utilities/styling.utility';
-    import Icon from '../Icon/Icon.svelte';
+    import type { AvailableModel, TrainingConfig } from "$lib/stores/types/models-store.interface";
+    import { SoundUtility } from "$lib/utilities/sound.utility";
+    import { getContext, onMount } from "svelte";
+    import type { Writable } from "svelte/store";
+    import { modelStore } from "$lib/stores/ModelStore";
+    import Spinner from "$lib/components/Spinner/Spinner.svelte";
+    import { Button, Tag, TagColorEnum } from "kiwi-nl";
+    import { BackendApi, BackendApiRequestsEnum } from "$lib/utilities/api.utilities";
+    import { pipelineStore } from "$lib/stores/PipelineStore";
+    import { StylingUtility } from "$lib/utilities/styling.utility";
+    import Icon from "../Icon/Icon.svelte";
 
     type Props = {
-        name: string
-        status: "queued" | "complete" | "in_progress" | "failed",
-        columns: ColumnDef[], 
-        available_tasks: LoadedTrainingObj[],
-        on_select: (id: number) => void,
-        can_delete?: boolean,
-        on_delete?: (id: number) => void,
-    }
+        name: string;
+        status: "queued" | "complete" | "in_progress" | "failed";
+        columns: ColumnDef[];
+        available_tasks: LoadedTrainingObj[];
+        on_select: (id: number) => void;
+        can_delete?: boolean;
+        on_delete?: (id: number) => void;
+    };
 
-    export type ColumnDef = { name: string, min_width: string, proportion: number, get_val: (content: TrainingTaskContent) => Promise<string> };
+    export type ColumnDef = {
+        name: string;
+        min_width: string;
+        proportion: number;
+        get_val: (content: TrainingTaskContent) => Promise<string>;
+    };
 
-    let { name, status, columns, available_tasks, on_select, can_delete = false, on_delete= () => {} }: Props  = $props();
+    let { name, status, columns, available_tasks, on_select, can_delete = false, on_delete = () => {} }: Props = $props();
 
     export type LoadedTrainingObj = {
-        id: number,
-        info: any,
-        content: TrainingTaskContent,
-    }
-    
-    export type TrainingTaskContent = {
-        config: TrainingConfig,
-        data: TrainingTaskStatus,
-        meta: {[key: string]: any}
-    }
+        id: number;
+        info: any;
+        content: TrainingTaskContent;
+    };
 
-    export type TrainingTaskStatus = CompleteTrainingStatus | QueuedTrainingStatus | InProgressTrainingStatus | FailedTrainingStatus;
-    
+    export type TrainingTaskContent = {
+        config: TrainingConfig;
+        data: TrainingTaskStatus;
+        meta: { [key: string]: any };
+    };
+
+    export type TrainingTaskStatus =
+        | CompleteTrainingStatus
+        | QueuedTrainingStatus
+        | InProgressTrainingStatus
+        | FailedTrainingStatus;
+
     export type CompleteTrainingStatus = {
-        status: "complete",
-        avg_loss: number,
-        avg_time_per_epoch: number,
-        end_time: number,
-        start_time: number,
+        status: "complete";
+        avg_loss: number;
+        avg_time_per_epoch: number;
+        end_time: number;
+        start_time: number;
     };
 
     export type QueuedTrainingStatus = {
-        status: "queued",
-        queue_time: number,
+        status: "queued";
+        queue_time: number;
     };
 
     export type InProgressTrainingStatus = {
-        status: "in_progress"
-        start_time: number
-        avg_time_per_epoch: number
-        epoch: number
-        avg_loss: number
+        status: "in_progress";
+        start_time: number;
+        avg_time_per_epoch: number;
+        epoch: number;
+        avg_loss: number;
     };
 
     export type FailedTrainingStatus = {
-        status: "failed"
-        start_time: number
-        end_time: number
-        reason: string
-        description: string
+        status: "failed";
+        start_time: number;
+        end_time: number;
+        reason: string;
+        description: string;
     };
 
-
     export type TrainingTaskInfo = {
-        id: number,
-        info: {version: number},
-        meta: {[key: string]: any}
-    }
+        id: number;
+        info: { version: number };
+        meta: { [key: string]: any };
+    };
 
     type TableRow = {
-        id: number,
-        value: string[]
-    }
-  
+        id: number;
+        value: string[];
+    };
+
     let availableTrainingTaskIds: number[] = $state([]);
     let trainingTasks: TrainingTaskContent[] = $state([]);
     let table_values: TableRow[] = $state([]);
 
-    let grid_template_css: string = $derived(columns.reduce((prev, cur) => prev + `minmax(${cur.min_width},${cur.proportion}fr) `,"grid-template-columns: ") + " 30px");
+    let grid_template_css: string = $derived(
+        columns.reduce((prev, cur) => prev + `minmax(${cur.min_width},${cur.proportion}fr) `, "grid-template-columns: ") + " 26px"
+    );
 
     $effect(() => {
         (async () => {
             table_values = await Promise.all(
                 available_tasks
-                    .filter(task => task.content.data.status == status)
+                    .filter((task) => task.content.data.status == status)
                     .map(async (task) => ({
                         id: task.id,
-                        value: await Promise.all(columns.map(async col => await col.get_val(task.content)))
-                    })
-                        
-                )
+                        value: await Promise.all(columns.map(async (col) => await col.get_val(task.content))),
+                    }))
             );
         })();
-	});
+    });
 </script>
 
-
 <div class="training-table">
-    
     <h2 class="training-table__title">{name}</h2>
     <div class="training-table__header" style={grid_template_css}>
         {#each columns as column}
@@ -118,30 +124,33 @@
         <!-- class:selected={$selectedModel === model}
         on:click={() => handleClick(model)} -->
 
-        <button 
-            class="training-table__row button" 
+        <button
+            class="training-table__row button"
             style={grid_template_css}
             type="button"
-            onclick={() => {on_select(row.id)}}
+            onclick={() => {
+                on_select(row.id);
+            }}
         >
             {#each row.value as value}
                 <div class="training-table__col">{value}</div>
             {/each}
             {#if can_delete}
-                <div class="training-table__col"><Button
-                    size="small"
-                    type="primary"
-                    style={StylingUtility.redButton}
-                    on:click={() => {
-                        if (can_delete) {
-                            on_delete(row.id);
-                        }
-                    }}>
+                <div class="training-table__col">
+                    <Button
+                        size="small"
+                        type="primary"
+                        style={StylingUtility.redButton}
+                        on:click={() => {
+                            if (can_delete) {
+                                on_delete(row.id);
+                            }
+                        }}
+                    >
                         <Icon name="trash" />
                     </Button>
                 </div>
             {/if}
-            
         </button>
 
         <!-- <button 
@@ -166,11 +175,12 @@
 <style lang="scss">
     .training-table {
         // width: 100%;
-        // max-width: 1400px; 
+        // max-width: 1400px;
         display: flex;
         flex-direction: column;
         gap: 4px;
-        margin: 0 auto; 
+        margin: 0 auto;
+        min-width: 42vw;
 
         &__title {
             margin: 24px 16px 8px;
@@ -220,17 +230,17 @@
                 color: #fe2e00;
             }
         }
-        &__row:nth-child(odd){
+        &__row:nth-child(odd) {
             background-color: #222222;
-        }       
+        }
         // &__col:nth-child(even){
         //     background-color: #ffffff;
-        // }       
+        // }
         &__col {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            
+
             &.time {
                 opacity: 0.8;
                 font-size: 14px;
