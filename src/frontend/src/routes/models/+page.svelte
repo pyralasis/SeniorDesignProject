@@ -1,25 +1,38 @@
 <script lang="ts">
     // @ts-nocheck
-    import { StylingUtility } from '$lib/utilities/styling.utility';
+    import { StylingUtility } from "$lib/utilities/styling.utility";
 
-    import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { type ButtonCustomStyling, Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput, type PopoverItem, Flyout, ButtonTypeEnum, FlyoutSideEnum, Checkbox, InputSeries } from 'kiwi-nl';
-    import { modelStore } from '$lib/stores/ModelStore';
-    import { onMount, setContext } from 'svelte';
-    import { writable, type Writable } from 'svelte/store';
-    import type { AvailableModel } from '$lib/stores/types/models-store.interface';
-    import MenuItem from '$lib/components/General/MenuItem.svelte';
-    import Icon from '$lib/components/Icon/Icon.svelte';
-    import { pipelineStore } from '$lib/stores/PipelineStore';
-    import type { Parameter, ParameterValue } from '$lib/types/parameter';
-    import NodeField from '$lib/components/Node/NodeParameter.svelte';
-    import { BackendApi } from '$lib/utilities/api.utilities';
+    import Spinner from "$lib/components/Spinner/Spinner.svelte";
+    import {
+        type ButtonCustomStyling,
+        Button,
+        Popover,
+        PopoverChipTrigger,
+        PopoverSingleSelectContent,
+        TextInput,
+        type PopoverItem,
+        Flyout,
+        ButtonTypeEnum,
+        FlyoutSideEnum,
+        Checkbox,
+        InputSeries,
+    } from "kiwi-nl";
+    import { modelStore } from "$lib/stores/ModelStore";
+    import { onMount, setContext } from "svelte";
+    import { writable, type Writable } from "svelte/store";
+    import type { AvailableModel } from "$lib/stores/types/models-store.interface";
+    import MenuItem from "$lib/components/General/MenuItem.svelte";
+    import Icon from "$lib/components/Icon/Icon.svelte";
+    import { pipelineStore } from "$lib/stores/PipelineStore";
+    import type { Parameter, ParameterValue } from "$lib/types/parameter";
+    import NodeField from "$lib/components/Node/NodeParameter.svelte";
+    import { BackendApi } from "$lib/utilities/api.utilities";
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
-        
+
     let parameters: { parameter: Parameter<any>; value: ParameterValue<any> }[] = $state([]);
 
-    setContext('selected-item', selectedModel);
+    setContext("selected-item", selectedModel);
 
     let optimizerItems: PopoverItem[] = $derived($modelStore.availableOptimizers?.map((x) => ({ label: x.name, value: x })));
     let lossItems: PopoverItem[] = $derived($modelStore.availableLosses?.map((x) => ({ label: x.name, value: x })));
@@ -29,8 +42,8 @@
 
     let validatingDelete: Writable<boolean> = writable(false);
 
-    function handleDeleteModel(){
-        console.log('Delete model', $selectedModel);
+    function handleDeleteModel() {
+        console.log("Delete model", $selectedModel);
         if ($validatingDelete) {
             modelStore.deleteModel($selectedModel.id);
             selectedModel.set(undefined);
@@ -44,11 +57,13 @@
 
     let selectedOptimizerItem: PopoverItem | undefined = $state(undefined);
     function handleOptimizerPopoverItemChanged(event: CustomEvent): void {
-        console.log(event)
+        console.log(event);
         selectedOptimizerItem = event.detail.selectedItems[0];
         if (selectedOptimizerItem) {
             parameters.length = 0;
-            selectedOptimizerItem.value.parameters.forEach((x) => parameters?.push({parameter: x, value: {type: x.type, val: x.default}}))
+            selectedOptimizerItem.value.parameters.forEach((x) =>
+                parameters?.push({ parameter: x, value: { type: x.type, val: x.default } })
+            );
         }
     }
 
@@ -57,12 +72,12 @@
         selectedLossItem = event.detail.selectedItems[0];
     }
 
-    let selectedSourceItem: PopoverItem | undefined =  $state(undefined);
+    let selectedSourceItem: PopoverItem | undefined = $state(undefined);
     function handleSourcePopoverItemChanged(event: CustomEvent): void {
         selectedSourceItem = event.detail.selectedItems[0];
     }
 
-    let selectedDeviceItem: PopoverItem | undefined =  $state(undefined);
+    let selectedDeviceItem: PopoverItem | undefined = $state(undefined);
     function handleDevicePopoverItemChanged(event: CustomEvent): void {
         selectedDeviceItem = event.detail.selectedItems[0];
     }
@@ -77,17 +92,20 @@
     let pin_memory: bool = $state(false);
     let persistent_workers: bool = $state(false);
 
-    let can_train = $derived(selectedOptimizerItem !== undefined && selectedLossItem !== undefined && selectedSourceItem !== undefined);
+    let can_train = $derived(
+        selectedOptimizerItem !== undefined && selectedLossItem !== undefined && selectedSourceItem !== undefined
+    );
     const DISABLED_BUTTON_STYLE: ButtonCustomStyling = {
-        backgroundColor: "#444",
-        hover: "#444",
-        cursor: "not-allowed"
-    }
+        backgroundColor: "#333",
+        hover: "#333",
+        border: "1px solid #ffffff",
+        color: "#999",
+        cursor: "not-allowed",
+    };
 
     const ADVANCED_SETTINGS_BUTTON_STYLE: ButtonCustomStyling = {
         padding: "20px",
-    }
-
+    };
 
     onMount(async () => {
         modelStore.getAvailableModels();
@@ -97,16 +115,15 @@
         let deviceResponse = await BackendApi.getAvailableDevices();
         devices = deviceResponse.map((x) => ({ label: x, value: x }));
         selectedDeviceItem = devices[0];
-        window.addEventListener('click', (event) => {
+        window.addEventListener("click", (event) => {
             if (!event.target) {
                 return;
             }
-            if ($validatingDelete && !(event.target as Element)?.closest('.model-page__bottom-right')) {
+            if ($validatingDelete && !(event.target as Element)?.closest(".model-page__bottom-right")) {
                 validatingDelete.set(false);
-        }
+            }
         });
     });
-
 </script>
 
 <div class="model-page">
@@ -125,7 +142,9 @@
                         <Spinner></Spinner>
                     </div>
                 {:else if $modelStore.availableModels.length === 0}
-                    <p class="no-models-found">No models found. Create a model from an existing architecture on the Architectures Page!</p>
+                    <p class="no-models-found">
+                        No models found. Create a model from an existing architecture on the Architectures Page!
+                    </p>
                 {:else}
                     <div class="model-page__items-header">
                         <p>Name</p>
@@ -152,77 +171,87 @@
                 </div>
             {/if}
         </div>
-        <div class="model-page__bottom-right">
+        <div class="model-page__parameters">
             {#if $selectedModel}
-                <div class="two-rows">
-                    <div class="inputs">
-                        <TextInput label="Training Epochs" bind:value={epochs_value} style={StylingUtility.textInput} />
-                        <TextInput label="Batch Size" bind:value={batch_value} style={StylingUtility.textInput} />
-                    </div>
-                    
-                    <div class="popovers">
-                        <Popover on:popoverItemsChanged={handleOptimizerPopoverItemChanged} items={optimizerItems}>
-                            <PopoverChipTrigger slot="trigger" label="Optimizer" style={StylingUtility.popoverChipTrigger} />
-                            <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
-                        </Popover>
-                        <Button style={selectedOptimizerItem || DISABLED_BUTTON_STYLE} on:click={selectedOptimizerItem && (() => flyoutElement.toggle())}><Icon name="pencil" /></Button>
-
-                        <Popover on:popoverItemsChanged={handleLossPopoverItemChanged} items={lossItems}>
-                            <PopoverChipTrigger slot="trigger" label="Loss Function" style={StylingUtility.popoverChipTrigger} />
-                            <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
-                        </Popover>
-                        <Popover on:popoverItemsChanged={handleSourcePopoverItemChanged} items={sources}>
-                            <PopoverChipTrigger slot="trigger" label="Data Source" style={StylingUtility.popoverChipTrigger} />
-                            <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
-                        </Popover>
-                        
-                    </div>
-                    <Button style={ADVANCED_SETTINGS_BUTTON_STYLE} type="primary" on:click={() => settingsFlyout.toggle()}>Advanced Settings</Button>
+                <div class="inputs param_row">
+                    <TextInput label="Training Epochs" bind:value={epochs_value} style={StylingUtility.textInput} />
+                    <TextInput label="Batch Size" bind:value={batch_value} style={StylingUtility.textInput} />
                 </div>
 
+                <div class="popovers param_row">
+                    <Popover on:popoverItemsChanged={handleOptimizerPopoverItemChanged} items={optimizerItems}>
+                        <PopoverChipTrigger slot="trigger" label="Optimizer" style={StylingUtility.popoverChipTrigger} />
+                        <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
+                    </Popover>
+                    <Button
+                        style={selectedOptimizerItem ? StylingUtility.whiteBorderButton : DISABLED_BUTTON_STYLE}
+                        on:click={selectedOptimizerItem && (() => flyoutElement.toggle())}><Icon name="pencil" /></Button
+                    >
+
+                    <Popover on:popoverItemsChanged={handleLossPopoverItemChanged} items={lossItems}>
+                        <PopoverChipTrigger slot="trigger" label="Loss Function" style={StylingUtility.popoverChipTrigger} />
+                        <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
+                    </Popover>
+                    <Popover on:popoverItemsChanged={handleSourcePopoverItemChanged} items={sources}>
+                        <PopoverChipTrigger slot="trigger" label="Data Source" style={StylingUtility.popoverChipTrigger} />
+                        <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
+                    </Popover>
+                </div>
+
+                <div class="adv_settings param_row">
+                    <Button style={StylingUtility.whiteBorderButton} type="primary" on:click={() => settingsFlyout.toggle()}
+                        >Advanced Settings</Button
+                    >
+                </div>
+            {/if}
+        </div>
+        <div class="model-page__bottom-right">
+            {#if $selectedModel}
                 <Button
                     type="primary"
-                    style={can_train ? undefined : DISABLED_BUTTON_STYLE}
-                    on:click={can_train && (() => {
-                        modelStore.trainModel(
-                            $selectedModel.id,
-                            selectedSourceItem.value,
-                            { id: selectedLossItem.value.id, param_values: selectedLossItem.value.parameters },
-                            { id: selectedOptimizerItem.value.id, param_values: $state.snapshot(parameters) },
-                            batch_value,
-                            true,
-                            epochs_value,
-                            selectedDeviceItem?.value,
-                            loader_workers[0],
-                            pin_memory,
-                            prefetch_factor[0],
-                            persistent_workers
-                        );
-                    })}>
+                    style={can_train ? StylingUtility.whiteBorderButton : DISABLED_BUTTON_STYLE}
+                    on:click={can_train &&
+                        (() => {
+                            modelStore.trainModel(
+                                $selectedModel.id,
+                                selectedSourceItem.value,
+                                { id: selectedLossItem.value.id, param_values: [] },
+                                { id: selectedOptimizerItem.value.id, param_values: $state.snapshot(parameters) },
+                                batch_value,
+                                true,
+                                epochs_value,
+                                selectedDeviceItem?.value,
+                                loader_workers[0],
+                                pin_memory,
+                                prefetch_factor[0],
+                                persistent_workers
+                            );
+                        })}
+                >
                     Train
                 </Button>
                 <Button
                     type="primary"
                     style={StylingUtility.redButton}
                     on:click={() => {
-                        if($selectedModel){
+                        if ($selectedModel) {
                             handleDeleteModel();
                         }
-                    }}> 
+                    }}
+                >
                     {#if $validatingDelete}
                         Click To Confirm
                     {:else}
                         <Icon name="trash" />
                     {/if}
-                    </Button
-                >
+                </Button>
             {/if}
         </div>
     </div>
     <Flyout bind:this={flyoutElement} style={StylingUtility.flyout} header="Optimizer Parameters" subheader="">
         <div slot="flyout-body" class="flyout-body" style="gap: 20px; display: flex; flex-direction: column;">
             {#each parameters as parameter}
-                <NodeField parameter={parameter.parameter} value={parameter.value}/>
+                <NodeField parameter={parameter.parameter} value={parameter.value} />
             {/each}
             {#if parameters.length === 0}
                 <div class="node__content-empty">Optimizer has no parameters.</div>
@@ -233,21 +262,28 @@
     <Flyout bind:this={settingsFlyout} style={StylingUtility.flyout} header="Advanced Settings" subheader="">
         <div slot="flyout-body" class="flyout-body" style="gap: 20px; display: flex; flex-direction: column;">
             {#if $selectedModel}
-                <Popover on:popoverItemsChanged={handleDevicePopoverItemChanged} items={$state.snapshot(devices)} selectedItems={[selectedDeviceItem]}>
+                <Popover
+                    on:popoverItemsChanged={handleDevicePopoverItemChanged}
+                    items={$state.snapshot(devices)}
+                    selectedItems={[selectedDeviceItem]}
+                >
                     <PopoverChipTrigger slot="trigger" label="Devices" style={StylingUtility.popoverChipTrigger} />
-                    <PopoverSingleSelectContent slot="content"  style={StylingUtility.popoverSingleSelectContent} />
+                    <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
                 </Popover>
                 <Checkbox style={StylingUtility.checkbox} label="Pin Memory" bind:checked={pin_memory}></Checkbox>
                 <Checkbox style={StylingUtility.checkbox} label="Persistent Workers" bind:checked={persistent_workers}></Checkbox>
-                <InputSeries style={StylingUtility.inputSeries} label="Loader Workers" inputamount=1 bind:value={loader_workers}></InputSeries>
-                <InputSeries style={StylingUtility.inputSeries} label="Prefetch Factor" inputamount=1 bind:value={prefetch_factor}></InputSeries>
+                <InputSeries style={StylingUtility.inputSeries} label="Loader Workers" inputamount="1" bind:value={loader_workers}
+                ></InputSeries>
+                <InputSeries
+                    style={StylingUtility.inputSeries}
+                    label="Prefetch Factor"
+                    inputamount="1"
+                    bind:value={prefetch_factor}
+                ></InputSeries>
             {/if}
-            
         </div>
     </Flyout>
 </div>
-
-
 
 <style lang="scss">
     .model-page {
@@ -281,7 +317,6 @@
 
         &__bottom {
             display: flex;
-            justify-content: space-between;
             border-top: 1px solid #ffffff;
             padding: 32px 64px;
             height: 35%;
@@ -291,15 +326,23 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            width: 65%;
+            max-width: 300px;
+            width: 30%;
+            border-right: 1px solid #ffffff;
+        }
+
+        &__parameters {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-left: 24px;
         }
 
         &__bottom-right {
             display: flex;
             gap: 10px;
-            max-width: 60%;
             height: 38px;
-
         }
 
         &__bottom-left-model-info {
@@ -356,23 +399,16 @@
         }
     }
 
-    .popovers {
+    .param_row {
         display: flex;
         gap: 10px;
         flex-direction: row;
     }
 
-    .inputs {
-        display: flex;
-        gap: 10px;
-        flex-direction: row;
+    .adv_settings {
+        height: 34px;
     }
 
-    .two-rows {
-        display: flex;
-        gap: 10px;
-        flex-direction: column;
-    }
     .no-pipeline-found {
         color: #c2c2c2;
     }

@@ -26,7 +26,7 @@ class NetworkLayerConfig:
     layer_id: LayerID  # The ID of the layer type
     input: list[LayerInstanceID]  # The layer or input that feeds into this network.
 
-    param_values: dict[str, AnyParameterValue]  # the values for each parameter in the layer
+    param_values: list[tuple[str, AnyParameterValue]]  # the values for each parameter in the layer
 
     def get_params(self) -> dict[str, Any]:
         return get_params_dict(self.param_values)

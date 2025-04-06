@@ -24,5 +24,5 @@ export type TransformConfig = {
     instance_id: InstanceId;
     transform_id: TransformId;
     input: InstanceId;
-    param_values: { [id: string]: ParameterValue<any> };
+    param_values: [string, ParameterValue<any>][];
 }

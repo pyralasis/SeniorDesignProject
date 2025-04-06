@@ -79,12 +79,11 @@ const createModelStore = (): ModelStore => {
             pin_memory: boolean,
             prefetch_factor: number,
             persistent_workers: boolean
-            ): Promise<void> => {
-                // debugger;
-                let opt_conf_params = {} as OptimizerParams; 
-                optimizer.param_values.forEach((x: any) => opt_conf_params[x.parameter.id] = x.value);
-                
-                await fetch(`${BACKEND_API_BASE_URL}/model/train/start`, {
+        ): Promise<void> => {
+            // debugger;
+            let opt_conf_params = optimizer.param_values.map((x) => [x.parameter.id, x.value]);
+
+            await fetch(`${BACKEND_API_BASE_URL}/model/train/start`, {
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json',
@@ -95,8 +94,8 @@ const createModelStore = (): ModelStore => {
                     {
                         model_id: model_id,
                         source_id: source_id,
-                        loss_fn: {id: loss.id, param_values: {}},
-                        optimizer: {id: optimizer.id, param_values: opt_conf_params},
+                        loss_fn: { id: loss.id, param_values: [] },
+                        optimizer: { id: optimizer.id, param_values: opt_conf_params },
                         batch_size: batch_size,
                         shuffle_data: shuffle_data,
                         epochs: epochs,
@@ -110,8 +109,8 @@ const createModelStore = (): ModelStore => {
                 ),
             })
         };
-    
-    const getAvailableOptimizers = async (): Promise<void> => { 
+
+    const getAvailableOptimizers = async (): Promise<void> => {
         await fetch(`${BACKEND_API_BASE_URL}/model/optimizer/available`, {
             method: 'GET',
             headers: {
@@ -128,7 +127,7 @@ const createModelStore = (): ModelStore => {
             });
     };
 
-    const getAvailableLosses = async (): Promise<void> => { 
+    const getAvailableLosses = async (): Promise<void> => {
         await fetch(`${BACKEND_API_BASE_URL}/model/loss/available`, {
             method: 'GET',
             headers: {

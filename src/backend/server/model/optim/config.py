@@ -7,4 +7,4 @@ from server.params import AnyParameterValue
 @dataclass
 class OptimizerConfig:
     id: OptimID
-    param_values: dict[str, AnyParameterValue]
+    param_values: list[tuple[str, AnyParameterValue]]

@@ -1,23 +1,23 @@
 <script lang="ts">
-    import { SvelteFlowProvider, type Connection, type Edge, type Node } from '@xyflow/svelte';
-    import DnDProvider from '$lib/components/DnDProvider.svelte';
-    import NodeEditor from '$lib/components/NodeEditor/NodeEditor.svelte';
-    import { writable, type Writable, get } from 'svelte/store';
-    import { architectureStore } from '$lib/stores/ArchitectureStore';
-    import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { onDestroy, onMount } from 'svelte';
-    import { page } from '$app/state';
-    import { Button, TextInput } from 'kiwi-nl';
-    import { StylingUtility } from '$lib/utilities/styling.utility';
-    import Icon from '$lib/components/Icon/Icon.svelte';
-    import { IconNameEnum } from '$lib/components/Icon/types/icon-name.enum';
-    import { BackendApi } from '$lib/utilities/api.utilities';
-    import type { DnDContext } from '$lib/utilities/DnDUtils';
-    import type { LayerBlueprint, LayerInput, TensorSize } from '$lib/types/layer';
-    import { NodeTypeEnum } from '$lib/types/node-type.enum';
-    import { SaveStatusEnum } from '$lib/stores/types/architecture-store.interface';
-    import type { Parameter, ParameterValue } from '$lib/types/parameter';
-    import { HandleStatusEnum, type HandleStatus } from '$lib/components/Node/handle-status.enum';
+    import { SvelteFlowProvider, type Connection, type Edge, type Node } from "@xyflow/svelte";
+    import DnDProvider from "$lib/components/DnDProvider.svelte";
+    import NodeEditor from "$lib/components/NodeEditor/NodeEditor.svelte";
+    import { writable, type Writable, get } from "svelte/store";
+    import { architectureStore } from "$lib/stores/ArchitectureStore";
+    import Spinner from "$lib/components/Spinner/Spinner.svelte";
+    import { onDestroy, onMount } from "svelte";
+    import { page } from "$app/state";
+    import { Button, TextInput } from "kiwi-nl";
+    import { StylingUtility } from "$lib/utilities/styling.utility";
+    import Icon from "$lib/components/Icon/Icon.svelte";
+    import { IconNameEnum } from "$lib/components/Icon/types/icon-name.enum";
+    import { BackendApi } from "$lib/utilities/api.utilities";
+    import type { DnDContext } from "$lib/utilities/DnDUtils";
+    import type { LayerBlueprint, LayerInput, TensorSize } from "$lib/types/layer";
+    import { NodeTypeEnum } from "$lib/types/node-type.enum";
+    import { SaveStatusEnum } from "$lib/stores/types/architecture-store.interface";
+    import type { Parameter, ParameterValue } from "$lib/types/parameter";
+    import { HandleStatusEnum, type HandleStatus } from "$lib/components/Node/handle-status.enum";
 
     let nodes: Writable<Node[]>;
     let edges: Writable<Edge[]>;
@@ -29,19 +29,19 @@
         {
             type: NodeTypeEnum.Input,
             nodeBlueprint: {
-                id: 'input',
-                name: 'Input Node',
+                id: "input",
+                name: "Input Node",
                 parameters: [
                     {
-                        parameter: { id: 'tensor_size', name: 'Tensor Size', type: 'size2d' },
-                        value: { type: 'size2d', val: [0, 0] },
+                        parameter: { id: "tensor_size", name: "Tensor Size", type: "size2d" },
+                        value: { type: "size2d", val: [0, 0] },
                     },
                 ],
             },
         },
     ] as DnDContext[]);
     const outputNodeBluePrints: Writable<DnDContext[]> = writable([
-        { type: NodeTypeEnum.Output, nodeBlueprint: { id: 'output', name: 'Output Node', parameters: [] } },
+        { type: NodeTypeEnum.Output, nodeBlueprint: { id: "output", name: "Output Node", parameters: [] } },
     ] as DnDContext[]);
 
     architectureStore.subscribe((store) => {
@@ -53,7 +53,7 @@
     });
 
     function handleKeydown(event: KeyboardEvent) {
-        if ((event.ctrlKey || event.metaKey) && (event.key === 's' || event.key === 'S')) {
+        if ((event.ctrlKey || event.metaKey) && (event.key === "s" || event.key === "S")) {
             event.preventDefault();
             architectureStore.updateArchitectureSaveStatus();
         }
@@ -65,10 +65,10 @@
         architectureStore.updateSaveStatus(false, SaveStatusEnum.NotSaved);
     }
     onMount(() => {
-        window.addEventListener('keydown', handleKeydown);
+        window.addEventListener("keydown", handleKeydown);
 
         return () => {
-            window.removeEventListener('keydown', handleKeydown);
+            window.removeEventListener("keydown", handleKeydown);
         };
     });
 
@@ -79,8 +79,8 @@
     onMount(async () => {
         availableLayers.set(
             (await BackendApi.getAvailableLayers()).map(
-                (layer: LayerBlueprint<any>) => ({ type: NodeTypeEnum.Layer, nodeBlueprint: layer }) as DnDContext,
-            ),
+                (layer: LayerBlueprint<any>) => ({ type: NodeTypeEnum.Layer, nodeBlueprint: layer }) as DnDContext
+            )
         );
         await architectureStore.loadArchitectureById(id);
     });
@@ -92,15 +92,10 @@
         $architectureStore.activeArchitecture.meta.name = event.detail.value;
     }
 
-    function deconstructParameters(parameters: { parameter: Parameter<any>; value: ParameterValue<any> }[]): Record<string, any> {
-        const result: Record<string, any> = {};
-        if (!parameters) {
-            return result;
-        }
-        parameters.forEach((parameter) => {
-            result[parameter.parameter.id] = parameter.value;
-        });
-        return result;
+    function deconstructParameters(
+        parameters: { parameter: Parameter<any>; value: ParameterValue<any> }[]
+    ): [string, ParameterValue<any>][] {
+        return parameters.map((parameter) => [parameter.parameter.id, parameter.value]);
     }
 
     function constructIdChain(currentNodeId: string, idChain: string[]): string[] {
@@ -139,7 +134,7 @@
         for (let i = 1; i < nodeChain.length; i++) {
             previousNode = currentNode;
             currentNode = nodeChain[i];
-            if (currentNode.id === '69') {
+            if (currentNode.id === "69") {
                 return;
             }
 
@@ -148,14 +143,16 @@
                 currentNode.data.layer_id as string,
                 previousNodeOutputSize,
                 deconstructParameters(
-                    get(currentNode.data?.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>),
-                ),
+                    get(currentNode.data?.parameters as Writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>)
+                )
             );
 
             (currentNode?.data.outputSize as Writable<TensorSize>).set(currentNodeOutputSize);
 
-            let currentNodeMaxDimension: number = get(currentNode.data?.inputs as Writable<LayerInput[]>)[0]?.max_dimensions as number;
-            let currentNodeMinDimension: number = get(currentNode.data?.inputs as Writable<LayerInput[]>)[0]?.min_dimensions as number;
+            let currentNodeMaxDimension: number = get(currentNode.data?.inputs as Writable<LayerInput[]>)[0]
+                ?.max_dimensions as number;
+            let currentNodeMinDimension: number = get(currentNode.data?.inputs as Writable<LayerInput[]>)[0]
+                ?.min_dimensions as number;
             if (
                 (previousNodeOutputSize?.length >= currentNodeMinDimension || currentNodeMinDimension === null) &&
                 (previousNodeOutputSize?.length <= currentNodeMaxDimension || currentNodeMaxDimension === null)
@@ -184,7 +181,6 @@
         let nodeChain: Node[] = constructNodeChain();
         validateNodes(nodeChain);
     }
-
 </script>
 
 <div class="edit-architectures-page">
@@ -194,7 +190,7 @@
             architectureStore.saveActiveArchitecture();
         }}
     >
-    Back to Architectures
+        Back to Architectures
     </a>
     <div class="edit-architectures-page__header">
         <div class="edit-architectures-page__header-left">
@@ -228,15 +224,15 @@
             {:else if !$architectureStore.activeArchitecture?.loading && nodes && edges}
                 {#key $nodes.length !== 0}
                     <NodeEditor
-                    onSave={() => architectureStore.updateArchitectureSaveStatus()}
-                    {onChange}
-                    onCreateNode={architectureStore.addNodeToActiveArchitecture}
-                    onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
-                    {onConnect}
-                    {onNodeOrEdgeDelete}
-                    {nodes}
-                    {edges}
-                    nodeblueprints={[...$inputNodeBluePrints, ...$outputNodeBluePrints, ...$availableLayers]}
+                        onSave={() => architectureStore.updateArchitectureSaveStatus()}
+                        {onChange}
+                        onCreateNode={architectureStore.addNodeToActiveArchitecture}
+                        onDeleteNode={architectureStore.deleteNodeFromActiveArchitecture}
+                        {onConnect}
+                        {onNodeOrEdgeDelete}
+                        {nodes}
+                        {edges}
+                        nodeblueprints={[...$inputNodeBluePrints, ...$outputNodeBluePrints, ...$availableLayers]}
                     />
                 {/key}
             {:else}
@@ -253,7 +249,7 @@
         width: 100%;
         height: 100%;
         box-sizing: border-box;
-        overflow: hidden; 
+        overflow: hidden;
         &__header {
             padding: 16px;
             display: flex;
@@ -282,7 +278,7 @@
             white-space: nowrap;
             color: #ffffff;
             transition: all 0.3s ease;
-            margin-top: 10px       
+            margin-top: 10px;
         }
 
         a:hover {
@@ -290,7 +286,6 @@
             text-decoration: underline;
             transition: all 0.3s ease;
         }
-    
     }
     .save-status {
         display: flex;
@@ -311,5 +306,4 @@
         height: 100%;
         box-sizing: border-box;
     }
-    
 </style>

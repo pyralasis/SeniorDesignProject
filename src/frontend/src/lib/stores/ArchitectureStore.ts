@@ -8,6 +8,7 @@ import type {
     ArchitectureDataDescription,
     ArchitectureMetaDescription,
     ArchitectureInfoDescription, InputLayerDescription,
+    NetworkLayerDescription,
 } from "$lib/types/architecture";
 import type { NetworkLayoutDescription } from "$lib/types/layout";
 import type { Node, Edge } from "@xyflow/svelte";
@@ -37,7 +38,7 @@ function getLayerInputs(id: string, edges: Edge[]): LayerInstanceId | LayerInsta
     return edges.filter((edge) => edge.target === id).map((edge) => parseInt(edge.source));
 }
 
-async function parseLayersIntoNodesAndEdges(layers: any[], layout: any, inputs: InputLayerDescription[], output: number): Promise<{ nodes: Node[], edges: Edge[] }> {
+async function parseLayersIntoNodesAndEdges(layers: NetworkLayerDescription[], layout: any, inputs: InputLayerDescription[], output: number): Promise<{ nodes: Node[], edges: Edge[] }> {
     let nodes: Node[] = [];
     let edges: Edge[] = layout.edges.map((edge: any) => edge as Edge);
 
@@ -57,7 +58,7 @@ async function parseLayersIntoNodesAndEdges(layers: any[], layout: any, inputs: 
     }));
 
 
-    await Promise.all(layers.map(async (layer: any) => {
+    await Promise.all(layers.map(async (layer) => {
         const layerParameters = await getLayerParametersByLayerId(layer.layer_id);
         nodes.push({
             id: layer.instance_id.toString(),
@@ -74,8 +75,7 @@ async function parseLayersIntoNodesAndEdges(layers: any[], layout: any, inputs: 
                 outputSize: writable<TensorSize>(layout.nodes[layer.instance_id]?.metadata.outputSize ?? ['0']),
                 layer_id: layer.layer_id,
                 parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
-
-                    Object.entries(layer.param_values).map(([key, value]) => {
+                    layer.param_values.map(([key, value]) => {
                         let parameterTemplate = findParameterById(layerParameters, key);
                         return ({
                             parameter: parameterTemplate,
@@ -245,9 +245,7 @@ const createArchitectureStore = (): ArchitectureStore => {
                             instance_id: parseInt(node.id, 10),
                             layer_id: node.data.layer_id,
                             input: getLayerInputs(node.id, edges),
-                            param_values: Object.fromEntries(
-                                parameters.map(({ parameter, value }) => [parameter.id, value])
-                            )
+                            param_values: parameters.map(({ parameter, value }) => [parameter.id, value])
                         };
                     }),
                     output: outputNode ? parseInt(edges.filter((edge) => edge.target === outputNode.id)[0]?.source ?? 0) as LayerInstanceId : -1,

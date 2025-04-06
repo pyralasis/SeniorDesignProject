@@ -13,7 +13,7 @@ export type NetworkLayerDescription = {
     instance_id: LayerInstanceId;
     layer_id: LayerId;
     input: LayerInstanceId | LayerInstanceId[];
-    param_values: { [id: string]: ParameterValue<any> }
+    param_values: [string, ParameterValue<any>][];
 }
 
 export type ArchitectureId = string;

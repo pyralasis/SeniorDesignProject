@@ -83,6 +83,7 @@ class TrainLogObject(Loadable):
 
 
 async def training_thread(model_service: "ModelService"):
+    start_time = None
     while True:
         try:
             process = None
@@ -113,8 +114,8 @@ async def training_thread(model_service: "ModelService"):
                     shuffle=cfg.shuffle_data,
                     num_workers=cfg.loader_workers,
                     pin_memory=cfg.pin_memory,
-                    pin_memory_device=cfg.device,
-                    prefetch_factor=cfg.prefetch_factor,
+                    pin_memory_device=cfg.device if cfg.pin_memory else "",
+                    prefetch_factor=cfg.prefetch_factor if cfg.loader_workers > 0 else None,
                     persistent_workers=cfg.persistent_workers,
                 )
 

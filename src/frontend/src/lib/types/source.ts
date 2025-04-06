@@ -14,5 +14,5 @@ export type SourceConfig = {
     type: Source;
     instance_id: InstanceId;
     src_id: SourceId;
-    param_values: { [id: string]: ParameterValue<any> };
+    param_values: [string, ParameterValue<any>][];
 }

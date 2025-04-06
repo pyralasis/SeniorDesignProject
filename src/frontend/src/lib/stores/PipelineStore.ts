@@ -53,14 +53,14 @@ function parseElements(nodes: Node[], edges: Edge[]): PipelineElement[] {
                 type: NodeTypeEnum.Source,
                 src_id: node.data.src_id,
                 instance_id: parseInt(node.id),
-                param_values: Object.fromEntries(parameters.map(({ parameter, value }) => [parameter.id, value])),
+                param_values: parameters.map(({ parameter, value }) => [parameter.id, value]),
             } as SourceConfig;
         } else if (node.type === "transform") {
             return {
                 type: NodeTypeEnum.Transform,
                 transform_id: node.data.transform_id,
                 instance_id: parseInt(node.id),
-                param_values: Object.fromEntries(parameters.map(({ parameter, value }) => [parameter.id, value])),
+                param_values: parameters.map(({ parameter, value }) => [parameter.id, value]),
                 input: edges.find((edge) => edge.target === node.id)?.source ?? -1,
             } as TransformConfig;
         }
@@ -94,7 +94,7 @@ async function parseLayersIntoNodesAndEdges(elements: PipelineElement[], layout:
                     minInputSize: writable<number>(layout.nodes[element.instance_id]?.metadata?.minInputSize ?? 0),
                     ...(element.type === "source" ? { src_id: element.src_id } : { transform_id: element.transform_id }),
                     parameters: writable<{ parameter: Parameter<any>; value: ParameterValue<any> }[]>(
-                        Object.entries(element.param_values).map(([key, value]) => {
+                        element.param_values.map(([key, value]) => {
                             let parameterTemplate = findParameterById(elementParameters, key);
                             return {
                                 parameter: parameterTemplate,

@@ -19,7 +19,7 @@ export class StylingUtility {
     } as const;
 
     static readonly whiteBorderButton = {
-        backgroundColor: '#111111',
+        backgroundColor: '#000',
         border: '1px solid #ffffff',
         hover: {
             backgroundColor: '#252525',

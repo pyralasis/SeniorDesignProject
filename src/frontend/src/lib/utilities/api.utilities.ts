@@ -141,7 +141,7 @@ export class BackendApi {
     static getLayerOutputSize(
         layer_id: LayerId,
         inputSize: TensorSize,
-        parameters: Record<string, ParameterValue<any>>
+        parameters: [string, ParameterValue<any>][]
     ): Promise<TensorSize> {
         return fetch(BackendApiRequestsEnum.postLayerOutputSize, {
             method: "POST",

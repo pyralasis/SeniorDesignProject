@@ -1,14 +1,14 @@
 <script lang="ts">
-    import { type Writable } from 'svelte/store';
-    import { Handle, Position, type NodeProps } from '@xyflow/svelte';
-    import NodeField from './NodeParameter.svelte';
-    import type { Parameter, ParameterValue } from '$lib/types/parameter';
+    import { type Writable } from "svelte/store";
+    import { Handle, Position, type NodeProps } from "@xyflow/svelte";
+    import NodeField from "./NodeParameter.svelte";
+    import type { Parameter, ParameterValue } from "$lib/types/parameter";
 
     type $$Props = NodeProps;
 
-    export let data: $$Props['data'] = {};
-    export let id: $$Props['id'] = '';
-    export let selected: $$Props['selected'] = false;
+    export let data: $$Props["data"] = {};
+    export let id: $$Props["id"] = "";
+    export let selected: $$Props["selected"] = false;
 
     const color: Writable<string> = data?.color as Writable<string>;
     const name: Writable<string> = data?.name as Writable<string>;
@@ -23,9 +23,9 @@
 
     function getBackgroundColor(connected: boolean) {
         if (!connected) {
-            return '#333';
+            return "#333";
         } else {
-            return '#FFF';
+            return "#FFF";
         }
     }
 </script>
@@ -58,7 +58,7 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="node__header">
         <div class="node__title">Source</div>
-        <div class="node__sub-title">{$name ? $name : 'Untitled Layer'}</div>
+        <div class="node__sub-title">{$name ? $name : "Untitled Layer"}</div>
     </div>
     <div class="node__content">
         {#each $parameters as parameter}
@@ -105,7 +105,8 @@
             cursor: default;
             border-top: 1px solid #ffffff;
             background-color: #070707;
-            height: 45px;
+            gap: 16px;
+            padding: 16px;
         }
 
         &__title {

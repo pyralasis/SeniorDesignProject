@@ -31,20 +31,6 @@ from server.util.file.coordinator import FileCoordinator, IdGeneration
 from server.util.file.file import FileId
 from server.util.registry import Registry
 
-"""
-Sample model architecture:
-{
-    "name": "Example Architecture",
-    "version": 1,
-    "inputs": [{"id":1,"size":[10]}],
-    "layers": [
-        {"id":2,"layer_id":"linear","input":1,"param_values":{"out_features":{"val":5,"type":"int"},"bias":{"val":true,"type":"bool"}}},
-        {"id":3,"layer_id":"linear","input":2,"param_values":{"out_features":{"val":1,"type":"int"},"bias":{"val":true,"type":"bool"}}}
-    ],
-    "layout_file": null
-}
-"""
-
 
 @dataclass
 class ModelObject(Loadable):

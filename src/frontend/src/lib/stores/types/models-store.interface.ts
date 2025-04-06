@@ -52,7 +52,7 @@ export interface ModelStore extends Writable<ModelStoreProps> {
         pin_memory: boolean,
         prefetch_factor: number,
         persistent_workers: boolean
-        ) => void;
+    ) => void;
     getAvailableOptimizers: () => void;
     getAvailableLosses: () => void;
 }
@@ -75,7 +75,7 @@ export type LossConfig = {
 
 export type OptimizerConfig = {
     id: number,
-    param_values: {parameter: Parameter<any>[], value: ParameterValue<any>}[]
+    param_values: { parameter: Parameter<any>, value: ParameterValue<any> }[]
 }
-    
-export type OptimizerParams = {[id: string]: ParameterValue<any>}
+
+export type OptimizerParams = [string, ParameterValue<any>][]

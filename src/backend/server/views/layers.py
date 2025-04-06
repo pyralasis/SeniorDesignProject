@@ -43,7 +43,7 @@ def create_layer_blueprint(layer_service: LayerService) -> Blueprint:
 class LayerOutputSizeRequestBody:
     layer_id: LayerID
     input_size: TensorSize
-    parameters: dict[str, AnyParameterValue]
+    parameters: list[tuple[str, AnyParameterValue]]
 
 
 @dataclass
