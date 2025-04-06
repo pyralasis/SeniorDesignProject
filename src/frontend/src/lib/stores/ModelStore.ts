@@ -69,12 +69,13 @@ const createModelStore = (): ModelStore => {
     const trainModel =
         async (model_id: number,
             source_id: number,
-            learning_rate: number,
             loss: LossConfig,
             optimizer: OptimizerConfig,
             batch_size: number,
             shuffle_data: boolean,
-            epochs: number): Promise<void> => {
+            epochs: number,
+            device: string
+            ): Promise<void> => {
                 // debugger;
                 let opt_conf_params = {} as OptimizerParams; 
                 optimizer.param_values.forEach((x: any) => opt_conf_params[x.parameter.id] = x.value);
@@ -90,12 +91,12 @@ const createModelStore = (): ModelStore => {
                     {
                         model_id: model_id,
                         source_id: source_id,
-                        learning_rate: learning_rate,
                         loss_fn: {id: loss.id, param_values: {}},
                         optimizer: {id: optimizer.id, param_values: opt_conf_params},
                         batch_size: batch_size,
                         shuffle_data: shuffle_data,
                         epochs: epochs,
+                        device: device
                     }
                 }
                 ),

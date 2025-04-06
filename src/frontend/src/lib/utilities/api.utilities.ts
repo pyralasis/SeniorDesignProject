@@ -15,6 +15,7 @@ export const BackendApiRequestsEnum = {
     postSaveArchitecture: `${BACKEND_API_BASE_URL}/architecture/save`,
     getAvailableTrainingModels: `${BACKEND_API_BASE_URL}/train/available`,
     getTrainedModelByID: `${BACKEND_API_BASE_URL}/train/load`,
+    getAvailableDevices: `${BACKEND_API_BASE_URL}/model/train/devices`,
 } as const;
 
 export class BackendApi {
@@ -185,6 +186,19 @@ export class BackendApi {
             .then((response) => response.json())
             .then((data) => {
                 return data.object;
+            });
+    }
+
+    static async getAvailableDevices() {
+        return fetch(BackendApiRequestsEnum.getAvailableDevices, {
+            method: "Get",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                return data;
             });
     }
 }

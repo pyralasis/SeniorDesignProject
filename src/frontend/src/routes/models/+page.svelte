@@ -13,6 +13,7 @@
     import { pipelineStore } from '$lib/stores/PipelineStore';
     import type { Parameter, ParameterValue } from '$lib/types/parameter';
     import NodeField from '$lib/components/Node/NodeParameter.svelte';
+    import { BackendApi } from '$lib/utilities/api.utilities';
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
         
@@ -23,6 +24,8 @@
     let optimizerItems: PopoverItem[] = $derived($modelStore.availableOptimizers?.map((x) => ({ label: x.name, value: x })));
     let lossItems: PopoverItem[] = $derived($modelStore.availableLosses?.map((x) => ({ label: x.name, value: x })));
     let sources: PopoverItem[] = $derived($pipelineStore.availablePipelines?.map((x) => ({ label: x.meta.name, value: x.id })));
+
+    let devices: PopoverItem[] = $state([]);
 
     let validatingDelete: Writable<boolean> = writable(false);
 
@@ -52,7 +55,6 @@
     let selectedLossItem: PopoverItem | undefined = $state(undefined);
     function handleLossPopoverItemChanged(event: CustomEvent): void {
         selectedLossItem = event.detail.selectedItems[0];
-        
     }
 
     let selectedSourceItem: PopoverItem | undefined =  $state(undefined);
@@ -60,9 +62,13 @@
         selectedSourceItem = event.detail.selectedItems[0];
     }
 
+    let selectedDeviceItem: PopoverItem | undefined =  $state(undefined);
+    function handleDevicePopoverItemChanged(event: CustomEvent): void {
+        selectedDeviceItem = event.detail.selectedItems[0];
+    }
+
     let epochs_value = $state(10);
     let batch_value = $state(16);
-    let learning_value = $state(0.001);
 
     let flyoutElement;
 
@@ -73,11 +79,14 @@
         cursor: "not-allowed"
     }
 
-    onMount(() => {
+    onMount(async () => {
         modelStore.getAvailableModels();
         pipelineStore.getAvailablePipelines();
         modelStore.getAvailableOptimizers();
         modelStore.getAvailableLosses();
+        let deviceResponse = await BackendApi.getAvailableDevices();
+        devices = deviceResponse.map((x) => ({ label: x, value: x }));
+        selectedDeviceItem = devices[0];
         window.addEventListener('click', (event) => {
             if (!event.target) {
                 return;
@@ -139,23 +148,26 @@
                     <div class="inputs">
                         <TextInput label="Training Epochs" bind:value={epochs_value} style={StylingUtility.textInput} />
                         <TextInput label="Batch Size" bind:value={batch_value} style={StylingUtility.textInput} />
-                        <TextInput label="Learning Rate" bind:value={learning_value} style={StylingUtility.textInput} />
                     </div>
                     
                     <div class="popovers">
                         <Popover on:popoverItemsChanged={handleOptimizerPopoverItemChanged} items={optimizerItems}>
-                            <PopoverChipTrigger slot="trigger" label="Optimizers" style={StylingUtility.popoverChipTrigger} />
+                            <PopoverChipTrigger slot="trigger" label="Optimizer" style={StylingUtility.popoverChipTrigger} />
                             <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
                         </Popover>
                         <Button style={selectedOptimizerItem || DISABLED_BUTTON_STYLE} on:click={selectedOptimizerItem && (() => flyoutElement.toggle())}><Icon name="pencil" /></Button>
 
                         <Popover on:popoverItemsChanged={handleLossPopoverItemChanged} items={lossItems}>
-                            <PopoverChipTrigger slot="trigger" label="Loss Functions" style={StylingUtility.popoverChipTrigger} />
+                            <PopoverChipTrigger slot="trigger" label="Loss Function" style={StylingUtility.popoverChipTrigger} />
                             <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
                         </Popover>
                         <Popover on:popoverItemsChanged={handleSourcePopoverItemChanged} items={sources}>
-                            <PopoverChipTrigger slot="trigger" label="Data Sources" style={StylingUtility.popoverChipTrigger} />
+                            <PopoverChipTrigger slot="trigger" label="Data Source" style={StylingUtility.popoverChipTrigger} />
                             <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
+                        </Popover>
+                        <Popover on:popoverItemsChanged={handleDevicePopoverItemChanged} items={$state.snapshot(devices)} selectedItems={[selectedDeviceItem]}>
+                            <PopoverChipTrigger slot="trigger" label="Devices" style={StylingUtility.popoverChipTrigger} />
+                            <PopoverSingleSelectContent slot="content"  style={StylingUtility.popoverSingleSelectContent} />
                         </Popover>
                     </div>
                 </div>
@@ -163,16 +175,15 @@
                     type="primary"
                     style={can_train ? undefined : DISABLED_BUTTON_STYLE}
                     on:click={can_train && (() => {
-                        // console.log(parameters)
                         modelStore.trainModel(
                             $selectedModel.id,
                             selectedSourceItem.value,
-                            learning_value,
                             { id: selectedLossItem.value.id, param_values: selectedLossItem.value.parameters },
                             { id: selectedOptimizerItem.value.id, param_values: $state.snapshot(parameters) },
                             batch_value,
                             true,
                             epochs_value,
+                            selectedDeviceItem?.value
                         );
                     })}>
                     Train
