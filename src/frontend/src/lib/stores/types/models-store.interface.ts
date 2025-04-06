@@ -47,7 +47,11 @@ export interface ModelStore extends Writable<ModelStoreProps> {
         batch_size: number,
         shuffle_data: boolean,
         epochs: number,
-        device: string
+        device: string,
+        loader_workers: number,
+        pin_memory: boolean,
+        prefetch_factor: number,
+        persistent_workers: boolean
         ) => void;
     getAvailableOptimizers: () => void;
     getAvailableLosses: () => void;

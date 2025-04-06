@@ -74,7 +74,11 @@ const createModelStore = (): ModelStore => {
             batch_size: number,
             shuffle_data: boolean,
             epochs: number,
-            device: string
+            device: string,
+            loader_workers: number,
+            pin_memory: boolean,
+            prefetch_factor: number,
+            persistent_workers: boolean
             ): Promise<void> => {
                 // debugger;
                 let opt_conf_params = {} as OptimizerParams; 
@@ -96,7 +100,11 @@ const createModelStore = (): ModelStore => {
                         batch_size: batch_size,
                         shuffle_data: shuffle_data,
                         epochs: epochs,
-                        device: device
+                        device: device,
+                        loader_workers: loader_workers,
+                        pin_memory: pin_memory,
+                        prefetch_factor: prefetch_factor,
+                        persistent_workers: persistent_workers
                     }
                 }
                 ),

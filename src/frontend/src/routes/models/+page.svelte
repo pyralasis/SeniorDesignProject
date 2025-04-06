@@ -3,7 +3,7 @@
     import { StylingUtility } from '$lib/utilities/styling.utility';
 
     import Spinner from '$lib/components/Spinner/Spinner.svelte';
-    import { type ButtonCustomStyling, Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput, type PopoverItem, Flyout, ButtonTypeEnum, FlyoutSideEnum } from 'kiwi-nl';
+    import { type ButtonCustomStyling, Button, Popover, PopoverChipTrigger, PopoverSingleSelectContent, TextInput, type PopoverItem, Flyout, ButtonTypeEnum, FlyoutSideEnum, Checkbox, InputSeries } from 'kiwi-nl';
     import { modelStore } from '$lib/stores/ModelStore';
     import { onMount, setContext } from 'svelte';
     import { writable, type Writable } from 'svelte/store';
@@ -71,6 +71,11 @@
     let batch_value = $state(16);
 
     let flyoutElement;
+    let settingsFlyout;
+    let loader_workers: int[] = $state([0]);
+    let prefetch_factor: int[] = $state([2]);
+    let pin_memory: bool = $state(false);
+    let persistent_workers: bool = $state(false);
 
     let can_train = $derived(selectedOptimizerItem !== undefined && selectedLossItem !== undefined && selectedSourceItem !== undefined);
     const DISABLED_BUTTON_STYLE: ButtonCustomStyling = {
@@ -78,6 +83,11 @@
         hover: "#444",
         cursor: "not-allowed"
     }
+
+    const ADVANCED_SETTINGS_BUTTON_STYLE: ButtonCustomStyling = {
+        padding: "20px",
+    }
+
 
     onMount(async () => {
         modelStore.getAvailableModels();
@@ -165,12 +175,11 @@
                             <PopoverChipTrigger slot="trigger" label="Data Source" style={StylingUtility.popoverChipTrigger} />
                             <PopoverSingleSelectContent slot="content" style={StylingUtility.popoverSingleSelectContent} />
                         </Popover>
-                        <Popover on:popoverItemsChanged={handleDevicePopoverItemChanged} items={$state.snapshot(devices)} selectedItems={[selectedDeviceItem]}>
-                            <PopoverChipTrigger slot="trigger" label="Devices" style={StylingUtility.popoverChipTrigger} />
-                            <PopoverSingleSelectContent slot="content"  style={StylingUtility.popoverSingleSelectContent} />
-                        </Popover>
+                        
                     </div>
+                    <Button style={ADVANCED_SETTINGS_BUTTON_STYLE} type="primary" on:click={() => settingsFlyout.toggle()}>Advanced Settings</Button>
                 </div>
+
                 <Button
                     type="primary"
                     style={can_train ? undefined : DISABLED_BUTTON_STYLE}
@@ -183,7 +192,11 @@
                             batch_value,
                             true,
                             epochs_value,
-                            selectedDeviceItem?.value
+                            selectedDeviceItem?.value,
+                            loader_workers[0],
+                            pin_memory,
+                            prefetch_factor[0],
+                            persistent_workers
                         );
                     })}>
                     Train
@@ -214,6 +227,22 @@
             {#if parameters.length === 0}
                 <div class="node__content-empty">Optimizer has no parameters.</div>
             {/if}
+        </div>
+    </Flyout>
+
+    <Flyout bind:this={settingsFlyout} style={StylingUtility.flyout} header="Advanced Settings" subheader="">
+        <div slot="flyout-body" class="flyout-body" style="gap: 20px; display: flex; flex-direction: column;">
+            {#if $selectedModel}
+                <Popover on:popoverItemsChanged={handleDevicePopoverItemChanged} items={$state.snapshot(devices)} selectedItems={[selectedDeviceItem]}>
+                    <PopoverChipTrigger slot="trigger" label="Devices" style={StylingUtility.popoverChipTrigger} />
+                    <PopoverSingleSelectContent slot="content"  style={StylingUtility.popoverSingleSelectContent} />
+                </Popover>
+                <Checkbox style={StylingUtility.checkbox} label="Pin Memory" bind:checked={pin_memory}></Checkbox>
+                <Checkbox style={StylingUtility.checkbox} label="Persistent Workers" bind:checked={persistent_workers}></Checkbox>
+                <InputSeries style={StylingUtility.inputSeries} label="Loader Workers" inputamount=1 bind:value={loader_workers}></InputSeries>
+                <InputSeries style={StylingUtility.inputSeries} label="Prefetch Factor" inputamount=1 bind:value={prefetch_factor}></InputSeries>
+            {/if}
+            
         </div>
     </Flyout>
 </div>
