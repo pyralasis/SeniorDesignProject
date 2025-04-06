@@ -1,7 +1,8 @@
 import asyncio
+import time
 from dataclasses import dataclass
 from queue import Empty
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias
+from typing import TYPE_CHECKING, Literal, TypeAlias
 
 import torch
 import torch.multiprocessing as mp
@@ -26,19 +27,28 @@ class TrainingConfig:
     source_id: FileId
     loss_fn: LossConfig
     optimizer: OptimizerConfig
-    device: str = "cpu"
+
     shuffle_data: bool = True
     batch_size: int = 32
     epochs: int = 10
 
+    device: str = "cpu"
+    loader_workers: int = 0
+    pin_memory: bool = False
+    prefetch_factor: int = 2
+    persistent_workers: bool = False
+
 
 @dataclass
 class TrainingQueuedInfo:
+    queue_time: int
     status: Literal["queued"] = "queued"
 
 
 @dataclass
 class TrainingInProgressInfo:
+    start_time: int
+    avg_time_per_epoch: int
     epoch: int
     avg_loss: float
     status: Literal["in_progress"] = "in_progress"
@@ -46,12 +56,17 @@ class TrainingInProgressInfo:
 
 @dataclass
 class TrainingCompleteInfo:
+    start_time: int
+    end_time: int
+    avg_time_per_epoch: int
     avg_loss: float
     status: Literal["complete"] = "complete"
 
 
 @dataclass
 class TrainingFailedInfo:
+    start_time: int
+    end_time: int
     reason: str
     description: str
     status: Literal["failed"] = "failed"
@@ -92,7 +107,16 @@ async def training_thread(model_service: "ModelService"):
                 ds = DataSourceDataset(value_source, label_source)
 
                 # TODO: more loader settings
-                loader = DataLoader(ds, batch_size=cfg.batch_size, shuffle=cfg.shuffle_data)
+                loader = DataLoader(
+                    ds,
+                    batch_size=cfg.batch_size,
+                    shuffle=cfg.shuffle_data,
+                    num_workers=cfg.loader_workers,
+                    pin_memory=cfg.pin_memory,
+                    pin_memory_device=cfg.device,
+                    prefetch_factor=cfg.prefetch_factor,
+                    persistent_workers=cfg.persistent_workers,
+                )
 
                 optimizer = model_service.optimizers.get(cfg.optimizer.id).constructor(
                     model, **get_params_dict(cfg.optimizer.param_values)
@@ -106,32 +130,42 @@ async def training_thread(model_service: "ModelService"):
                     target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, cfg.device, msg_queue)
                 )
                 process.start()
+                start_time = get_time()
 
-                model_service.train_logs.data_files.save_to(log_file, TrainingInProgressInfo(0, 10000))
+                model_service.train_logs.data_files.save_to(log_file, TrainingInProgressInfo(start_time, 0, 0, 10000))
                 model_service.train_logs.increment_version(log_file)
 
                 received_last_msg = False
                 while not received_last_msg:
                     try:
-                        msg = msg_queue.get(False)
+                        msg: TrainingMsg = msg_queue.get(False)
                         match msg.type:
                             case "epoch_complete":
+                                cur_time = get_time()
+                                avg_time_per_epoch = (cur_time - start_time) // msg.epoch
+
                                 model_service.train_logs.data_files.save_to(
-                                    log_file, TrainingInProgressInfo(msg.epoch, msg.avg_loss)
+                                    log_file,
+                                    TrainingInProgressInfo(start_time, avg_time_per_epoch, msg.epoch, msg.avg_loss),
                                 )
                                 model_service.train_logs.increment_version(log_file)
 
                             case "failure":
+                                cur_time = get_time()
                                 model_service.train_logs.data_files.save_to(
-                                    log_file, TrainingFailedInfo("error", msg.description)
+                                    log_file, TrainingFailedInfo(start_time, cur_time, "error", msg.description)
                                 )
                                 model_service.train_logs.increment_version(log_file)
                                 received_last_msg = True
                                 process.kill()
 
                             case "finished":
+                                cur_time = get_time()
+                                avg_time_per_epoch = (cur_time - start_time) // cfg.epochs
+
                                 model_service.train_logs.data_files.save_to(
-                                    log_file, TrainingCompleteInfo(msg.avg_loss)
+                                    log_file,
+                                    TrainingCompleteInfo(start_time, cur_time, avg_time_per_epoch, msg.avg_loss),
                                 )
                                 model_service.train_logs.increment_version(log_file)
                                 model_service.models.data_files.save_to(cfg.model_id, msg.model.state_dict())
@@ -144,15 +178,23 @@ async def training_thread(model_service: "ModelService"):
             except (KeyboardInterrupt, asyncio.CancelledError) as e:
                 if process is not None:
                     process.kill()
+
+                cur_time = get_time()
                 model_service.train_logs.data_files.save_to(
-                    log_file, TrainingFailedInfo("interrupted", "Training was interrupted in progress")
+                    log_file,
+                    TrainingFailedInfo(
+                        start_time or 0, cur_time, "interrupted", "Training was interrupted in progress"
+                    ),
                 )
                 model_service.train_logs.increment_version(log_file)
                 raise e
             except Exception as e:
                 if process is not None:
                     process.kill()
-                model_service.train_logs.data_files.save_to(log_file, TrainingFailedInfo("error", str(e)))
+                cur_time = get_time()
+                model_service.train_logs.data_files.save_to(
+                    log_file, TrainingFailedInfo(start_time or 0, cur_time, "error", str(e))
+                )
                 model_service.train_logs.increment_version(log_file)
                 received_last_msg = True
 
@@ -160,7 +202,7 @@ async def training_thread(model_service: "ModelService"):
             while not model_service.training_queue.empty():
                 log_file, cfg = model_service.training_queue.get_nowait()
                 model_service.train_logs.data_files.save_to(
-                    log_file, TrainingFailedInfo("interrupted", "Training was interrupted while queued")
+                    log_file, TrainingFailedInfo(0, 0, "interrupted", "Training was interrupted while queued")
                 )
                 model_service.train_logs.increment_version(log_file)
 
@@ -238,3 +280,7 @@ def train_model(
         import traceback
 
         traceback.print_exc()
+
+
+def get_time() -> int:
+    return int(time.time() * 1000)
