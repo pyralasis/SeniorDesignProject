@@ -88,14 +88,6 @@
 </script>
 
 <div class="edit-pipelines-page">
-    <a
-        href="/pipelines"
-        on:click={() => {
-            pipelineStore.saveActivePipeline();
-        }}
-    >
-        Back to Pipelines
-    </a>
     <div class="edit-pipelines-page__header">
         <div class="edit-pipelines-page__header-left">
             {#if $isEditingTitle}
@@ -150,7 +142,7 @@
 <style lang="scss">
     .edit-pipelines-page {
         width: 100%;
-        height: 100%;
+        height: calc(100% - 55px);
         box-sizing: border-box;
         overflow: hidden;
         &__header {

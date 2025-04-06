@@ -184,14 +184,6 @@
 </script>
 
 <div class="edit-architectures-page">
-    <a
-        href="/architectures"
-        on:click={() => {
-            architectureStore.saveActiveArchitecture();
-        }}
-    >
-        Back to Architectures
-    </a>
     <div class="edit-architectures-page__header">
         <div class="edit-architectures-page__header-left">
             {#if $isEditingTitle}
@@ -247,7 +239,7 @@
 <style lang="scss">
     .edit-architectures-page {
         width: 100%;
-        height: 100%;
+        height: calc(100% - 55px);
         box-sizing: border-box;
         overflow: hidden;
         &__header {

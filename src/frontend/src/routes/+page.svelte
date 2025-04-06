@@ -43,7 +43,7 @@
 
 <style lang="scss">
     .home-page {
-        height: 100%;
+        height: calc(100% - 55px);
         box-sizing: border-box;
         width: 100%;
         overflow: hidden;

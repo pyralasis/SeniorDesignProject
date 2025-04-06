@@ -403,6 +403,19 @@ const createPipelineStore = (): PipelineStore => {
             updateSaveStatus(false, PipelineStatusEnum.Failed);
         }
     };
+
+    const getPipelineNameById = async (id: PipelineId): Promise<string> => {
+        return await fetch(`${BACKEND_API_BASE_URL}/pipeline/meta/load?id=${id}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        return data.data.name;
+                    });
+    };
     return {
         set,
         update,
@@ -417,6 +430,7 @@ const createPipelineStore = (): PipelineStore => {
         deleteNodeFromActivePipeline,
         updateSaveStatus,
         updatePipelineSaveStatus,
+        getPipelineNameById,
     };
 };
 

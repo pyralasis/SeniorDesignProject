@@ -1,7 +1,7 @@
 from dataclasses import asdict, dataclass
 from typing import Literal, Optional
 
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 from quart import Blueprint, ResponseReturnValue, request
 from quart.views import MethodView
 from server.architecture.config import ArchitectureConfig
@@ -13,6 +13,7 @@ from server.util.file.blueprint import (
     AvailableFilesView,
     AvailableObjectsView,
     LoadObjectView,
+    ParseErrResponse,
     create_file_blueprint,
     create_object_blueprint,
 )
@@ -41,6 +42,7 @@ def create_model_blueprint(model_service: ModelService, architecture_service: Ar
     # Training
     bp_train = Blueprint("train", __name__)
     bp_train.add_url_rule("/start", view_func=TrainModelView.as_view("start", model_service))
+    bp_train.add_url_rule("/delete", view_func=DeleteTrainLogView.as_view("delete", model_service))
 
     # Train Objects
     bp_train.add_url_rule("/available", view_func=AvailableObjectsView.as_view(f"available", model_service.train_logs))
@@ -204,3 +206,51 @@ class GetDevicesView(MethodView):
 
     async def get(self) -> GetDevicesResponse:
         return self.service.available_devices()
+
+###
+### Train Model View
+###
+
+
+@dataclass
+class DeleteTrainLogRequestArgs:
+    id: FileId
+
+@dataclass
+class DeleteTrainSuccessResponse:
+    success: Literal[True] = True
+
+@dataclass
+class TrainInvalidIdError:
+    success: Literal[False] = False
+    error: Literal["invalid_id"] = "invalid_id"
+
+
+@dataclass
+class DeleteInProgressTrainError:
+    success: Literal[False] = False
+    error: Literal["delete_in_progress"] = "delete_in_progress"
+
+
+class DeleteTrainLogView(MethodView):
+    init_every_request = False
+
+    def __init__(self, model_service: ModelService):
+        self.service = model_service
+        self.adapter = TypeAdapter(DeleteTrainLogRequestArgs)
+
+    async def post(self) -> ResponseReturnValue:
+        try:
+            args = self.adapter.validate_python(request.args.to_dict())
+
+            if not self.service.train_logs.exists(args.id):
+                return asdict(TrainInvalidIdError()), 400
+
+            train_data = self.service.train_logs.get(args.id)
+            if train_data.content.data.status == "in_progress" or train_data.content.data.status == "queued":
+                return asdict(DeleteInProgressTrainError()), 400
+            
+            self.service.train_logs.delete(args.id)
+            return asdict(DeleteTrainSuccessResponse())
+        except ValidationError as err:
+            return asdict(ParseErrResponse(str(err))), 400

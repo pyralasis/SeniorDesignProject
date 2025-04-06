@@ -13,9 +13,10 @@ export const BackendApiRequestsEnum = {
     postDeleteArchitecture: `${BACKEND_API_BASE_URL}/architecture/delete`,
     getLoadArchitecture: `${BACKEND_API_BASE_URL}/architecture/load`,
     postSaveArchitecture: `${BACKEND_API_BASE_URL}/architecture/save`,
-    getAvailableTrainingModels: `${BACKEND_API_BASE_URL}/train/available`,
-    getTrainedModelByID: `${BACKEND_API_BASE_URL}/train/load`,
+    getAvailableTrainingModels: `${BACKEND_API_BASE_URL}/model/train/available`,
+    getTrainedModelByID: `${BACKEND_API_BASE_URL}/model/train/load`,
     getAvailableDevices: `${BACKEND_API_BASE_URL}/model/train/devices`,
+    deleteTrainingTaskByID:  `${BACKEND_API_BASE_URL}/model/train/delete`,
 } as const;
 
 export class BackendApi {
@@ -161,7 +162,7 @@ export class BackendApi {
     }
 
     //http://localhost:7777/api/model/train/available
-    static getAvailableTrainingModels() {
+    static getAvailableTrainingTasks() {
         return fetch(BackendApiRequestsEnum.getAvailableTrainingModels, {
             method: "Get",
             headers: {
@@ -176,7 +177,7 @@ export class BackendApi {
 
     //This calls the API
     //http://localhost:7777/api/model/train/load?Id={modelId}
-    static getTrainedModelByID(modelId: number) {
+    static getTrainingTaskByID(modelId: number) {
         return fetch(`${BackendApiRequestsEnum.getTrainedModelByID}?id=${modelId}`, {
             method: "GET",
             headers: {
@@ -200,5 +201,14 @@ export class BackendApi {
             .then((data) => {
                 return data;
             });
+    }
+
+    static deleteTrainingTaskByID(id: number) {
+        return fetch(`${BackendApiRequestsEnum.deleteTrainingTaskByID}?id=${id as number}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
     }
 }

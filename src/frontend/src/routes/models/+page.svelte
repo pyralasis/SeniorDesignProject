@@ -27,6 +27,7 @@
     import type { Parameter, ParameterValue } from "$lib/types/parameter";
     import NodeField from "$lib/components/Node/NodeParameter.svelte";
     import { BackendApi } from "$lib/utilities/api.utilities";
+    import { type TrainingConfig } from "$lib/stores/types/models-store.interface";
 
     let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
 
@@ -212,20 +213,22 @@
                     style={can_train ? StylingUtility.whiteBorderButton : DISABLED_BUTTON_STYLE}
                     on:click={can_train &&
                         (() => {
-                            modelStore.trainModel(
-                                $selectedModel.id,
-                                selectedSourceItem.value,
-                                { id: selectedLossItem.value.id, param_values: [] },
-                                { id: selectedOptimizerItem.value.id, param_values: $state.snapshot(parameters) },
-                                batch_value,
-                                true,
-                                epochs_value,
-                                selectedDeviceItem?.value,
-                                loader_workers[0],
-                                pin_memory,
-                                prefetch_factor[0],
-                                persistent_workers
-                            );
+                            let optim_param_values = $state.snapshot(parameters).map((x) => [x.parameter.id, x.value])
+                            let cfg: TrainingConfig = {
+                                model_id: $selectedModel.id,
+                                source_id: selectedSourceItem.value,
+                                loss_fn: { id: selectedLossItem.value.id, param_values: [] },
+                                optimizer: { id: selectedOptimizerItem.value.id, param_values: optim_param_values },
+                                shuffle_data: true,
+                                batch_size: batch_value,
+                                epochs: epochs_value,
+                                device: selectedDeviceItem?.value,
+                                loader_workers: loader_workers[0],
+                                pin_memory: pin_memory,
+                                prefetch_factor: prefetch_factor[0],
+                                persistent_workers: persistent_workers
+                            };
+                            modelStore.trainModel(cfg);
                         })}
                 >
                     Train
@@ -291,7 +294,7 @@
         flex-direction: column;
         justify-content: start;
         overflow: hidden;
-        height: 100%;
+        height: calc(100% - 55px);
         box-sizing: border-box;
         color: #ffffff;
 
@@ -301,7 +304,7 @@
             padding: 20px;
             padding-left: 64px;
             h1 {
-                font-size: 50px;
+                font-size: 44px;
                 font-weight: 500;
                 margin: 0;
             }
@@ -310,16 +313,18 @@
         &__top {
             display: flex;
             justify-content: space-between;
-            height: 75%;
+            flex-grow: 1;
             max-width: 1500px;
             margin: 64px auto;
         }
 
         &__bottom {
             display: flex;
+            justify-content: space-between;
             border-top: 1px solid #ffffff;
             padding: 32px 64px;
-            height: 35%;
+            height: 160px;
+            min-height: 160px;
         }
 
         &__bottom-left {
@@ -407,10 +412,6 @@
 
     .adv_settings {
         height: 34px;
-    }
-
-    .no-pipeline-found {
-        color: #c2c2c2;
     }
 
     .name-input {

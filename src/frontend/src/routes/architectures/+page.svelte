@@ -191,7 +191,7 @@
         flex-direction: column;
         justify-content: start;
         overflow: hidden;
-        height: 100%;
+        height: calc(100% - 55px);
         box-sizing: border-box;
         color: #ffffff;
 
@@ -201,16 +201,17 @@
             padding: 20px;
             padding-left: 64px;
             h1 {
-                font-size: 50px;
+                font-size: 44px;
                 font-weight: 500;
                 margin: 0;
             }
         }
 
+
         &__top {
             display: flex;
             justify-content: space-between;
-            height: 75%;
+            flex-grow: 1;
             max-width: 1500px;
             margin: 64px auto;
         }
@@ -220,7 +221,8 @@
             justify-content: space-between;
             border-top: 1px solid #ffffff;
             padding: 32px 64px;
-            height: 35%;
+            height: 160px;
+            min-height: 160px;
         }
 
         &__bottom-left {

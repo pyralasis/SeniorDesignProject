@@ -1,6 +1,6 @@
 import { BACKEND_API_BASE_URL } from "$lib/utilities/api.constants";
 import { writable } from "svelte/store";
-import type { AvailableModel, AvailableModelsResponse, LossConfig, ModelId, ModelInfoDescription, ModelMetaDescription, ModelStore, ModelStoreProps, OptimizerConfig, OptimizerParams } from "./types/models-store.interface";
+import type { AvailableModel, AvailableModelsResponse, LossConfig, ModelId, ModelInfoDescription, ModelMetaDescription, ModelStore, ModelStoreProps, OptimizerConfig, OptimizerParams, TrainingConfig } from "./types/models-store.interface";
 import type { MetaData } from "$lib/types/metadata";
 import type { ArchitectureId } from "$lib/types/architecture";
 import type { Parameter } from "$lib/types/parameter";
@@ -67,22 +67,7 @@ const createModelStore = (): ModelStore => {
     };
 
     const trainModel =
-        async (model_id: number,
-            source_id: number,
-            loss: LossConfig,
-            optimizer: OptimizerConfig,
-            batch_size: number,
-            shuffle_data: boolean,
-            epochs: number,
-            device: string,
-            loader_workers: number,
-            pin_memory: boolean,
-            prefetch_factor: number,
-            persistent_workers: boolean
-        ): Promise<void> => {
-            // debugger;
-            let opt_conf_params = optimizer.param_values.map((x) => [x.parameter.id, x.value]);
-
+        async (cfg: TrainingConfig): Promise<void> => {
             await fetch(`${BACKEND_API_BASE_URL}/model/train/start`, {
                 method: 'post',
                 headers: {
@@ -90,23 +75,8 @@ const createModelStore = (): ModelStore => {
                 },
                 body: JSON.stringify({
                     meta: {},
-                    config:
-                    {
-                        model_id: model_id,
-                        source_id: source_id,
-                        loss_fn: { id: loss.id, param_values: [] },
-                        optimizer: { id: optimizer.id, param_values: opt_conf_params },
-                        batch_size: batch_size,
-                        shuffle_data: shuffle_data,
-                        epochs: epochs,
-                        device: device,
-                        loader_workers: loader_workers,
-                        pin_memory: pin_memory,
-                        prefetch_factor: prefetch_factor,
-                        persistent_workers: persistent_workers
-                    }
-                }
-                ),
+                    config: cfg,
+                }),
             })
         };
 
@@ -144,8 +114,20 @@ const createModelStore = (): ModelStore => {
             });
     };
 
+    const getModelNameById = async (id: ModelId): Promise<string> => {
+        return await fetch(`${BACKEND_API_BASE_URL}/model/meta/load?id=${id}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        return data.data.name;
+                    });
+    };
     return {
-        set, update, subscribe, createModel, getAvailableModels, loadModelById, deleteModel, trainModel, getAvailableLosses, getAvailableOptimizers
+        set, update, subscribe, createModel, getAvailableModels, loadModelById, deleteModel, trainModel, getAvailableLosses, getAvailableOptimizers, getModelNameById
     };
 }
 

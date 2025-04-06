@@ -38,6 +38,7 @@ export interface PipelineStore extends Writable<PipelineStoreProps> {
     deleteNodeFromActivePipeline: (id: string) => void;
     updatePipelineSaveStatus: () => void;
     updateSaveStatus: (isSaved: boolean, status: PipelineStatusEnum) => void;
+    getPipelineNameById: (id: PipelineId) => Promise<string>;
 }
 
 export type AvailablePipelinesResponse = {

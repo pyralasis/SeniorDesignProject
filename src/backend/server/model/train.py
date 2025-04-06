@@ -127,10 +127,14 @@ async def training_thread(model_service: "ModelService"):
                     **get_params_dict(cfg.loss_fn.param_values)
                 )
 
+                # asyncio.to_thread()
                 process = mp.Process(
                     target=train_model, args=(model, optimizer, criterion, loader, cfg.epochs, cfg.device, msg_queue)
                 )
-                process.start()
+
+                await asyncio.to_thread(process.start)
+
+
                 start_time = get_time()
 
                 model_service.train_logs.data_files.save_to(log_file, TrainingInProgressInfo(start_time, 0, 0, 10000))
