@@ -7,7 +7,7 @@ nll_loss = LossDefinition(
     "nll_loss",
     "Negative Log Likelihood Loss",
     (),
-    lambda **params: torch.nn.NLLLoss(**params),
+    lambda **params: torch.nn.NLLLoss(**params, reduction="sum"),
 )
 
 # Cross Entropy

@@ -20,6 +20,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
+import PIL.Image
 import numpy as np
 import torch
 import torch.nn as nn
@@ -38,6 +39,12 @@ from server.layer.service import LayerService
 from server.model.service import ModelService
 from server.util.file.file import FileId
 from server.util.file.object import ObjectDescription
+from torchvision import datasets, transforms
+
+
+transform=transforms.Compose([
+        transforms.Normalize((0.1307,), (0.3081,))
+        ])
 
 layer_service = LayerService(default_layers)
 data_service = DataService(Path("./"), default_sources, default_transforms)
@@ -132,11 +139,10 @@ async def infer(request: InferenceRequest):
 
         # Convert to tensor and add batch and channel dimensions
         image_tensor = torch.FloatTensor(image_array).unsqueeze(0).unsqueeze(0)
-
+        image_tensor = transform(image_tensor)
         # Run inference
         with torch.no_grad():
             output = model([image_tensor])
-            print(output)
             prediction = output.argmax(dim=1).item()
 
         logger.info(f"Inference completed. Prediction: {prediction}")

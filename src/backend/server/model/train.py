@@ -2,7 +2,7 @@ import asyncio
 import time
 from dataclasses import dataclass
 from queue import Empty
-from typing import TYPE_CHECKING, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal, OrderedDict, TypeAlias
 
 import torch
 import torch.multiprocessing as mp
@@ -167,7 +167,7 @@ async def training_thread(model_service: "ModelService"):
                                     TrainingCompleteInfo(start_time, cur_time, avg_time_per_epoch, msg.avg_loss),
                                 )
                                 model_service.train_logs.increment_version(log_file)
-                                model_service.models.data_files.save_to(cfg.model_id, msg.model.state_dict())
+                                model_service.models.data_files.save_to(cfg.model_id, msg.model)
                                 model_service.models.increment_version(cfg.model_id)
                                 received_last_msg = True
                                 process.join()
@@ -215,7 +215,7 @@ async def training_thread(model_service: "ModelService"):
 @dataclass
 class TrainingFinishedMsg(Loadable):
     avg_loss: float
-    model: nn.Module
+    model: dict[str, Any]
     type: Literal["finished"] = "finished"
 
 
@@ -272,8 +272,8 @@ def train_model(
 
             avg_loss = total_loss / len(loader)
             msg_queue.put(EpochCompleteMsg(epoch + 1, avg_loss))
-
-        msg_queue.put(TrainingFinishedMsg(avg_loss, model))
+        model=model.to(torch.device("cpu"))
+        msg_queue.put(TrainingFinishedMsg(avg_loss, model.state_dict()))
     except Exception as e:
         msg_queue.put(TrainingFailureMsg("error", str(e)))
         import traceback
