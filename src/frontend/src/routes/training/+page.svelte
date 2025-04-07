@@ -17,7 +17,6 @@
     import { BackendApi } from "$lib/utilities/api.utilities";
     import { StylingUtility } from "$lib/utilities/styling.utility";
     import { Button } from "kiwi-nl";
-    import { Icon } from "lucide-svelte";
 
     let selectedTask: TrainingTaskContent | undefined = $state(undefined);
 
@@ -77,9 +76,10 @@
             proportion: 2,
         },
         {
-            name: "Dataset",
+            name: "Average Loss",
             get_val: async (task) => {
-                return await pipelineStore.getPipelineNameById(task.config.source_id);
+                let status = task.data as CompleteTrainingStatus;
+                return status.avg_loss.toFixed(4)
             },
             min_width: "200px",
             proportion: 2,
@@ -88,7 +88,7 @@
             name: "Current Epoch",
             get_val: async (task) => {
                 let status = task.data as InProgressTrainingStatus;
-                return status.epoch.toString();
+                return status.epoch.toString() + " / " + task.config.epochs.toString();
             },
             min_width: "200px",
             proportion: 2,
@@ -98,7 +98,7 @@
             get_val: async (task) => {
                 let status = task.data as InProgressTrainingStatus;
                 let avg = status.avg_time_per_epoch;
-                console.log(avg);
+                // console.log(avg);
                 if (avg < 1000) {
                     return avg.toString() + " ms";
                 } else if (avg < 60000) {
@@ -128,20 +128,44 @@
         //     min_width: "200px",
         //     proportion: 2,
         // },
+        // {
+        //     name: "Start Time",
+        //     get_val: async (task) => {
+        //         let status = task.data as CompleteTrainingStatus;
+        //         return ms_to_time(status.start_time);
+        //     },
+        //     min_width: "200px",
+        //     proportion: 2,
+        // },
+        // {
+        //     name: "Completed Time",
+        //     get_val: async (task) => {
+        //         let status = task.data as CompleteTrainingStatus;
+        //         return ms_to_time(status.end_time);
+        //     },
+        //     min_width: "200px",
+        //     proportion: 2,
+        // },
         {
-            name: "Start Time",
+            name: "Average Loss",
             get_val: async (task) => {
                 let status = task.data as CompleteTrainingStatus;
-                return ms_to_time(status.start_time);
+                return status.avg_loss.toFixed(4)
             },
             min_width: "200px",
             proportion: 2,
         },
         {
-            name: "Completed Time",
+            name: "Training Duration",
             get_val: async (task) => {
                 let status = task.data as CompleteTrainingStatus;
-                return ms_to_time(status.end_time);
+                let elapsed = status.end_time - status.start_time;
+                if (elapsed < 1000) {
+                    return elapsed.toString() + " ms";
+                } else if (elapsed < 60000) {
+                    return (elapsed / 1000).toFixed(2) + " secs";
+                }
+                return (elapsed / 1000 / 60).toFixed(2) + " mins";
             },
             min_width: "200px",
             proportion: 2,
