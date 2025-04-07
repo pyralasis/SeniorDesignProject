@@ -16,7 +16,6 @@
     const rightConnected: Writable<boolean> = data?.rightConnected as Writable<boolean>;
     const rightStatus: Writable<HandleStatus> = data?.rightStatus as Writable<HandleStatus>;
     let sizeDimensions = writable<number>($outputSize.length);
-
     function toggleConnection(connected: boolean) {
         $rightConnected = connected;
     }
@@ -84,6 +83,7 @@
             maxlength={2}
             inputamount={$sizeDimensions}
             value={$outputSize}
+            type="digit"
         />
     </div>
 </div>

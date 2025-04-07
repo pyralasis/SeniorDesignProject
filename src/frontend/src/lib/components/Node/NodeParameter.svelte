@@ -7,11 +7,13 @@
     export let value: ParameterValue<any>;
     export let onChange: (value: ParameterValue<any>) => void = () => {};
 
+    const initialValue = value.val;
+    
     function updateValue(event: CustomEvent, type: ParameterType) {
         value.type = type;
         value.val = event.detail.value;
     }
-    const initialValue = value.val;
+
 </script>
 
 <div class="node-field">
@@ -27,6 +29,7 @@
             style={StylingUtility.textInput}
             label={parameter.name}
             bind:value={value.val}
+            type="digit"
             on:change={(event) => updateValue(event, ParameterTypeEnum.Int)}
         />
     {:else if parameter.type === ParameterTypeEnum.Float}
@@ -34,6 +37,7 @@
             style={StylingUtility.textInput}
             label={parameter.name}
             bind:value={value.val}
+            type="digit"
             on:change={(event) => updateValue(event, ParameterTypeEnum.Float)}
         />
     {:else if parameter.type === ParameterTypeEnum.String}
@@ -49,6 +53,7 @@
             label={parameter.name}
             maxlength={2}
             inputamount={2}
+            type="digit"
             bind:value={value.val}
             on:change={(event) => updateValue(event, ParameterTypeEnum.Size2D)}
         />
