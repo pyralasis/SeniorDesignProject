@@ -2,13 +2,14 @@ import asyncio
 import os
 
 from quart_cors import cors
-from server.app import create_app
+from server.app import create_app, create_default_services
 from server.util.tools import get_routes, print_routes
 
 
 async def main():
     # type:ignore
-    app_no_cors = await create_app()
+    services = create_default_services()
+    app_no_cors = await create_app(services)
     app = cors(app_no_cors)
 
     if True:

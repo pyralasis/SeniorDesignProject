@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from os import getenv
 from pathlib import Path
 
@@ -19,9 +20,15 @@ DEFAULT_PATHS = {
 }
 
 
-async def create_app():
-    app = Quart(__name__)
+@dataclass
+class Services:
+    layer: LayerService
+    architecture: ArchitectureService
+    data: DataService
+    model: ModelService
 
+
+def create_default_services() -> Services:
     layer_service = LayerService(default_layers)
     architecture_service = ArchitectureService(Path(getenv("ARCHITECTURES_PATH", DEFAULT_PATHS["architectures"])))
     data_service = DataService(Path(getenv("DATA_PATH", DEFAULT_PATHS["data"])), default_sources, default_transforms)
@@ -32,11 +39,23 @@ async def create_app():
         Path(getenv("MODELS_PATH", DEFAULT_PATHS["models"])),
         Path(getenv("TRAIN_PATH", DEFAULT_PATHS["train"])),
     )
-    await model_service.start_training_task()
+
+    return Services(
+        layer=layer_service,
+        architecture=architecture_service,
+        data=data_service,
+        model=model_service,
+    )
+
+
+async def create_app(services: Services):
+    app = Quart(__name__)
+
+    await services.model.start_training_task()
 
     # These are where the API endpoints are registered
     app.register_blueprint(
-        create_api_blueprint(architecture_service, layer_service, data_service, model_service),
+        create_api_blueprint(services.architecture, services.layer, services.data, services.model),
         url_prefix="/api",
     )
 

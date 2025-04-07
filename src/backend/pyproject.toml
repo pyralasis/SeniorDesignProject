@@ -2,3 +2,19 @@
 spaces_before_comment = 4
 split_before_logical_operator = true
 column_limit = 120
+
+[build-system]
+requires = ["setuptools>=42.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Backend service for Senior Design Project"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+dependencies = []
+
+[tool.setuptools]
+packages = ["server"]

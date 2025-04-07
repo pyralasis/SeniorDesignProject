@@ -94,12 +94,7 @@ async def training_thread(model_service: "ModelService"):
                 msg_queue = mp.Queue()
 
                 # Load the model
-                model_obj = model_service.models.get(cfg.model_id)
-                model = ArchitectureModel.create_from_architecture(
-                    model_obj.content.architecture,
-                    model_service.layer_service,
-                )
-                model.load_state_dict(model_obj.content.data)
+                model = model_service.load_model(cfg.model_id)
 
                 # Load the data
                 value_source, label_source = model_service.data_service.config_to_sources(
@@ -133,7 +128,6 @@ async def training_thread(model_service: "ModelService"):
                 )
 
                 await asyncio.to_thread(process.start)
-
 
                 start_time = get_time()
 

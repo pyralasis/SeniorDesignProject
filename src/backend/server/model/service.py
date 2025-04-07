@@ -91,6 +91,15 @@ class ModelService:
 
         return model_id
 
+    def load_model(self, id: FileId):
+        model_obj = self.models.get(id)
+        model = ArchitectureModel.create_from_architecture(
+            model_obj.content.architecture,
+            self.layer_service,
+        )
+        model.load_state_dict(model_obj.content.data)
+        return model
+
     async def add_to_training_queue(self, cfg: TrainingConfig, meta: MetaData) -> FileId:
         log_id = self.train_logs.create(TrainLogObject(meta, TrainingQueuedInfo(get_time()), cfg))
         await self.training_queue.put((log_id, cfg))
