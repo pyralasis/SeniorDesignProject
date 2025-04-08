@@ -49,7 +49,7 @@ transform=transforms.Compose([
 layer_service = LayerService(default_layers)
 data_service = DataService(Path("./"), default_sources, default_transforms)
 architecture_service = ArchitectureService(Path("./"))
-model_service = ModelService(layer_service, data_service, architecture_service, Path("./models"), Path("./"))
+model_service = ModelService(layer_service, data_service, architecture_service, Path("../backend/models"), Path("./"))
 
 
 # Set up logging
