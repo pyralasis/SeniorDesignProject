@@ -109,7 +109,8 @@
                     on:popoverItemsChanged={(evt) => {
                         selected_model = evt.detail.selectedItems[0];
                         if (selected_model !== undefined) {
-                            ApiUtility.load_model(selected_model.value as number);
+                                ApiUtility.load_model(Number(selected_model.value));
+
                         }
                     }}
                 >
@@ -130,7 +131,6 @@
         ></canvas>
         <!-- Control buttons -->
         <div class="buttons">
-            <Button on:click={submitDrawing} style={StylingUtility.whiteBorderButton}>Submit</Button>
             <Button on:click={clearCanvas} style={StylingUtility.redButton}>Clear</Button>
         </div>
         <!-- Display the prediction from the WebSocket -->
