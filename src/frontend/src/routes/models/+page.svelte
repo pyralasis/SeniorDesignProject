@@ -16,6 +16,7 @@
     FlyoutSideEnum,
     Checkbox,
     InputSeries,
+    Toast,
   } from "kiwi-nl";
   import { modelStore } from "$lib/stores/ModelStore";
   import { onMount, setContext } from "svelte";
@@ -31,6 +32,7 @@
   import { IconNameEnum } from "$lib/components/Icon/types/icon-name.enum";
 
   let selectedModel: Writable<AvailableModel | undefined> = writable(undefined);
+  let trainingStartedToast: any;
 
   let parameters: { parameter: Parameter<any>; value: ParameterValue<any> }[] =
     $state([]);
@@ -305,6 +307,7 @@
                   persistent_workers: persistent_workers,
                 };
                 modelStore.trainModel(cfg);
+                trainingStartedToast.addToast();
               })}
           >
             Train
@@ -401,6 +404,13 @@
     </div>
   </Flyout>
 </div>
+<Toast
+  type="info"
+  title={"Started Training " + $selectedModel?.meta?.name}
+  bind:this={trainingStartedToast}
+>
+  <a href="/training" class="toast-link">Go to Training Page</a>
+</Toast>
 
 <style lang="scss">
   .model-page {
@@ -556,5 +566,11 @@
     align-items: center;
     height: 100%;
     box-sizing: border-box;
+  }
+
+  .toast-link {
+    color: #ffffff;
+    font-weight: 400;
+    font-size: 10px;
   }
 </style>
