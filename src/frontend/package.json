@@ -1,41 +1,41 @@
 {
-	"name": "smart-interface",
-	"version": "0.0.1",
-	"private": true,
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"lint": "prettier --check .",
-		"format": "prettier --write ."
-	},
-	"devDependencies": {
-		"@sveltejs/adapter-auto": "^3.3.1",
-		"@sveltejs/adapter-static": "^3.0.5",
-		"@sveltejs/kit": "^2.15.1",
-		"@sveltejs/vite-plugin-svelte": "^5.0.3",
-		"@types/lodash": "^4.17.15",
-		"@types/node": "^22.12.0",
-		"prettier": "^3.1.1",
-		"prettier-plugin-svelte": "^3.1.2",
-		"sass-embedded": "^1.80.0",
-		"svelte": "^5.1.6",
-		"vite": "^6.0.7"
-	},
-	"type": "module",
-	"dependencies": {
-		"@popperjs/core": "^2.11.8",
-		"@xyflow/svelte": "^0.1.25",
-		"dotenv": "^16.4.5",
-		"file-saver": "^2.0.5",
-		"flowbite": "^3.1.2",
-		"flowbite-svelte": "^0.48.4",
-		"fs": "^0.0.1-security",
-		"gh-pages": "^6.1.1",
-		"gsap": "^3.12.7",
-		"kiwi-nl": "^2.1.6",
-		"lodash": "^4.17.21",
-		"lucide-svelte": "^0.476.0",
-		"save-as": "^0.1.8"
-	}
+  "name": "smart-interface",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^3.3.1",
+    "@sveltejs/adapter-static": "^3.0.5",
+    "@sveltejs/kit": "^2.15.1",
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "@types/lodash": "^4.17.15",
+    "@types/node": "^22.12.0",
+    "prettier": "^3.1.1",
+    "prettier-plugin-svelte": "^3.1.2",
+    "sass-embedded": "^1.80.0",
+    "svelte": "^5.1.6",
+    "vite": "^6.0.7"
+  },
+  "type": "module",
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "@xyflow/svelte": "^0.1.25",
+    "dotenv": "^16.4.5",
+    "file-saver": "^2.0.5",
+    "flowbite": "^3.1.2",
+    "flowbite-svelte": "^0.48.4",
+    "fs": "^0.0.1-security",
+    "gh-pages": "^6.1.1",
+    "gsap": "^3.12.7",
+    "kiwi-nl": "^2.1.7",
+    "lodash": "^4.17.21",
+    "lucide-svelte": "^0.476.0",
+    "save-as": "^0.1.8"
+  }
 }

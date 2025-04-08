@@ -1,26 +1,28 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Check</title>
+    <link rel="icon" href="%sveltekit.assets%/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    %sveltekit.head%
+  </head>
 
-<head>
-	<meta charset="utf-8" />
-	<title>Check</title>
-	<link rel="icon" href="%sveltekit.assets%/logo.svg" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	%sveltekit.head%
-</head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+  <style>
+    head {
+      font-family: "Teko", sans-serif;
+    }
 
-<body data-sveltekit-preload-data="hover">
-	<div style="display: contents">%sveltekit.body%</div>
-</body>
-<style>
-	head {
-		font-family: 'Teko', sans-serif;
-	}
+    body {
+      margin: 0;
+      height: 100vh;
+    }
 
-	body {
-		margin: 0;
-		height: 100vh;
-	}
-</style>
-
+    :root {
+      --color-text-primary: #fff;
+    }
+  </style>
 </html>
