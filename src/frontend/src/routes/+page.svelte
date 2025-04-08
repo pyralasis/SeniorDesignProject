@@ -1,15 +1,44 @@
 <script lang="ts">
     import Logo from '$lib/assets/logo-5.svg';
+    import Spinner from '$lib/components/Spinner/Spinner.svelte';
+    import HomeIcon from '$lib/components/Icon/HomeIcon.svelte';
+    let logoClicked = false;
 </script>
 
 <div class="home-page">
     <div class="content">
-        <div class="left-container">
-            <img src={Logo} alt="Home Page" />
-        </div>
+                <div class="left-container">
+                    <button>
+                        
+
+                    {#if logoClicked}
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <div
+                        class="logo"
+                        aria-label="Close spinner"
+                        on:click={() => logoClicked = false}
+                        style="background: none; border: none; cursor: pointer; transform: scale(7); transform-origin: center;"
+                        >
+                            <Spinner/>
+                        </div>
+                    {:else}
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <div
+                        class="logo"
+                        aria-label="Open logo spinner"
+                        on:click={() => logoClicked = true}
+                        style="border: none; cursor: pointer; align "
+                        >
+                            <HomeIcon size={252}/>
+                        </div>
+                    {/if}
+                </div>
+
         <div class="right-container">
             <a href="/architectures">
-                <h1>Architectures</h1>
+                <h1>Architectuures</h1>
                 <p>
                     An Architecture is the blueprint of your neural network, composed of layers with specific parameters and connections
                     that determine how data flows through the system.
@@ -43,7 +72,7 @@
 
 <style lang="scss">
     .home-page {
-        height: calc(100% - 55px);
+        height: 100%;
         box-sizing: border-box;
         width: 100%;
         overflow: hidden;
@@ -72,10 +101,6 @@
         width: 50%;
     }
 
-    img {
-        width: 321px;
-    }
-
     a {
         width: 100%;
         text-decoration: none;
@@ -92,24 +117,19 @@
             h1 {
                 color: #fe2e00;
             }
-            p,
-            strong {
+            p {
                 opacity: 1;
                 visibility: visible;
                 font-size: 20px;
             }
-            .supported-layers {
-                opacity: 1; /* Fade in */
-                visibility: visible;
-            }
+
         }
         h1 {
             font-size: 24px;
             color: #ffffff;
             margin: 0;
         }
-        p,
-        strong {
+        p {
             opacity: 0;
             visibility: hidden;
             transition:
@@ -118,17 +138,6 @@
             color: #ffffff;
             padding-right: 300px;
         }
-        .supported-layers {
-            opacity: 0;
-            visibility: hidden;
-            transition:
-                opacity 0.3s ease,
-                visibility 0.5s ease;
-            color: #ffffff;
-            font-size: 16px;
-        }
-        .supported-layers li {
-            margin-bottom: 4px;
-        }
     }
+
 </style>
