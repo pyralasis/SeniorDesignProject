@@ -1,19 +1,24 @@
 # Pipelines
+
+A pipeline is a representation of the data going into your neural network. It is composed of labels and values. There are also transforms for manipulating the data.
+
+## Creating a Pipeline
+
+Click the create button.
+Fill in the Name and Description boxes.
+Click Create.
+
+PICTURE OF PIPELINE CREATION WITH FILLED IN TEXT BOXES
+
 ## Selecting an Pipeline
 
-Click 'Select Pipeline' via the 'Pipeline' button on the navigation bar. Once on the 'Pipeline' page you can create a new Pipeline or you can select an existing one. 
+Click an existing pipeline.
+Click open in editor.
+
+PICTURE OF SELECTED PIPELINE
 
 ## Using the Pipeline Editor
 
 You can create and edit your Pipeline through the Pipeline Editor. The Editor allows you to drag and configure your data into layers so you can eventually train the model with the data you're passing through.
 
-
-## Note
-
-We haven't fully finished this part of the project, so we don't have a clear image of how to use the pipeline page.
-
-
-
-
-
- 
+PICTURE OF CREATED PIPELINE
