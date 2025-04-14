@@ -11,3 +11,9 @@ For back-end testing, we created a series of postman tests, which we manually ra
 ![image](https://github.com/user-attachments/assets/e8bfebcd-104a-4b1d-b2d0-dbeda3d434f1)
 
 By the end of our project, we had created 15 of theses tests and all 15 passed.
+
+## Front-end
+
+For front-end testing we conducted manual testing upon adding new features to ensure there were no regressions. We did this testing for major front-end changes as well as API changes with the back-end.
+
+By the end, we had a working front-end that successfully worked with no major bugs.
