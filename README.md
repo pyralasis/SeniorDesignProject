@@ -20,7 +20,7 @@ This project is a web interface that allows the user to train, test, and use neu
 
 - #### [Test Plan and Results](https://github.com/pyralasis/SeniorDesignProject/blob/main/Testing%20and%20Results.md)
 
-- #### [User Manual](https://github.com/pyralasis/SeniorDesignProject/blob/main/User%20Manual/Main.md)
+- #### [User Manual](https://github.com/pyralasis/SeniorDesignProject/tree/main/User%20Manual)
 
 - #### [Spring Presentation](https://docs.google.com/presentation/d/141edAaBxRUM8S1l3F08-8b7pLQNYeFp4M8CgQbTlMbg/)
 
