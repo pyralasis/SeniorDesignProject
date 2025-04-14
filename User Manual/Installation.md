@@ -26,13 +26,13 @@ Alternatively, you can build the Docker image with the following command:
 docker build -t sdp .
 ```
 
-Building in docker will restrict dependencies to the container, so you will not need to install any dependencies on your host machine.
+This handles all dependency setup. Building in docker will restrict dependencies to the container, so you will not need to install any dependencies on your host machine.
 You can then run the Docker container with the following command:
 
 ```bash
-docker run -it --rm  -v $(pwd):/app -w /app sdp
+docker run -it --rm --gpus:all -v $(pwd):/app -w /app sdp
 ```
-
+_*Omit `--gpus:all` if you do not have a GPU setup on your local machine._
 Once you are in the container, you can run the following command to start the frontend and backend:
 
 ```bash
@@ -43,7 +43,7 @@ npm start
 
 I have included a `.devcontainer` directory that can be used with [Visual Studio Code](https://code.visualstudio.com/). This will allow you to develop in a containerized environment. You can find more information on how to use this [here](https://code.visualstudio.com/docs/remote/containers).
 
-### Running the app
+#### Testing the App
 
 To run the app, make sure all the dependencies are installed. Then, from the `src` directory, run the following command:
 
