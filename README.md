@@ -68,7 +68,7 @@ Our project had no expenses.
 [Main Project Repo](https://github.com/pyralasis/SeniorDesignProject/tree/main)
 [kiwi component library](https://github.com/Nate-Louder/kiwi)
 
-**Figma Link**
+**Figma Link**:
 [Figma](https://www.figma.com/design/BoLnRORyGomz3sUFlLOOzk/Senior-Front-end-Design?node-id=0-1&p=f&t=VVRexctC4xtQmlEG-0)
 
 
