@@ -17,12 +17,19 @@ This project is a web interface that allows the user to train, test, and use neu
 - #### [Milestones, Timeline, and Effort Matrix](https://github.com/pyralasis/SeniorDesignProject/blob/main/Milestones.md)
 - #### [ABET Concerns/Constraints](https://github.com/pyralasis/SeniorDesignProject/blob/main/Constraints%20Essay.pdf)
 - #### [Project Overview Slideshow](https://docs.google.com/presentation/d/1bIvIAZtAevQ4dyUo2utNE_HDR_ljwRWwsb-eQXItnAw/edit)
-### Self Assessment Essays
+### Self Assessment Essays (First Semester)
 - #### [Nate Louder](https://github.com/pyralasis/SeniorDesignProject/blob/main/essays/nathaniel-self-assessment.pdf)
 - #### [Josh Lewis](https://github.com/pyralasis/SeniorDesignProject/blob/main/essays/Josh%20Lewis-Essay.pdf)
 - #### [Jimmy German](https://github.com/pyralasis/SeniorDesignProject/blob/main/essays/German-Capstone.pdf)
 - #### [Gareth Fultz](https://github.com/pyralasis/SeniorDesignProject/blob/main/essays/FultzAssignment3.pdf)
 - #### [Calvin Kinateder](https://github.com/pyralasis/SeniorDesignProject/blob/main/essays/calvin-essay.pdf)
+
+### Self Assessment Essays (Second Semester)
+- #### [Nate Louder]()
+- #### [Josh Lewis](https://github.com/pyralasis/SeniorDesignProject/blob/main/self-assessments/Josh.md)
+- #### [Jimmy German]()
+- #### [Gareth Fultz]()
+- #### [Calvin Kinateder]()
 
 ### Professional Biographies
 - #### [Nate Louder](https://github.com/pyralasis/SeniorDesignProject/blob/main/professional-bios/nate-louder-bio.md)
