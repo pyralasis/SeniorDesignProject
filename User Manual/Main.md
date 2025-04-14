@@ -1,6 +1,6 @@
-# User Manual for TITLE
+# User Manual for Check
 
-DESCRIPTION GOES HERE I GUESS
+Check is a node based editor for creating neural networks.
 
 # Quick Links
 
@@ -27,4 +27,4 @@ DESCRIPTION GOES HERE I GUESS
 
 ## [Pipelines](./Pipelines.md)
 
-## [Models](./Models.md)
+## [Models and Training](./Models.md)
