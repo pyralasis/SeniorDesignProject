@@ -27,10 +27,14 @@ Check is a node based editor for creating neural networks.
 
 ## [Pipelines](./Pipelines.md)
 [What is a Pipeline](https://github.com/pyralasis/SeniorDesignProject/blob/main/User%20Manual/Pipelines.md#pipelines)
+
 [Creating a Pipeline](https://github.com/pyralasis/SeniorDesignProject/blob/main/User%20Manual/Pipelines.md#creating-a-pipeline)
+
 [Selecting a Pipeline](https://github.com/pyralasis/SeniorDesignProject/blob/main/User%20Manual/Pipelines.md#selecting-an-pipeline)
+
 [Using Pipeline Editor](https://github.com/pyralasis/SeniorDesignProject/blob/main/User%20Manual/Pipelines.md#selecting-an-pipeline)
 
 ## [Models and Training](./Models.md)
 [What Is a Model](https://github.com/pyralasis/SeniorDesignProject/blob/main/User%20Manual/Models.md#what-is-a-model)
+
 [Usage](https://github.com/pyralasis/SeniorDesignProject/blob/main/User%20Manual/Models.md#usage)
