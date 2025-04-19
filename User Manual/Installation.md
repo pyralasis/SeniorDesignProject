@@ -53,3 +53,22 @@ QUART_DEBUG=1 python backend/run.py
 
 This will start the Quart server and you can access the app at `http://localhost:7777`. You can also see all the routes by setting the `QUART_DEBUG` environment variable to `1` (as shown above).
 
+## Demo Application
+
+To run the demo application, navigate to the `src/demo-backend` directory and run the following commands:
+
+```bash
+pip install -r requirements.txt
+python mnist_inference_api.py
+```
+
+This will start the backend server.
+
+To run the frontend, navigate to the `src/demo-frontend` directory and run the following command:
+
+```bash
+npm install
+npm run dev
+```
+
+This will start the frontend and you can access the demo application at `http://localhost:5174`.

@@ -35,7 +35,7 @@
 
         <div class="right-container">
             <a href="/architectures">
-                <h1>Architectuures</h1>
+                <h1>Architectures</h1>
                 <p>
                     An Architecture is the blueprint of your neural network, composed of layers with specific parameters and connections
                     that determine how data flows through the system.
